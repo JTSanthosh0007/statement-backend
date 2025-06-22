@@ -672,7 +672,7 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
                         <p className="text-sm text-gray-400">{app.description}</p>
         </div>
                       <div className="text-sm text-gray-400 capitalize">
-                        {app.category}
+                        {(app.category || 'uncategorized').toUpperCase()}
               </div>
                           </div>
                         </div>
