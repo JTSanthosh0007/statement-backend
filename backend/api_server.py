@@ -103,42 +103,29 @@ async def analyze_phonepe_statement(
         file_obj = FileObject(file.filename, content)
         
         try:
-            # Use the general parser but with PhonePe-specific handling
+            # Use the general parser for now
             parser = StatementParser(file_obj)
+            df = parser.parse()
             
-            # For debugging, return some basic info about the file
+            # Convert to dictionary format
+            transactions = df.to_dict('records')
+            
+            # Calculate summary statistics
+            total_spent = sum(t['amount'] for t in transactions if t['amount'] < 0)
+            total_received = sum(t['amount'] for t in transactions if t['amount'] > 0)
+            
+            # Calculate category breakdown
+            category_breakdown = {}
+            for t in transactions:
+                if t['amount'] < 0:  # Only consider spending
+                    category = t['category']
+                    category_breakdown[category] = category_breakdown.get(category, 0) + t['amount']
+            
             return {
-                "message": "PhonePe statement received",
-                "filename": file.filename,
-                "filesize": len(content),
-                "status": "processing",
-                # Sample data for frontend testing
-                "transactions": [
-                    {
-                        "date": "2024-06-22",
-                        "amount": -500.0,
-                        "description": "Payment to Merchant",
-                        "category": "Shopping"
-                    },
-                    {
-                        "date": "2024-06-21",
-                        "amount": -200.0,
-                        "description": "Food Order",
-                        "category": "Food & Dining"
-                    },
-                    {
-                        "date": "2024-06-20",
-                        "amount": 1000.0,
-                        "description": "Received from Friend",
-                        "category": "Transfer"
-                    }
-                ],
-                "totalSpent": -700.0,
-                "totalReceived": 1000.0,
-                "categoryBreakdown": {
-                    "Shopping": -500.0,
-                    "Food & Dining": -200.0
-                }
+                "transactions": transactions,
+                "totalSpent": total_spent,
+                "totalReceived": total_received,
+                "categoryBreakdown": category_breakdown
             }
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error processing PhonePe statement: {str(e)}")

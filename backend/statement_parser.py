@@ -40,6 +40,15 @@ class StatementParser:
                 pdf_reader = PyPDF2.PdfReader(self.file_path)
                 num_pages = len(pdf_reader.pages)
                 logger.info(f"PDF has {num_pages} pages")
+                
+                # Check if this is a PhonePe statement by looking for specific keywords
+                first_page_text = pdf_reader.pages[0].extract_text() if num_pages > 0 else ""
+                is_phonepe = any(keyword in first_page_text.lower() for keyword in ['phonepe', 'phone pe', 'statement of transactions'])
+                
+                if is_phonepe:
+                    logger.info("Detected PhonePe statement format")
+                    return self._parse_phonepe_pdf(pdf_reader)
+                    
             except Exception as e:
                 logger.error(f"PDF validation error: {str(e)}")
                 return pd.DataFrame({
@@ -157,6 +166,114 @@ class StatementParser:
                 'amount': [0.0],
                 'category': ['Others']
             })
+            
+    def _parse_phonepe_pdf(self, pdf_reader):
+        """Special handling for PhonePe statement format"""
+        logger.info("Using PhonePe specific parser")
+        all_transactions = []
+        
+        try:
+            # Extract text from all pages
+            all_text = ""
+            for page_num in range(len(pdf_reader.pages)):
+                page_text = pdf_reader.pages[page_num].extract_text()
+                all_text += page_text + "\n"
+            
+            # Split into lines and process
+            lines = all_text.split('\n')
+            
+            # PhonePe statements often have transaction data in tabular format
+            # Look for lines with date patterns and amounts
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                
+                # Skip header lines
+                if any(header in line.lower() for header in ['statement', 'page', 'transaction id', 'opening balance', 'closing balance']):
+                    continue
+                
+                # Try different date patterns for PhonePe
+                date_patterns = [
+                    r'(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4})',
+                    r'(\d{1,2}-\d{1,2}-\d{4})',
+                    r'(\d{1,2}/\d{1,2}/\d{4})'
+                ]
+                
+                # Amount pattern
+                amount_pattern = r'(?:₹|Rs|INR)?\s*(\d+(?:,\d+)*(?:\.\d{2})?)'
+                
+                date_match = None
+                for pattern in date_patterns:
+                    match = re.search(pattern, line)
+                    if match:
+                        date_match = match.group(1)
+                        break
+                
+                if date_match:
+                    # Look for amount in the line
+                    amount_match = re.search(amount_pattern, line)
+                    if amount_match:
+                        amount_str = amount_match.group(1)
+                        amount = float(amount_str.replace(',', ''))
+                        
+                        # Determine if credit or debit
+                        is_debit = any(word in line.lower() for word in ['paid', 'payment', 'sent', 'debit'])
+                        if is_debit:
+                            amount = -amount
+                        
+                        # Parse date
+                        try:
+                            if '/' in date_match:
+                                date = pd.to_datetime(date_match, format='%d/%m/%Y')
+                            elif '-' in date_match:
+                                date = pd.to_datetime(date_match, format='%d-%m-%Y')
+                            else:
+                                date = pd.to_datetime(date_match)
+                        except:
+                            date = pd.Timestamp.now()
+                        
+                        # Extract description
+                        description = line
+                        
+                        # Try to extract merchant name
+                        merchant_match = re.search(r'to\s+([A-Za-z0-9\s]+)', line, re.IGNORECASE)
+                        if merchant_match:
+                            merchant = merchant_match.group(1).strip()
+                            description = f"Payment to {merchant}"
+                        
+                        transaction = {
+                            'date': date,
+                            'amount': amount,
+                            'description': description,
+                            'category': self._categorize_transaction(description),
+                            'type': 'DEBIT' if is_debit else 'CREDIT'
+                        }
+                        
+                        all_transactions.append(transaction)
+            
+            if not all_transactions:
+                logger.warning("No PhonePe transactions found")
+                return pd.DataFrame({
+                    'date': [pd.Timestamp.now()], 
+                    'amount': [0.0],
+                    'category': ['Others']
+                })
+            
+            # Create DataFrame and sort by date
+            df = pd.DataFrame(all_transactions)
+            df = df.sort_values('date', ascending=False)
+            
+            logger.info(f"Successfully extracted {len(df)} PhonePe transactions")
+            return df
+            
+        except Exception as e:
+            logger.error(f"Error in PhonePe parser: {str(e)}")
+            return pd.DataFrame({
+                'date': [pd.Timestamp.now()], 
+                'amount': [0.0],
+                'category': ['Others']
+            })
 
     def _extract_transaction_from_line(self, line):
         """Extract transaction details from a single line of text"""
@@ -168,6 +285,12 @@ class StatementParser:
         
         # Pattern 3: Simplified date and amount
         pattern3 = r'(\d{1,2}/\d{1,2}/\d{4}).*?(?:₹|Rs|INR)\s*(\d+(?:,\d+)*(?:\.\d{2})?)'
+        
+        # Pattern 4: PhonePe specific pattern with date and amount
+        pattern4 = r'(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}).*?(?:₹|Rs|INR)?\s*(\d+(?:,\d+)*(?:\.\d{2})?)'
+        
+        # Pattern 5: PhonePe specific pattern with date format DD-MM-YYYY
+        pattern5 = r'(\d{1,2}-\d{1,2}-\d{4}).*?(?:₹|Rs|INR)?\s*(\d+(?:,\d+)*(?:\.\d{2})?)'
         
         match = None
         amount_str = None
@@ -194,21 +317,48 @@ class StatementParser:
             amount_str = match.group(2)
             description = line
             txn_type = 'CREDIT' if 'credit' in line.lower() else 'DEBIT'
+        elif re.search(pattern4, line, re.IGNORECASE):
+            match = re.search(pattern4, line, re.IGNORECASE)
+            date_str = match.group(1)
+            amount_str = match.group(2)
+            description = line
+            # For PhonePe, determine transaction type based on keywords
+            txn_type = 'CREDIT' if any(word in line.lower() for word in ['received', 'refund', 'cashback']) else 'DEBIT'
+        elif re.search(pattern5, line, re.IGNORECASE):
+            match = re.search(pattern5, line, re.IGNORECASE)
+            date_str = match.group(1)
+            amount_str = match.group(2)
+            description = line
+            # For PhonePe, determine transaction type based on keywords
+            txn_type = 'CREDIT' if any(word in line.lower() for word in ['received', 'refund', 'cashback']) else 'DEBIT'
         
         if match and amount_str:
             # Clean amount string
             amount = float(amount_str.replace(',', ''))
             
             # Determine transaction type
-            is_debit = any(word in line.lower() for word in ['debit', 'paid', 'payment', 'withdraw'])
+            is_debit = any(word in line.lower() for word in ['debit', 'paid', 'payment', 'withdraw', 'sent'])
             if is_debit:
                 amount = -amount
             
             # Parse date
-            if '/' in date_str:
-                date = pd.to_datetime(date_str, format='%d/%m/%Y')
-            else:
-                date = pd.to_datetime(date_str)
+            try:
+                if '/' in date_str:
+                    date = pd.to_datetime(date_str, format='%d/%m/%Y')
+                elif '-' in date_str:
+                    date = pd.to_datetime(date_str, format='%d-%m-%Y')
+                else:
+                    date = pd.to_datetime(date_str)
+            except Exception as e:
+                logger.error(f"Date parsing error: {str(e)} for date string: {date_str}")
+                # Fallback to current date if parsing fails
+                date = pd.Timestamp.now()
+            
+            # Extract merchant/recipient name for better description
+            merchant_match = re.search(r'to\s+([A-Za-z0-9\s]+)', line, re.IGNORECASE)
+            if merchant_match:
+                merchant = merchant_match.group(1).strip()
+                description = f"Payment to {merchant}"
             
             return {
                 'date': date,
@@ -237,25 +387,46 @@ class StatementParser:
         description = description.lower()
         
         categories = {
-            'Food & Dining': ['food', 'restaurant', 'cafe', 'coffee', 'swiggy', 'zomato', 'hotel'],
-            'Shopping': ['amazon', 'flipkart', 'myntra', 'shop', 'store', 'retail'],
-            'Transportation': ['uber', 'ola', 'metro', 'bus', 'train', 'flight', 'airline'],
-            'Entertainment': ['movie', 'theatre', 'netflix', 'prime', 'hotstar'],
-            'Bills & Utilities': ['electricity', 'water', 'gas', 'internet', 'mobile', 'phone'],
-            'Health & Medical': ['hospital', 'clinic', 'pharmacy', 'medical', 'doctor'],
-            'Education': ['school', 'college', 'university', 'course', 'training'],
-            'Travel': ['hotel', 'booking', 'trip', 'travel', 'tour'],
-            'Personal Care': ['salon', 'spa', 'beauty', 'gym', 'fitness'],
-            'Investments': ['investment', 'mutual fund', 'stock', 'share', 'equity'],
-            'Insurance': ['insurance', 'policy', 'premium'],
-            'Rent': ['rent', 'lease', 'property'],
-            'Salary': ['salary', 'income', 'payment received'],
-            'Others': []
+            'Food & Dining': ['food', 'restaurant', 'cafe', 'coffee', 'swiggy', 'zomato', 'hotel', 'eatery', 'kitchen', 'dine', 'meal', 'lunch', 'dinner', 'breakfast'],
+            'Shopping': ['amazon', 'flipkart', 'myntra', 'shop', 'store', 'retail', 'purchase', 'buy', 'mart', 'mall', 'bazaar', 'market'],
+            'Transportation': ['uber', 'ola', 'metro', 'bus', 'train', 'flight', 'airline', 'travel', 'taxi', 'cab', 'auto', 'rickshaw', 'petrol', 'diesel', 'fuel'],
+            'Entertainment': ['movie', 'theatre', 'netflix', 'prime', 'hotstar', 'disney', 'show', 'concert', 'event', 'ticket', 'game', 'gaming', 'play'],
+            'Bills & Utilities': ['electricity', 'water', 'gas', 'internet', 'mobile', 'phone', 'bill', 'recharge', 'dth', 'broadband', 'wifi', 'utility', 'service'],
+            'Health & Medical': ['hospital', 'clinic', 'pharmacy', 'medical', 'doctor', 'health', 'medicine', 'drug', 'healthcare', 'dental', 'lab', 'test'],
+            'Education': ['school', 'college', 'university', 'course', 'training', 'class', 'tuition', 'education', 'learning', 'study', 'book', 'stationery'],
+            'Travel': ['hotel', 'booking', 'trip', 'travel', 'tour', 'vacation', 'holiday', 'resort', 'stay', 'accommodation'],
+            'Personal Care': ['salon', 'spa', 'beauty', 'gym', 'fitness', 'parlour', 'cosmetics', 'grooming', 'wellness'],
+            'Investments': ['investment', 'mutual fund', 'stock', 'share', 'equity', 'demat', 'trading', 'portfolio', 'dividend', 'interest'],
+            'Insurance': ['insurance', 'policy', 'premium', 'coverage', 'claim', 'life', 'health', 'vehicle'],
+            'Rent': ['rent', 'lease', 'housing', 'accommodation', 'property'],
+            'EMI & Loans': ['emi', 'loan', 'credit', 'finance', 'installment', 'repayment'],
+            'Gifts & Donations': ['gift', 'donation', 'charity', 'contribute', 'present', 'offering'],
+            'Taxes & Fees': ['tax', 'gst', 'fee', 'charge', 'penalty', 'fine'],
+            'Transfer': ['transfer', 'sent', 'received', 'upi', 'phonepe', 'gpay', 'paytm', 'payment', 'pay', 'wallet'],
         }
         
+        # PhonePe specific merchants and categories
+        phonepe_categories = {
+            'Food & Dining': ['swiggy', 'zomato', 'dominos', 'pizza', 'food', 'restaurant', 'cafe', 'dhaba', 'kitchen'],
+            'Shopping': ['amazon', 'flipkart', 'myntra', 'ajio', 'meesho', 'tatacliq', 'nykaa', 'bigbasket', 'grofers', 'blinkit', 'zepto'],
+            'Transportation': ['uber', 'ola', 'rapido', 'yulu', 'metro', 'irctc', 'makemytrip', 'redbus', 'goibibo'],
+            'Entertainment': ['bookmyshow', 'netflix', 'primevideo', 'hotstar', 'disney', 'sony', 'zee5', 'jiocinema'],
+            'Bills & Utilities': ['jio', 'airtel', 'vodafone', 'vi', 'bsnl', 'tata power', 'adani', 'bescom', 'tangedco', 'mahadiscom', 'recharge'],
+        }
+        
+        # First check for PhonePe specific merchants
+        for category, keywords in phonepe_categories.items():
+            if any(keyword in description for keyword in keywords):
+                return category
+        
+        # Then check general categories
         for category, keywords in categories.items():
             if any(keyword in description for keyword in keywords):
                 return category
+        
+        # Default category
+        if 'received' in description or 'refund' in description or 'cashback' in description:
+            return 'Income'
         
         return 'Others'
 
