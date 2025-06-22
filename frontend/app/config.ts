@@ -1,7 +1,7 @@
 // Configure API endpoints
 const config = {
   // Your Render backend URL
-  backendUrl: 'https://statement-analyzer-backend.onrender.com',
+  backendUrl: 'https://demo-bl6p.onrender.com',
   // Local proxy API paths
   apiPaths: {
     analyzeStatement: '/api/analyze-statement',
