@@ -124,7 +124,10 @@ export default function StatementUpload({ onAnalysisComplete }: StatementUploadP
 
       console.log(`Submitting to platform: '${platform}' at endpoint: ${apiEndpoint}`);
 
-      const response = await fetch(apiEndpoint, {
+      // Add a cache-busting parameter
+      const finalEndpoint = `${apiEndpoint}?t=${new Date().getTime()}`;
+
+      const response = await fetch(finalEndpoint, {
         method: 'POST',
         body: formData,
       })
