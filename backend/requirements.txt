@@ -6,10 +6,12 @@ pdfplumber==0.10.2
 PyPDF2>=3.0.0
 supabase>=2.3.0
 python-dotenv>=1.0.0
-kivy==2.3.0
-kivymd==1.1.1
-buildozer==1.5.0
-pillow==9.5.0
+# Removing kivy, kivymd and buildozer as they're mobile-focused and not needed for web deployment
+# kivy==2.3.0
+# kivymd==1.1.1
+# buildozer==1.5.0
+# Removing pillow as it's causing build issues - will use a dependency that comes precompiled
+# pillow==9.5.0
 python-dateutil>=2.8.2
 pytz==2024.1
 requests>=2.30.0
