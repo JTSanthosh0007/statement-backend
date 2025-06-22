@@ -980,7 +980,14 @@ export const PhonePeAnalysisView: React.FC<{
                   <div key={index} className="flex justify-between items-center">
                     <div>
                       <p className="text-zinc-300">{transaction.description}</p>
-                      <p className="text-xs text-zinc-500">{new Date(transaction.date).toLocaleDateString()}</p>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-xs text-zinc-400">
+                          {new Date(transaction.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        </span>
+                        <span className="text-xs text-zinc-500">
+                          {(transaction.category || 'uncategorized').toUpperCase()}
+                        </span>
+                      </div>
                     </div>
                     <span className={`font-medium ${transaction.amount >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                       ₹{Math.abs(transaction.amount).toLocaleString()}
@@ -1395,7 +1402,14 @@ export const KotakAnalysisView: React.FC<{
                   <div key={index} className="flex justify-between items-center">
                     <div>
                       <p className="text-zinc-300">{transaction.description}</p>
-                      <p className="text-xs text-zinc-500">{new Date(transaction.date).toLocaleDateString()}</p>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-xs text-zinc-400">
+                          {new Date(transaction.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        </span>
+                        <span className="text-xs text-zinc-500">
+                          {(transaction.category || 'uncategorized').toUpperCase()}
+                        </span>
+                      </div>
                     </div>
                     <span className={`font-medium ${transaction.amount >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                       ₹{Math.abs(transaction.amount).toLocaleString()}
