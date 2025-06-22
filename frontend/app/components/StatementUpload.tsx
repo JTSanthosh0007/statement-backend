@@ -66,7 +66,19 @@ export default function StatementUpload({ onAnalysisComplete }: StatementUploadP
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setError(null)
     if (acceptedFiles.length > 0) {
-      setFile(acceptedFiles[0])
+      const selectedFile = acceptedFiles[0];
+      setFile(selectedFile);
+
+      // Auto-select platform based on filename
+      const fileName = selectedFile.name.toLowerCase();
+      if (fileName.includes('phonepe')) {
+        setSelectedPlatform('phonepe');
+      } else if (fileName.includes('paytm')) {
+        setSelectedPlatform('paytm');
+      } else if (fileName.includes('gpay')) {
+        setSelectedPlatform('gpay');
+      }
+      // Keep existing or default if no keyword is found
     }
   }, [])
 
