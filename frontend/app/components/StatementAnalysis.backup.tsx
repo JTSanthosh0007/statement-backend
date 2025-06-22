@@ -908,7 +908,16 @@ export default function StatementAnalysis({ data }: { data: AnalysisData }) {
   }) => {
     const [selectedCategory, setSelectedCategory] = useState('private');
     
-    const bankCategories = {
+    // Define bank category type for better type safety
+    type BankCategory = {
+      name: string;
+      color: string;
+      tagline: string;
+      logo?: string;
+    };
+
+    // Add index signature to allow string indexing
+    const bankCategories: Record<string, BankCategory[]> = {
       private: [
         { name: 'HDFC Bank', color: '#000000', tagline: 'We Understand Your World', logo: '🏦' },
         { name: 'ICICI Bank', color: '#000000', tagline: 'Hum Hai Na', logo: '🏦' },

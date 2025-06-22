@@ -79,11 +79,17 @@ const UPIAppGrid = memo(({
     return acc;
   }, {} as Record<UPIApp['category'], UPIApp[]>);
 
-  const categoryTitles = {
-    popular: 'Available UPI Apps for Analysis',
-    bank: 'Bank Apps',
-    wallet: 'Wallet Apps',
-    other: 'Other Apps'
+  const categoryTitles: Record<UPIApp['category'], string> = {
+    public: 'Public Sector Banks',
+    private: 'Private Sector Banks',
+    payment: 'Payment Apps',
+    'small-finance': 'Small Finance Banks',
+    foreign: 'Foreign Banks',
+    'regional-rural': 'Regional Rural Banks'
+  };
+
+  const getCategoryTitle = (category: UPIApp['category']) => {
+    return categoryTitles[category] || `${category.charAt(0).toUpperCase()}${category.slice(1)} Apps`;
   };
 
   return (
@@ -95,7 +101,7 @@ const UPIAppGrid = memo(({
         return (
           <div key={category}>
             <h2 className="text-lg font-semibold text-white mb-4">
-              {categoryTitles[category]}
+              {getCategoryTitle(category)}
             </h2>
             <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
               {apps.slice(0, 4).map(app => (

@@ -4,7 +4,7 @@ import React, { useState, useCallback, memo } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { CloudArrowUpIcon, DocumentTextIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
-type Platform = 'paytm' | 'phonepe' | 'supermoney'
+type Platform = 'paytm' | 'phonepe' | 'supermoney' | 'gpay'
 
 type Transaction = {
   date: string
@@ -29,12 +29,12 @@ const PlatformSelector = memo(({
   selectedPlatform, 
   onSelect 
 }: { 
-  selectedPlatform: string; 
-  onSelect: (platform: string) => void;
+  selectedPlatform: Platform; 
+  onSelect: (platform: Platform) => void;
 }) => {
   return (
     <div className="flex space-x-4 mb-6">
-      {['paytm', 'phonepe', 'gpay'].map((platform) => (
+      {(['paytm', 'phonepe', 'gpay'] as Platform[]).map((platform) => (
         <button
           key={platform}
           onClick={() => onSelect(platform)}

@@ -7,8 +7,18 @@ interface ProfileViewProps {
   onBack: () => void;
 }
 
+interface UserProfile {
+  id?: string;
+  full_name?: string;
+  email?: string;
+  phone_number?: string;
+  date_of_birth?: string;
+  gender?: string;
+  profile_photo_url?: string;
+}
+
 const ProfileView: React.FC<ProfileViewProps> = ({ onBack }) => {
-  const [profile, setProfile] = useState<any | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -32,7 +42,8 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onBack }) => {
   //   // fetchProfile();
   // }, [initialProfile]); // Depend on initialProfile
 
-  const handleSaveChanges = async () => {
+  const handleSaveChanges = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!profile) return;
     setSaving(true);
     try {
@@ -94,7 +105,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onBack }) => {
                 />
               ) : (
                 <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center">
-                  <span className="text-2xl text-gray-600">{profile?.full_name ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : '?'}</span>
+                  <span className="text-2xl text-gray-600">{profile?.full_name ? profile.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : '?'}</span>
                 </div>
               )}
               <input
@@ -132,7 +143,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onBack }) => {
                 id="full_name"
                 required
                 value={profile?.full_name || ''}
-                onChange={(e) => setProfile(prev => ({ ...prev, full_name: e.target.value }))}
+                onChange={(e) => setProfile((prev) => prev ? { ...prev, full_name: e.target.value } : null)}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
               />
             </div>
@@ -146,7 +157,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onBack }) => {
                 id="email"
                 required
                 value={profile?.email || ''}
-                onChange={(e) => setProfile(prev => ({ ...prev, email: e.target.value }))}
+                onChange={(e) => setProfile((prev) => prev ? { ...prev, email: e.target.value } : null)}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
               />
             </div>
@@ -159,7 +170,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onBack }) => {
                 type="tel"
                 id="phone_number"
                 value={profile?.phone_number || ''}
-                onChange={(e) => setProfile(prev => ({ ...prev, phone_number: e.target.value }))}
+                onChange={(e) => setProfile((prev) => prev ? { ...prev, phone_number: e.target.value } : null)}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
               />
             </div>
@@ -172,7 +183,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onBack }) => {
                 type="date"
                 id="date_of_birth"
                 value={profile?.date_of_birth || ''}
-                onChange={(e) => setProfile(prev => ({ ...prev, date_of_birth: e.target.value }))}
+                onChange={(e) => setProfile((prev) => prev ? { ...prev, date_of_birth: e.target.value } : null)}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
               />
             </div>
@@ -187,7 +198,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onBack }) => {
                       name="gender"
                       value={option}
                       checked={profile?.gender === option}
-                      onChange={(e) => setProfile(prev => ({ ...prev, gender: e.target.value as any }))}
+                      onChange={(e) => setProfile((prev) => prev ? { ...prev, gender: e.target.value } : null)}
                       className="form-radio h-4 w-4 text-black border-gray-300 focus:ring-black"
                     />
                     <span className="ml-2 text-sm text-gray-700 capitalize">{option}</span>
