@@ -92,28 +92,38 @@ export default function StatementUpload({ onAnalysisComplete }: StatementUploadP
   })
 
   const handleSubmit = useCallback(async () => {
-    if (!file) return
-    setIsLoading(true)
-    setError(null)
+    if (!file) return;
+    setIsLoading(true);
+    setError(null);
 
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('platform', selectedPlatform)
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Determine platform from filename to ensure correctness
+    let platform = selectedPlatform;
+    const fileName = file.name.toLowerCase();
+    if (fileName.includes('phonepe')) {
+      platform = 'phonepe';
+    } else if (fileName.includes('paytm')) {
+      platform = 'paytm';
+    } else if (fileName.includes('gpay')) {
+        platform = 'gpay';
+    }
+    
+    formData.append('platform', platform);
 
     try {
-      // Select the appropriate API endpoint based on the platform
-      let apiEndpoint = config.apiPaths.analyzeStatement
-      
-      if (selectedPlatform === 'phonepe') {
-        apiEndpoint = config.apiPaths.analyzePhonepe
-        console.log('Using PhonePe endpoint:', apiEndpoint)
-      } else if (selectedPlatform === 'paytm') {
-        apiEndpoint = config.apiPaths.analyzeKotak // Using Kotak endpoint for Paytm for now
-        console.log('Using Paytm endpoint:', apiEndpoint)
+      // Select the appropriate API endpoint based on the determined platform
+      let apiEndpoint = config.apiPaths.analyzeStatement;
+
+      if (platform === 'phonepe') {
+        apiEndpoint = config.apiPaths.analyzePhonepe;
+      } else if (platform === 'paytm') {
+        apiEndpoint = config.apiPaths.analyzeKotak; // Using Kotak endpoint for Paytm for now
       }
-      
-      console.log(`Making POST request to ${apiEndpoint}.`)
-      
+
+      console.log(`Submitting to platform: '${platform}' at endpoint: ${apiEndpoint}`);
+
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         body: formData,
