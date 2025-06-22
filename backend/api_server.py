@@ -76,8 +76,10 @@ async def analyze_statement(
             
             return {
                 "transactions": transactions,
-                "totalSpent": total_spent,
-                "totalReceived": total_received,
+                "summary": {
+                    "totalSpent": total_spent,
+                    "totalReceived": total_received
+                },
                 "categoryBreakdown": category_breakdown
             }
         except Exception as e:
@@ -123,8 +125,10 @@ async def analyze_phonepe_statement(
             
             return {
                 "transactions": transactions,
-                "totalSpent": total_spent,
-                "totalReceived": total_received,
+                "summary": {
+                    "totalSpent": total_spent,
+                    "totalReceived": total_received
+                },
                 "categoryBreakdown": category_breakdown
             }
         except Exception as e:
