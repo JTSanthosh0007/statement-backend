@@ -22,12 +22,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Return the backend response with the same status
     return NextResponse.json(data, { status: response.status });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error proxying PhonePe request to backend:', error);
     return NextResponse.json(
       { 
         error: 'Failed to connect to PhonePe analysis service',
-        details: error.message
+        details: error.message || String(error)
       },
       { status: 500 }
     );

@@ -39,12 +39,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const data = await response.json()
     return NextResponse.json(data, { status: response.status })
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error proxying PDF unlock request to backend:', error)
     return NextResponse.json(
       { 
         error: 'Failed to connect to PDF unlock service',
-        details: error.message
+        details: error.message || String(error)
       },
       { status: 500 }
     )

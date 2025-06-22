@@ -29,8 +29,8 @@ export default function BanksPage() {
       } else {
         newFavorites.add(bankName);
       }
-      // Save to localStorage
-      localStorage.setItem('bankFavorites', JSON.stringify([...newFavorites]));
+      // Save to localStorage - convert Set to Array before stringifying
+      localStorage.setItem('bankFavorites', JSON.stringify(Array.from(newFavorites)));
       return newFavorites;
     });
   };
