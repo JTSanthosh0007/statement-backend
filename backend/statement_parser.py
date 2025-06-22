@@ -19,9 +19,13 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class StatementParser:
-    def __init__(self, file_path):
-        self.file_path = file_path
-        self.filename = Path(file_path).name
+    def __init__(self, file_obj):
+        """
+        Initializes the parser with a file-like object.
+        :param file_obj: An object with 'name' attribute and a 'read()' method.
+        """
+        self.file_obj = file_obj
+        self.filename = file_obj.name
 
     def parse(self):
         """Parse the uploaded file into a standardized DataFrame"""
@@ -37,7 +41,11 @@ class StatementParser:
         try:
             # First try to validate if it's a valid PDF
             try:
-                pdf_reader = PyPDF2.PdfReader(self.file_path)
+                # The file object's internal cursor might be at the end. Reset it.
+                if hasattr(self.file_obj, 'seek'):
+                    self.file_obj.seek(0)
+                
+                pdf_reader = PyPDF2.PdfReader(self.file_obj)
                 num_pages = len(pdf_reader.pages)
                 logger.info(f"PDF has {num_pages} pages")
                 
@@ -62,7 +70,11 @@ class StatementParser:
             parsing_errors = []
             chunk_size = 10
             
-            with pdfplumber.open(self.file_path) as pdf:
+            # Reset cursor for pdfplumber
+            if hasattr(self.file_obj, 'seek'):
+                self.file_obj.seek(0)
+
+            with pdfplumber.open(self.file_obj) as pdf:
                 total_pages = len(pdf.pages)
                 
                 if total_pages == 0:
@@ -91,7 +103,7 @@ class StatementParser:
                             
                             if not text:
                                 logger.info(f"No text on page {page_num + 1}, trying PyMuPDF")
-                                text = self._extract_text_with_pymupdf(self.file_path, page_num + 1)
+                                text = self._extract_text_with_pymupdf(page_num + 1)
                             
                             if text:
                                 chunk_text += text + "\n"
@@ -370,10 +382,14 @@ class StatementParser:
         
         return None
 
-    def _extract_text_with_pymupdf(self, pdf_path, page_num):
+    def _extract_text_with_pymupdf(self, page_num):
         """Extract text from a specific page using PyMuPDF"""
         try:
-            doc = fitz.open(pdf_path)
+            # Reset cursor and read the stream for PyMuPDF
+            if hasattr(self.file_obj, 'seek'):
+                self.file_obj.seek(0)
+            
+            doc = fitz.open(stream=self.file_obj.read(), filetype="pdf")
             page = doc[page_num - 1]
             text = page.get_text()
             doc.close()
@@ -437,8 +453,15 @@ def main():
 
     file_path = sys.argv[1]
     try:
-        parser = StatementParser(file_path)
-        df = parser.parse()
+        # The main entry point for CLI now needs to open the file first
+        with open(file_path, "rb") as f:
+            # Create a file-like object similar to what FastAPI provides
+            from io import BytesIO
+            file_like_obj = BytesIO(f.read())
+            file_like_obj.name = Path(file_path).name
+            
+            parser = StatementParser(file_like_obj)
+            df = parser.parse()
         
         if df.empty or len(df) == 1 and df.iloc[0]['amount'] == 0:
             print(json.dumps({"error": "No valid transactions found in the PDF"}))
@@ -498,7 +521,7 @@ def main():
             },
             'categoryBreakdown': category_breakdown,
             'chartData': chart_data,
-            'pageCount': len(PyPDF2.PdfReader(file_path).pages)
+            'pageCount': len(PyPDF2.PdfReader(open(file_path, "rb")).pages)
         }
         logger.info("Final response prepared.")
 
