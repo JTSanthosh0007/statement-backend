@@ -2,18 +2,19 @@ from datetime import datetime
 import re
 from statement_parser import StatementParser
 
-def parse_phonepe_statement(file_obj):
+def parse_phonepe_statement(file_path):
     """
     Parses a PhonePe bank statement using the StatementParser.
     
     Args:
-        file_obj: A file-like object containing the PDF data.
+        file_path: The path to the PDF file.
         
     Returns:
         dict: A dictionary containing the extracted transaction data.
     """
-    parser = StatementParser(file_obj)
-    df = parser.parse()
+    with open(file_path, 'rb') as file_obj:
+        parser = StatementParser(file_obj)
+        df = parser.parse()
     
     transactions = df.to_dict('records')
     

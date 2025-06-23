@@ -32,9 +32,7 @@ def analyze_phonepe_statement():
         file.save(filepath)
 
         try:
-            with open(filepath, 'rb') as f:
-                result = parse_phonepe_statement(f)
-            
+            result = parse_phonepe_statement(filepath)
             response = {
                 'transactions': result['transactions'],
                 'summary': {
