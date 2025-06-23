@@ -78,16 +78,16 @@ async def analyze_statement(
             # Convert to dictionary format
             transactions = df.to_dict('records')
             
-            # Calculate summary statistics
-            total_spent = sum(t['amount'] for t in transactions if t['amount'] < 0)
-            total_received = sum(t['amount'] for t in transactions if t['amount'] > 0)
-            
             # Calculate category breakdown
             category_breakdown = {}
             for t in transactions:
                 if t['amount'] < 0:  # Only consider spending
                     category = t['category']
                     category_breakdown[category] = category_breakdown.get(category, 0) + t['amount']
+            
+            # Calculate summary statistics
+            total_spent = sum(t['amount'] for t in transactions if t['amount'] < 0)
+            total_received = sum(t['amount'] for t in transactions if t['amount'] > 0)
             
             return {
                 "transactions": transactions,
@@ -263,24 +263,24 @@ async def analyze_phonepe_statement(
                 "debug": debug_info
             }
         df = pd.DataFrame(transactions)
-            total_spent = sum(t['amount'] for t in transactions if t['amount'] < 0)
-            total_received = sum(t['amount'] for t in transactions if t['amount'] > 0)
-            category_breakdown = {}
-            for t in transactions:
+        total_spent = sum(t['amount'] for t in transactions if t['amount'] < 0)
+        total_received = sum(t['amount'] for t in transactions if t['amount'] > 0)
+        category_breakdown = {}
+        for t in transactions:
             if t['amount'] < 0:
-                    category = t['category']
-                    category_breakdown[category] = category_breakdown.get(category, 0) + t['amount']
+                category = t['category']
+                category_breakdown[category] = category_breakdown.get(category, 0) + t['amount']
         debug_info["analysis_time_seconds"] = round(time.time() - start_time, 2)
-            return {
+        return {
             "transactions": df.to_dict('records'),
-                "summary": {
-                    "totalSpent": total_spent,
-                    "totalReceived": total_received
-                },
+            "summary": {
+                "totalSpent": total_spent,
+                "totalReceived": total_received
+            },
             "categoryBreakdown": category_breakdown,
             "pageCount": debug_info["pages"],
             "debug": debug_info
-            }
+        }
     except Exception as e:
         logger.error(f"Error processing PhonePe statement: {str(e)}")
         return {
