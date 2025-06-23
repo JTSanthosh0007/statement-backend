@@ -901,11 +901,10 @@ export const PhonePeAnalysisView: React.FC<{
                               },
                               tooltip: {
                                 callbacks: {
-                                  label: function(context: TooltipItem<'pie'>) {
+                                  label: function(context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
                                     const label = context.label || '';
                                     const value = context.parsed;
-                                    const percent = chartPercents[context.dataIndex];
-                                    return `${label}: ₹${Number(value).toLocaleString()} (${percent?.toFixed(1) ?? 0}%)`;
+                                    return `${label}: ₹${Number(value).toLocaleString()}`;
                                   }
                                 }
                               }
@@ -938,7 +937,7 @@ export const PhonePeAnalysisView: React.FC<{
                               },
                               tooltip: {
                                 callbacks: {
-                                  label: function(context: TooltipItem<'doughnut'>) {
+                                  label: function(context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
                                     return `${context.label}: ${context.parsed.toFixed(1)}%`;
                                   }
                                 }
@@ -1326,7 +1325,7 @@ export const PhonePeAnalysisView: React.FC<{
       },
       tooltip: {
         callbacks: {
-          label: function(context: TooltipItem<'pie'>) {
+          label: function(context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
             const label = context.label || '';
             const value = context.parsed;
             return `${label}: ₹${Number(value).toLocaleString()}`;
@@ -1342,7 +1341,7 @@ export const PhonePeAnalysisView: React.FC<{
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: function(context: TooltipItem<'bar'>) {
+          label: function(context: any) {
             const label = context.label || '';
             const value = context.parsed;
             return `${label}: ₹${Number(value).toLocaleString()}`;
@@ -1674,7 +1673,7 @@ export const KotakAnalysisView: React.FC<{
       },
       tooltip: {
         callbacks: {
-          label: function(context: TooltipItem<'pie'>) {
+          label: function(context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
             const label = context.label || '';
             const value = context.parsed;
             return `${label}: ₹${Number(value).toLocaleString()}`;
@@ -1691,7 +1690,7 @@ export const KotakAnalysisView: React.FC<{
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: function(context: TooltipItem<'bar'>) {
+          label: function(context: any) {
             const label = context.label || '';
             const value = context.parsed;
             return `${label}: ₹${Number(value).toLocaleString()}`;
