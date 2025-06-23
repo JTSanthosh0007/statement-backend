@@ -1,101 +1,89 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function AccountSettingsPage() {
   const router = useRouter()
-  const [name, setName] = useState('User')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        setUser(session.user)
+      }
+      setLoading(false)
+    }
+    fetchUser()
+  }, [])
+
+  const getUsername = (email: string) => {
+    if (!email) return 'User'
+    return email.split('@')[0]
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <div className="p-4 border-b border-zinc-800 flex items-center gap-3">
-        <button 
-          onClick={() => router.back()}
-          className="text-zinc-400 hover:text-white"
-        >
+      <header className="p-4 border-b border-zinc-800 flex items-center gap-4">
+        <button onClick={() => router.back()} className="text-white">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
         <h1 className="text-xl font-semibold">Account Settings</h1>
-      </div>
+      </header>
 
-      {/* Account Settings Content */}
+      {/* Account Info Content */}
       <div className="p-4 space-y-6">
-        {/* Profile Picture */}
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-24 h-24 bg-zinc-800 rounded-full flex items-center justify-center">
-            <span className="text-3xl">U</span>
+        {/* User Profile Section */}
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center">
+            <span className="text-2xl uppercase">{user ? getUsername(user.email)[0] : 'U'}</span>
           </div>
-          <button className="text-blue-500 hover:text-blue-400">
-            Change Profile Picture
-          </button>
+          <div>
+            <h2 className="text-white font-medium text-xl">{user ? getUsername(user.email) : 'User'}</h2>
+            <p className="text-sm text-zinc-400">{user ? user.email : 'No email set'}</p>
+          </div>
         </div>
 
-        {/* Form Fields */}
+        {/* User Details Form */}
         <div className="space-y-4">
-          <div className="space-y-2">
+          <div>
             <label className="text-sm text-zinc-400">Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full bg-zinc-900 rounded-xl p-4 text-white border border-zinc-800 focus:border-blue-500 focus:outline-none"
-              placeholder="Enter your name"
-            />
+            <div className="w-full bg-zinc-900 rounded-xl p-4 mt-1 text-white">
+              {user ? getUsername(user.email) : 'User'}
+            </div>
           </div>
-
-          <div className="space-y-2">
+          <div>
             <label className="text-sm text-zinc-400">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-zinc-900 rounded-xl p-4 text-white border border-zinc-800 focus:border-blue-500 focus:outline-none"
-              placeholder="Enter your email"
-            />
+            <div className="w-full bg-zinc-900 rounded-xl p-4 mt-1 text-white">
+              {user ? user.email : 'Enter your email'}
+            </div>
           </div>
-
-          <div className="space-y-2">
+          <div>
             <label className="text-sm text-zinc-400">Phone Number</label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full bg-zinc-900 rounded-xl p-4 text-white border border-zinc-800 focus:border-blue-500 focus:outline-none"
-              placeholder="Enter your phone number"
-            />
+            <div className="w-full bg-zinc-900 rounded-xl p-4 mt-1 text-white">
+              {user?.phone ? user.phone : 'Enter your phone number'}
+            </div>
           </div>
         </div>
-
-        {/* Additional Settings */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-medium">Additional Settings</h2>
-          
-          <button 
-            className="w-full bg-zinc-900 rounded-xl p-4 text-left hover:bg-zinc-800/80 transition-all duration-300 flex justify-between items-center"
-          >
-            <span>Change Password</span>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Save Button */}
-        <button 
-          onClick={() => {
-            // Add save logic here
-            router.back()
-          }}
-          className="w-full bg-blue-600 rounded-xl p-4 text-center font-medium hover:bg-blue-700 transition-all duration-300 mt-8"
-        >
-          Save Changes
-        </button>
       </div>
 
       {/* Bottom Navigation */}
