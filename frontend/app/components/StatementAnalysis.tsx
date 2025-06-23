@@ -990,7 +990,7 @@ export const PhonePeAnalysisView: React.FC<{
             )}
 
             {/* Category Breakdown Section (always show, below chart) */}
-            {analysisResults?.categoryBreakdown && (
+            {analysisResults?.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0 ? (
               <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50 mt-6">
                 <h3 className="text-lg font-semibold text-white mb-6">Detailed Category Breakdown</h3>
                 <div className="space-y-4">
@@ -1022,6 +1022,10 @@ export const PhonePeAnalysisView: React.FC<{
                       );
                     })}
                 </div>
+              </div>
+            ) : (
+              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50 mt-6 text-zinc-400 text-center">
+                No categories found
               </div>
             )}
 
