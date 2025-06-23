@@ -979,7 +979,7 @@ export const PhonePeAnalysisView: React.FC<{
                 {analysisResults.transactions.slice(0, 5).map((transaction, index) => (
                   <div key={index} className="flex justify-between items-center">
                     <div>
-                      <p className="text-zinc-300">{transaction.description}</p>
+                      <p className="text-zinc-300">{transaction.description || ''}</p>
                       <div className="flex items-center justify-between mt-1">
                         <span className="text-xs text-zinc-400">
                           {new Date(transaction.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
@@ -1066,7 +1066,7 @@ export const PhonePeAnalysisView: React.FC<{
 
                   const foundBanks = Array.from(new Set(analysisResults.transactions
                     .map(t => {
-                      const description = t.description.toUpperCase();
+                      const description = (t.description || '').toUpperCase();
                       return Object.keys(bankConfigs).find(bank => description.includes(bank));
                     })
                     .filter((bank): bank is keyof typeof bankConfigs => bank !== undefined)
@@ -1401,7 +1401,7 @@ export const KotakAnalysisView: React.FC<{
                 {analysisResults.transactions.slice(0, 5).map((transaction, index) => (
                   <div key={index} className="flex justify-between items-center">
                     <div>
-                      <p className="text-zinc-300">{transaction.description}</p>
+                      <p className="text-zinc-300">{transaction.description || ''}</p>
                       <div className="flex items-center justify-between mt-1">
                         <span className="text-xs text-zinc-400">
                           {new Date(transaction.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
