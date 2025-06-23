@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 import os
 from parsers.kotak_parser import parse_kotak_statement
 from parsers.statement_parser import detect_statement_type, parse_statement
+from parsers.phonepe_parser import parse_phonepe_statement
 
 statement_routes = Blueprint('statement_routes', __name__)
 
@@ -11,6 +12,52 @@ ALLOWED_EXTENSIONS = {'pdf'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@statement_routes.route('/analyze-phonepe', methods=['POST'])
+def analyze_phonepe_statement():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+        
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+        
+    if not allowed_file(file.filename):
+        return jsonify({'error': 'Invalid file type. Please upload a PDF file'}), 400
+
+    try:
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+        file.save(filepath)
+
+        try:
+            result = parse_phonepe_statement(filepath)
+            response = {
+                'transactions': result['transactions'],
+                'summary': {
+                    'totalReceived': result['summary']['total_credit'],
+                    'totalSpent': result['summary']['total_debit'],
+                    'balance': result['summary']['net_balance'],
+                    'creditCount': result['summary']['credit_count'],
+                    'debitCount': result['summary']['debit_count'],
+                    'totalTransactions': result['summary']['total_transactions']
+                },
+                'categoryBreakdown': calculate_category_breakdown(result['transactions']),
+                'pageCount': 1,
+                'accounts': extract_accounts_info(result)
+            }
+            os.remove(filepath)
+            return jsonify(response)
+        except Exception as e:
+            os.remove(filepath)
+            raise e
+
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to analyze PhonePe statement',
+            'details': str(e)
+        }), 500
 
 @statement_routes.route('/analyze-statement', methods=['POST'])
 def analyze_statement():
