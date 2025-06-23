@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 
@@ -11,10 +11,36 @@ const supabase = createClient(
 
 export default function SettingsPage() {
   const router = useRouter()
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        setUser(session.user)
+      }
+      setLoading(false)
+    }
+    fetchUser()
+  }, [])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
+  }
+
+  const getUsername = (email: string) => {
+    if (!email) return 'User'
+    return email.split('@')[0]
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      </div>
+    )
   }
 
   return (
@@ -29,14 +55,35 @@ export default function SettingsPage() {
         {/* User Profile Section */}
         <div className="bg-zinc-900 rounded-xl p-4 flex items-center gap-4">
           <div className="w-12 h-12 bg-zinc-800 rounded-full flex items-center justify-center">
-            <span className="text-xl">U</span>
+            <span className="text-xl uppercase">{user ? getUsername(user.email)[0] : 'U'}</span>
           </div>
           <div>
-            <h2 className="text-white font-medium">User</h2>
-            <p className="text-sm text-zinc-400">No email set</p>
+            <h2 className="text-white font-medium">{user ? getUsername(user.email) : 'User'}</h2>
+            <p className="text-sm text-zinc-400">{user ? user.email : 'No email set'}</p>
           </div>
         </div>
 
+        <div className="space-y-2">
+          <div>
+            <label className="text-sm text-zinc-400">Name</label>
+            <div className="w-full bg-zinc-900 rounded-xl p-4 mt-1">
+              {user ? getUsername(user.email) : 'User'}
+            </div>
+          </div>
+          <div>
+            <label className="text-sm text-zinc-400">Email</label>
+            <div className="w-full bg-zinc-900 rounded-xl p-4 mt-1">
+              {user ? user.email : 'Enter your email'}
+            </div>
+          </div>
+          <div>
+            <label className="text-sm text-zinc-400">Phone Number</label>
+            <div className="w-full bg-zinc-900 rounded-xl p-4 mt-1">
+              {user?.phone ? user.phone : 'Enter your phone number'}
+            </div>
+          </div>
+        </div>
+        
         {/* Settings Options */}
         <button 
           onClick={() => router.push('/settings/account')}
