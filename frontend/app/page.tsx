@@ -3,17 +3,38 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import StatementAnalysis from './components/StatementAnalysis'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function Home() {
   const router = useRouter()
-  const [phone, setPhone] = useState('')
+  const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null) // Removed <string | null>
+  const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
   const [favorites, setFavorites] = useState(new Set())
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        setUser(session.user)
+      }
+    }
+    fetchUser()
+  }, [])
+
+  const getUsername = (email: string) => {
+    if (!email) return 'User'
+    return email.split('@')[0]
+  }
 
   const toggleFavorite = (appName: string) => {
     setFavorites(prev => {
@@ -67,11 +88,11 @@ export default function Home() {
       <header className="bg-[#1E1E1E] p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center">
-            <span className="text-sm font-medium text-white">JA</span>
+            <span className="text-sm font-medium text-white uppercase">{user ? getUsername(user.email)[0] : ''}</span>
           </div>
           <div>
             <p className="text-sm text-gray-400">Welcome back,</p>
-            <h1 className="text-white font-medium">Hello, John</h1>
+            <h1 className="text-white font-medium">Hello, {user ? getUsername(user.email) : 'User'}</h1>
           </div>
         </div>
         <button className="w-10 h-10 rounded-full bg-zinc-800/80 flex items-center justify-center" aria-label="Notifications">
