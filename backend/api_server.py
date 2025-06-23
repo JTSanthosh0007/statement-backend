@@ -109,152 +109,100 @@ async def analyze_phonepe_statement(
     logger = logging.getLogger(__name__)
     debug_info = {
         "pages": 0,
-        "lines": 0,
+        "lines_per_page": [],
         "transactions_found": 0,
+        "sample_matches": [],
+        "tables_found": 0,
         "methods_used": [],
-        "keywords_matched": [],
-        "errors": []
+        "errors": [],
+        "first_20_lines": []
     }
     try:
         if not file:
             raise HTTPException(status_code=400, detail="No file provided")
         content = await file.read()
         transactions = []
-        all_text = ""
+        all_lines = []
         methods_used = []
-        keywords_matched = set()
-        # 1. Try fitz (PyMuPDF) extraction
+        sample_matches = []
+        tables_found = 0
+        # 1. Try pdfplumber first for tables and text
         try:
-            doc = fitz.open(stream=content, filetype="pdf")
-            debug_info["pages"] = doc.page_count
-            for page in doc:
-                page_text = page.get_text("text")
-                all_text += page_text + "\n"
-            doc.close()
-            methods_used.append("fitz")
-        except Exception as e:
-            logger.error(f"fitz extraction error: {e}")
-            debug_info["errors"].append(f"fitz: {e}")
-        # 2. Try extracting transactions from fitz text
-        lines = all_text.split('\n')
-        debug_info["lines"] = len(lines)
-        date_patterns = [
-            r'(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4})',
-            r'(\d{1,2}-\d{1,2}-\d{4})',
-            r'(\d{1,2}/\d{1,2}/\d{4})'
-        ]
-        amount_pattern = r'(?:₹|Rs|INR)?\s*(\d+(?:,\d+)*(?:\.\d{2})?)'
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            date_match = None
-            for pattern in date_patterns:
-                match = re.search(pattern, line)
-                if match:
-                    date_match = match.group(1)
-                    break
-            if date_match:
-                amount_match = re.search(amount_pattern, line)
-                if amount_match:
-                    amount_str = amount_match.group(1).replace(',', '')
-                    amount = float(amount_str)
-                    is_debit = any(word in line.lower() for word in ['paid', 'payment', 'sent', 'debit'])
-                    if is_debit:
-                        amount = -amount
-                    try:
-                        date = pd.to_datetime(date_match)
-                    except Exception:
-                        date = pd.Timestamp.now()
-                    # Keyword match
-                    for kw in ['phonepe', 'upi', 'transfer', 'payment', 'received', 'sent']:
-                        if kw in line.lower():
-                            keywords_matched.add(kw)
-                    transactions.append({
-                        'date': date,
-                        'description': line,
-                        'amount': amount,
-                        'category': 'PhonePe'
-                    })
-        debug_info["transactions_found"] = len(transactions)
-        debug_info["methods_used"] = methods_used.copy()
-        debug_info["keywords_matched"] = list(keywords_matched)
-        # 3. If no transactions, try pdfplumber (tables and text)
-        if not transactions:
-            try:
-                with pdfplumber.open(io.BytesIO(content)) as pdf:
-                    debug_info["pages"] = len(pdf.pages)
-                    methods_used.append("pdfplumber")
-                    for page in pdf.pages:
-                        # Try table extraction
-                        tables = page.extract_tables()
+            with pdfplumber.open(io.BytesIO(content)) as pdf:
+                debug_info["pages"] = len(pdf.pages)
+                methods_used.append("pdfplumber")
+                for page_num, page in enumerate(pdf.pages):
+                    page_lines = []
+                    # Table extraction
+                    tables = page.extract_tables()
+                    if tables:
+                        tables_found += len(tables)
                         for table in tables:
                             for row in table:
-                                row_str = ' '.join([str(cell) for cell in row if cell])
-                                # Try to extract transaction from row string
-                                for pattern in date_patterns:
-                                    match = re.search(pattern, row_str)
-                                    if match:
-                                        date_match = match.group(1)
-                                        amount_match = re.search(amount_pattern, row_str)
-                                        if amount_match:
-                                            amount_str = amount_match.group(1).replace(',', '')
-                                            amount = float(amount_str)
-                                            is_debit = any(word in row_str.lower() for word in ['paid', 'payment', 'sent', 'debit'])
-                                            if is_debit:
-                                                amount = -amount
-                                            try:
-                                                date = pd.to_datetime(date_match)
-                                            except Exception:
-                                                date = pd.Timestamp.now()
-                                            for kw in ['phonepe', 'upi', 'transfer', 'payment', 'received', 'sent']:
-                                                if kw in row_str.lower():
-                                                    keywords_matched.add(kw)
-                                            transactions.append({
-                                                'date': date,
-                                                'description': row_str,
-                                                'amount': amount,
-                                                'category': 'PhonePe'
-                                            })
-                        # Try plain text extraction as fallback
-                        page_text = page.extract_text() or ''
-                        for line in page_text.split('\n'):
-                            line = line.strip()
-                            if not line:
-                                continue
-                            date_match = None
-                            for pattern in date_patterns:
-                                match = re.search(pattern, line)
-                                if match:
-                                    date_match = match.group(1)
-                                    break
-                            if date_match:
-                                amount_match = re.search(amount_pattern, line)
-                                if amount_match:
-                                    amount_str = amount_match.group(1).replace(',', '')
-                                    amount = float(amount_str)
-                                    is_debit = any(word in line.lower() for word in ['paid', 'payment', 'sent', 'debit'])
-                                    if is_debit:
-                                        amount = -amount
-                                    try:
-                                        date = pd.to_datetime(date_match)
-                                    except Exception:
-                                        date = pd.Timestamp.now()
-                                    for kw in ['phonepe', 'upi', 'transfer', 'payment', 'received', 'sent']:
-                                        if kw in line.lower():
-                                            keywords_matched.add(kw)
-                                    transactions.append({
-                                        'date': date,
-                                        'description': line,
-                                        'amount': amount,
-                                        'category': 'PhonePe'
-                                    })
-                debug_info["transactions_found"] = len(transactions)
-                debug_info["methods_used"] = methods_used.copy()
-                debug_info["keywords_matched"] = list(keywords_matched)
+                                row_str = ' | '.join([str(cell) for cell in row if cell])
+                                page_lines.append(row_str)
+                    # Fallback: extract_text line by line
+                    text = page.extract_text() or ''
+                    for line in text.split('\n'):
+                        page_lines.append(line.strip())
+                    # Log first 20 lines for this page
+                    if page_num == 0:
+                        debug_info["first_20_lines"] = page_lines[:20]
+                    debug_info["lines_per_page"].append(len(page_lines))
+                    all_lines.extend(page_lines)
+        except Exception as e:
+            logger.error(f"pdfplumber extraction error: {e}")
+            debug_info["errors"].append(f"pdfplumber: {e}")
+        debug_info["tables_found"] = tables_found
+        # 2. If no lines found, fallback to fitz
+        if not all_lines:
+            try:
+                doc = fitz.open(stream=content, filetype="pdf")
+                debug_info["pages"] = doc.page_count
+                methods_used.append("fitz")
+                for page_num in range(doc.page_count):
+                    page = doc.load_page(page_num)
+                    text = page.get_text("text")
+                    page_lines = [line.strip() for line in text.split('\n')]
+                    if page_num == 0:
+                        debug_info["first_20_lines"] = page_lines[:20]
+                    debug_info["lines_per_page"].append(len(page_lines))
+                    all_lines.extend(page_lines)
+                doc.close()
             except Exception as e:
-                logger.error(f"pdfplumber extraction error: {e}")
-                debug_info["errors"].append(f"pdfplumber: {e}")
+                logger.error(f"fitz extraction error: {e}")
+                debug_info["errors"].append(f"fitz: {e}")
+        # 3. Regex match for transaction lines
+        txn_pattern = re.compile(r'(\d{2}-\d{2}-\d{4}).*?([\u20B9₹RsINR]+\s*\d+[,.\d]*)', re.IGNORECASE)
+        for line in all_lines:
+            if not line:
+                continue
+            match = txn_pattern.search(line)
+            if match:
+                logger.info(f"Found line: {line}")
+                sample_matches.append(line)
+                # Extract date, description, amount
+                date_str = match.group(1)
+                amount_str = match.group(2)
+                desc = line
+                try:
+                    date = pd.to_datetime(date_str, format='%d-%m-%Y')
+                except Exception:
+                    date = pd.Timestamp.now()
+                # Clean amount
+                amount = float(re.sub(r'[^\d.]', '', amount_str.replace(',', '')))
+                is_debit = any(word in line.lower() for word in ['dr', 'debit', 'paid', 'sent', 'payment'])
+                if is_debit:
+                    amount = -amount
+                transactions.append({
+                    'date': date,
+                    'description': desc,
+                    'amount': amount,
+                    'category': 'PhonePe'
+                })
+        debug_info["transactions_found"] = len(transactions)
+        debug_info["sample_matches"] = sample_matches[:5]
+        debug_info["methods_used"] = methods_used
         # 4. Always return a valid response
         if not transactions:
             logger.warning("No transactions extracted from PhonePe statement.")
