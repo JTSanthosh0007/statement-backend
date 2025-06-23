@@ -10,6 +10,7 @@ import pandas as pd
 import re
 import logging
 import time
+from parsers.kotak_parser import parse_kotak_statement
 
 app = FastAPI()
 
@@ -33,7 +34,8 @@ async def root():
         "endpoints": {
             "/analyze": "Analyze financial statements",
             "/analyze-phonepe": "Analyze PhonePe statements",
-            "/unlock-pdf": "Unlock password-protected PDF files"
+            "/unlock-pdf": "Unlock password-protected PDF files",
+            "/analyze-kotak": "Analyze Kotak statements"
         },
         "status": "online"
     }
@@ -319,6 +321,61 @@ async def unlock_pdf(
         if isinstance(e, HTTPException):
             raise e
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/analyze-kotak")
+async def analyze_kotak_statement(file: UploadFile = File(...)):
+    logger = logging.getLogger(__name__)
+    try:
+        if not file:
+            raise HTTPException(status_code=400, detail="No file provided")
+        content = await file.read()
+        import tempfile
+        import os
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp:
+            tmp.write(content)
+            tmp_path = tmp.name
+        try:
+            results = parse_kotak_statement(tmp_path)
+            os.unlink(tmp_path)
+            if not results or 'transactions' not in results:
+                logger.warning("No transactions extracted from Kotak statement.")
+                return {
+                    "transactions": [],
+                    "summary": {"totalSpent": 0, "totalReceived": 0},
+                    "categoryBreakdown": {},
+                    "pageCount": 0
+                }
+            # Transform results to match frontend expectations
+            transactions = results.get('transactions', [])
+            summary = results.get('summary', {})
+            category_breakdown = results.get('category_breakdown', {})
+            page_count = results.get('pageCount', 0)
+            return {
+                "transactions": transactions,
+                "summary": summary,
+                "categoryBreakdown": category_breakdown,
+                "pageCount": page_count
+            }
+        except Exception as e:
+            logger.error(f"Error parsing Kotak statement: {e}")
+            if os.path.exists(tmp_path):
+                os.unlink(tmp_path)
+            return {
+                "transactions": [],
+                "summary": {"totalSpent": 0, "totalReceived": 0},
+                "categoryBreakdown": {},
+                "pageCount": 0,
+                "error": str(e)
+            }
+    except Exception as e:
+        logger.error(f"Error in /analyze-kotak endpoint: {e}")
+        return {
+            "transactions": [],
+            "summary": {"totalSpent": 0, "totalReceived": 0},
+            "categoryBreakdown": {},
+            "pageCount": 0,
+            "error": str(e)
+        }
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
