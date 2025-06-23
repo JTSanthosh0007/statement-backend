@@ -1,9 +1,10 @@
+import io
+import fitz  # PyMuPDF
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 import os
 from parsers.kotak_parser import parse_kotak_statement
-from parsers.statement_parser import detect_statement_type, parse_statement
-from parsers.phonepe_parser import parse_phonepe_statement
+from parsers.statement_parser import detect_statement_type, parse_statement, StatementParser
 
 statement_routes = Blueprint('statement_routes', __name__)
 
@@ -14,46 +15,58 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @statement_routes.route('/analyze-phonepe', methods=['POST'])
-def analyze_phonepe_statement():
+def analyze_phonepe():
     if 'file' not in request.files:
         return jsonify({'error': 'No file provided'}), 400
         
     file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
+    if file.filename == '' or not allowed_file(file.filename):
+        return jsonify({'error': 'Invalid file provided'}), 400
         
-    if not allowed_file(file.filename):
-        return jsonify({'error': 'Invalid file type. Please upload a PDF file'}), 400
-
     try:
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-        file.save(filepath)
-
-        try:
-            result = parse_phonepe_statement(filepath)
-            response = {
-                'transactions': result['transactions'],
-                'summary': {
-                    'totalReceived': result['summary']['total_credit'],
-                    'totalSpent': result['summary']['total_debit'],
-                    'balance': result['summary']['net_balance'],
-                    'creditCount': result['summary']['credit_count'],
-                    'debitCount': result['summary']['debit_count'],
-                    'totalTransactions': result['summary']['total_transactions']
-                },
-                'categoryBreakdown': calculate_category_breakdown(result['transactions']),
-                'pageCount': 1,
-                'accounts': extract_accounts_info(result)
-            }
-            os.remove(filepath)
-            return jsonify(response)
-        except Exception as e:
-            os.remove(filepath)
-            raise e
+        # Read file into an in-memory stream
+        pdf_contents = file.read()
+        file_stream = io.BytesIO(pdf_contents)
+        file_stream.seek(0)
+        
+        # Use StatementParser with the stream
+        # Pass the original filename for potential use in the parser
+        file_stream.name = file.filename 
+        parser = StatementParser(file_stream)
+        df = parser.parse()
+        
+        transactions = df.to_dict('records')
+        
+        # Calculate summary
+        total_credit = df[df['amount'] > 0]['amount'].sum()
+        total_debit = df[df['amount'] < 0]['amount'].sum()
+        
+        summary_details = {
+            'totalReceived': total_credit,
+            'totalSpent': total_debit,
+            'balance': total_credit + total_debit,
+            'creditCount': len(df[df['amount'] > 0]),
+            'debitCount': len(df[df['amount'] < 0]),
+            'totalTransactions': len(df)
+        }
+        
+        # Use existing helper functions
+        category_breakdown = calculate_category_breakdown(transactions)
+        
+        # Build the final response
+        response = {
+            'transactions': transactions,
+            'summary': summary_details,
+            'categoryBreakdown': category_breakdown,
+            'pageCount': 1, # Placeholder, can be improved
+            'accounts': [] # Placeholder
+        }
+        
+        return jsonify(response)
 
     except Exception as e:
+        # Log the full error for debugging
+        print(f"Error processing PhonePe statement: {e}")
         return jsonify({
             'error': 'Failed to analyze PhonePe statement',
             'details': str(e)
@@ -72,47 +85,34 @@ def analyze_statement():
         return jsonify({'error': 'Invalid file type. Please upload a PDF file'}), 400
 
     try:
-        # Save the uploaded file
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-        file.save(filepath)
+        # Read file into an in-memory stream to avoid saving to disk
+        pdf_contents = file.read()
+        file_stream = io.BytesIO(pdf_contents)
+        file_stream.seek(0)
+        file_stream.name = file.filename
 
-        # Detect statement type
-        statement_type = detect_statement_type(filepath)
+        # We can't easily detect type from a stream without saving,
+        # so this route might need rethinking or a different detection method.
+        # For now, let's assume a generic parser is used.
+        result = parse_statement(file_stream, 'unknown')
+
+        # Format the response
+        response = {
+            'transactions': result['transactions'],
+            'summary': {
+                'totalReceived': result['summary']['total_credit'],
+                'totalSpent': result['summary']['total_debit'],
+                'balance': result['summary']['net_balance'],
+                'creditCount': result['summary']['credit_count'],
+                'debitCount': result['summary']['debit_count'],
+                'totalTransactions': result['summary']['total_transactions']
+            },
+            'categoryBreakdown': calculate_category_breakdown(result['transactions']),
+            'pageCount': len(result.get('pages', [])) if 'pages' in result else 1,
+            'accounts': extract_accounts_info(result)
+        }
         
-        try:
-            # Parse based on statement type
-            if statement_type == 'kotak':
-                result = parse_kotak_statement(filepath)
-            else:
-                result = parse_statement(filepath, statement_type)
-
-            # Format the response
-            response = {
-                'transactions': result['transactions'],
-                'summary': {
-                    'totalReceived': result['summary']['total_credit'],
-                    'totalSpent': result['summary']['total_debit'],
-                    'balance': result['summary']['net_balance'],
-                    'creditCount': result['summary']['credit_count'],
-                    'debitCount': result['summary']['debit_count'],
-                    'totalTransactions': result['summary']['total_transactions']
-                },
-                'categoryBreakdown': calculate_category_breakdown(result['transactions']),
-                'pageCount': len(result.get('pages', [])) if 'pages' in result else 1,
-                'accounts': extract_accounts_info(result)
-            }
-
-            # Clean up
-            os.remove(filepath)
-            
-            return jsonify(response)
-
-        except Exception as e:
-            # Clean up on error
-            os.remove(filepath)
-            raise e
+        return jsonify(response)
 
     except Exception as e:
         return jsonify({
