@@ -361,13 +361,35 @@ async def analyze_kotak_statement(file: UploadFile = File(...)):
                 }
             # Transform results to match frontend expectations
             transactions = results.get('transactions', [])
-            summary = results.get('summary', {})
-            category_breakdown = results.get('category_breakdown', {})
+            # Calculate summary and category breakdown like PhonePe
+            total_spent = sum(t['amount'] for t in transactions if t['amount'] < 0)
+            total_received = sum(t['amount'] for t in transactions if t['amount'] > 0)
+            credit_count = sum(1 for t in transactions if t['amount'] > 0)
+            debit_count = sum(1 for t in transactions if t['amount'] < 0)
+            total_transactions = len(transactions)
+            # Build category breakdown
+            category_map = {}
+            for t in transactions:
+                cat = t.get('category', 'Others')
+                if cat not in category_map:
+                    category_map[cat] = {'amount': 0, 'count': 0}
+                category_map[cat]['amount'] += abs(t['amount']) if t['amount'] < 0 else 0
+                if t['amount'] < 0:
+                    category_map[cat]['count'] += 1
+            for cat in category_map:
+                amt = category_map[cat]['amount']
+                category_map[cat]['percentage'] = (amt / abs(total_spent) * 100) if total_spent else 0
             page_count = results.get('pageCount', 0)
             return {
                 "transactions": transactions,
-                "summary": summary,
-                "categoryBreakdown": category_breakdown,
+                "summary": {
+                    "totalSpent": total_spent,
+                    "totalReceived": total_received,
+                    "creditCount": credit_count,
+                    "debitCount": debit_count,
+                    "totalTransactions": total_transactions
+                },
+                "categoryBreakdown": category_map,
                 "pageCount": page_count
             }
         except Exception as e:
