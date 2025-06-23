@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/app/lib/supabase'
+import { supabase } from '@/app/lib/supabase'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
@@ -18,7 +18,6 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
 
-    const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
