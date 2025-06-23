@@ -1225,7 +1225,9 @@ export const PhonePeAnalysisView: React.FC<{
 
   const chartData =
     analysisResults?.chartData?.data ||
-    (analysisResults?.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0 && getChartData(analysisResults.categoryBreakdown));
+    (analysisResults?.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0
+      ? getChartData(analysisResults.categoryBreakdown)
+      : null);
 
   return (
     <div className="min-h-screen bg-black">
