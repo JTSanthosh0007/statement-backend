@@ -639,10 +639,24 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
 
   useEffect(() => {
     if (searchQuery.trim()) {
-      const filtered = UPI_APPS.filter(app => 
+      // Only declare allApps once, and ensure all objects match UPIApp type
+      const bankApps: UPIApp[] = [
+        { id: 'sbi', name: 'State Bank of India', description: "India's largest public sector bank", category: 'public', available: true },
+        { id: 'hdfc', name: 'HDFC Bank', description: 'Leading private sector bank', category: 'private', available: true },
+        { id: 'icici', name: 'ICICI Bank', description: 'Major private sector bank', category: 'private', available: true },
+        { id: 'axis', name: 'Axis Bank', description: 'Private sector banking services', category: 'private', available: true },
+        { id: 'kotak', name: 'Kotak Mahindra Bank', description: 'Private sector banking', category: 'private', available: true },
+        { id: 'bob', name: 'Bank of Baroda', description: 'Major public sector bank', category: 'public', available: true },
+        { id: 'pnb', name: 'Punjab National Bank', description: 'Public sector banking', category: 'public', available: true },
+        { id: 'canara', name: 'Canara Bank', description: 'Public sector banking services', category: 'public', available: true },
+        { id: 'ubi', name: 'Union Bank of India', description: 'Public sector bank', category: 'public', available: true },
+        { id: 'yes', name: 'Yes Bank', description: 'Private sector banking', category: 'private', available: true },
+      ];
+      const allApps: UPIApp[] = [...UPI_APPS, ...bankApps];
+      const filtered = allApps.filter(app => 
         app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         app.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        app.shortName?.toLowerCase().includes(searchQuery.toLowerCase())
+        ((app as UPIApp).shortName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
       );
       setFilteredApps(filtered);
     } else {
@@ -2031,9 +2045,7 @@ export default function StatementAnalysis({
 
     } catch (error: any) {
       console.error('Error analyzing statement:', error);
-      const errorMessage = error.message.includes('No transactions found')
-        ? 'No transactions could be found in this PDF. Please make sure this is a valid PhonePe statement and try again.'
-        : 'Failed to analyze statement. Please make sure this is a valid PDF statement and try again.';
+      const errorMessage = error.message || 'Failed to analyze statement. Please try again.';
       alert(errorMessage);
       setAnalysisState('upload');
     }
