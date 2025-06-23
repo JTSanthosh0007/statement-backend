@@ -897,33 +897,7 @@ export const PhonePeAnalysisView: React.FC<{
                                   color: 'white',
                                   font: { size: 12 },
                                   padding: 20,
-                                  // 3. Show percentages and amounts in legend
-                                  generateLabels: (chart: ChartJS<'pie'>) => {
-                                    const data = chart.data;
-                                    const labels = (data.labels ?? []) as string[];
-                                    const bgColors = (data.datasets[0].backgroundColor ?? []) as string[];
-                                    return labels.map((label, i) => {
-                                      const value = data.datasets[0].data[i];
-                                      const percent = chartPercents[i];
-                                      return {
-                                        text: `${label}: ₹${Number(value).toLocaleString()} (${percent?.toFixed(1) ?? 0}%)`,
-                                        fillStyle: bgColors[i] ?? '#64748B',
-                                        strokeStyle: bgColors[i] ?? '#64748B',
-                                        index: i,
-                                      };
-                                    });
-                                  },
                                 },
-                                tooltip: {
-                                  callbacks: {
-                                    label: function(context: TooltipItem<'pie'>) {
-                                      const label = context.label || '';
-                                      const value = context.parsed;
-                                      const percent = chartPercents[context.dataIndex];
-                                      return `${label}: ₹${Number(value).toLocaleString()} (${percent?.toFixed(1) ?? 0}%)`;
-                                    }
-                                  }
-                                }
                               },
                               tooltip: {
                                 callbacks: {
