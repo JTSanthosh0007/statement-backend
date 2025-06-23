@@ -9,6 +9,7 @@ import pdfplumber
 import pandas as pd
 import re
 import logging
+import time
 
 app = FastAPI()
 
@@ -118,6 +119,7 @@ async def analyze_phonepe_statement(
         "first_20_lines": []
     }
     try:
+        start_time = time.time()
         if not file:
             raise HTTPException(status_code=400, detail="No file provided")
         content = await file.read()
@@ -126,71 +128,76 @@ async def analyze_phonepe_statement(
         methods_used = []
         sample_matches = []
         tables_found = 0
-        # 1. Try pdfplumber for tables (PhonePe format)
+        # 1. Try pdfplumber for tables (PhonePe format) in batches
         try:
             with pdfplumber.open(io.BytesIO(content)) as pdf:
                 debug_info["pages"] = len(pdf.pages)
                 methods_used.append("pdfplumber")
-                for page_num, page in enumerate(pdf.pages):
-                    page_lines = []
-                    tables = page.extract_tables()
-                    if tables:
-                        tables_found += len(tables)
-                        for table in tables:
-                            # Try to find header row
-                            for row in table:
-                                if (len(row) >= 4 and
-                                    ("Date" in row[0] and "Transaction" in row[1] and "Type" in row[2] and "Amount" in row[3])):
-                                    continue  # skip header
-                                # Parse row: [Date, Details, Type, Amount]
-                                if len(row) >= 4:
-                                    date_str = row[0].strip() if row[0] else ''
-                                    time_str = ''
-                                    # If next row is time, use it
-                                    if re.match(r'\d{1,2}:\d{2} (am|pm|AM|PM)', row[1] or ''):
-                                        time_str = row[1].strip()
-                                        details = row[2].strip() if len(row) > 2 else ''
-                                        txn_type = row[3].strip() if len(row) > 3 else ''
-                                        amount_str = row[4].strip() if len(row) > 4 else ''
-                                    else:
-                                        details = row[1].strip() if row[1] else ''
-                                        txn_type = row[2].strip() if row[2] else ''
-                                        amount_str = row[3].strip() if row[3] else ''
-                                    # Combine date and time
-                                    dt_str = f"{date_str} {time_str}".strip()
-                                    try:
-                                        date = pd.to_datetime(dt_str, errors='coerce')
-                                    except Exception:
-                                        date = pd.NaT
-                                    # Clean amount
-                                    amount = float(re.sub(r'[^\d.]', '', amount_str.replace(',', ''))) if amount_str else 0.0
-                                    if 'debit' in txn_type.lower():
-                                        amount = -abs(amount)
-                                    elif 'credit' in txn_type.lower():
-                                        amount = abs(amount)
-                                    else:
-                                        # fallback: look for DR/CR in amount_str
-                                        if 'dr' in amount_str.lower():
+                batch_size = 20
+                for batch_start in range(0, len(pdf.pages), batch_size):
+                    batch_end = min(batch_start + batch_size, len(pdf.pages))
+                    logger.info(f"Processing pages {batch_start+1} to {batch_end} of {len(pdf.pages)}")
+                    for page_num in range(batch_start, batch_end):
+                        page = pdf.pages[page_num]
+                        page_lines = []
+                        tables = page.extract_tables()
+                        if tables:
+                            tables_found += len(tables)
+                            for table in tables:
+                                # Try to find header row
+                                for row in table:
+                                    if (len(row) >= 4 and
+                                        ("Date" in row[0] and "Transaction" in row[1] and "Type" in row[2] and "Amount" in row[3])):
+                                        continue  # skip header
+                                    # Parse row: [Date, Details, Type, Amount]
+                                    if len(row) >= 4:
+                                        date_str = row[0].strip() if row[0] else ''
+                                        time_str = ''
+                                        # If next row is time, use it
+                                        if re.match(r'\d{1,2}:\d{2} (am|pm|AM|PM)', row[1] or ''):
+                                            time_str = row[1].strip()
+                                            details = row[2].strip() if len(row) > 2 else ''
+                                            txn_type = row[3].strip() if len(row) > 3 else ''
+                                            amount_str = row[4].strip() if len(row) > 4 else ''
+                                        else:
+                                            details = row[1].strip() if row[1] else ''
+                                            txn_type = row[2].strip() if row[2] else ''
+                                            amount_str = row[3].strip() if row[3] else ''
+                                        # Combine date and time
+                                        dt_str = f"{date_str} {time_str}".strip()
+                                        try:
+                                            date = pd.to_datetime(dt_str, errors='coerce')
+                                        except Exception:
+                                            date = pd.NaT
+                                        # Clean amount
+                                        amount = float(re.sub(r'[^\d.]', '', amount_str.replace(',', ''))) if amount_str else 0.0
+                                        if 'debit' in txn_type.lower():
                                             amount = -abs(amount)
-                                        elif 'cr' in amount_str.lower():
+                                        elif 'credit' in txn_type.lower():
                                             amount = abs(amount)
-                                    transactions.append({
-                                        'date': date,
-                                        'description': details,
-                                        'amount': amount,
-                                        'category': 'PhonePe',
-                                        'type': txn_type
-                                    })
-                                    sample_matches.append(f"{dt_str} | {details} | {txn_type} | {amount_str}")
-                                page_lines.append(' | '.join([str(cell) for cell in row if cell]))
-                    # Fallback: extract_text line by line
-                    text = page.extract_text() or ''
-                    for line in text.split('\n'):
-                        page_lines.append(line.strip())
-                    if page_num == 0:
-                        debug_info["first_20_lines"] = page_lines[:20]
-                    debug_info["lines_per_page"].append(len(page_lines))
-                    all_lines.extend(page_lines)
+                                        else:
+                                            # fallback: look for DR/CR in amount_str
+                                            if 'dr' in amount_str.lower():
+                                                amount = -abs(amount)
+                                            elif 'cr' in amount_str.lower():
+                                                amount = abs(amount)
+                                        transactions.append({
+                                            'date': date,
+                                            'description': details,
+                                            'amount': amount,
+                                            'category': 'PhonePe',
+                                            'type': txn_type
+                                        })
+                                        sample_matches.append(f"{dt_str} | {details} | {txn_type} | {amount_str}")
+                                    page_lines.append(' | '.join([str(cell) for cell in row if cell]))
+                        # Fallback: extract_text line by line
+                        text = page.extract_text() or ''
+                        for line in text.split('\n'):
+                            page_lines.append(line.strip())
+                        if page_num == 0:
+                            debug_info["first_20_lines"] = page_lines[:20]
+                        debug_info["lines_per_page"].append(len(page_lines))
+                        all_lines.extend(page_lines)
         except Exception as e:
             logger.error(f"pdfplumber extraction error: {e}")
             debug_info["errors"].append(f"pdfplumber: {e}")
@@ -261,6 +268,7 @@ async def analyze_phonepe_statement(
             if t['amount'] < 0:
                 category = t['category']
                 category_breakdown[category] = category_breakdown.get(category, 0) + t['amount']
+        debug_info["analysis_time_seconds"] = round(time.time() - start_time, 2)
         return {
             "transactions": df.to_dict('records'),
             "summary": {
