@@ -1,7 +1,42 @@
 from datetime import datetime
 import re
+from statement_parser import StatementParser
 
-def parse_phonepe_statement(file_path):
+def parse_phonepe_statement(file_obj):
+    """
+    Parses a PhonePe bank statement using the StatementParser.
+    
+    Args:
+        file_obj: A file-like object containing the PDF data.
+        
+    Returns:
+        dict: A dictionary containing the extracted transaction data.
+    """
+    parser = StatementParser(file_obj)
+    df = parser.parse()
+    
+    transactions = df.to_dict('records')
+    
+    # Calculate summary
+    total_credit = df[df['amount'] > 0]['amount'].sum()
+    total_debit = df[df['amount'] < 0]['amount'].sum()
+    
+    summary = {
+        'total_credit': total_credit,
+        'total_debit': total_debit,
+        'net_balance': total_credit + total_debit,
+        'credit_count': len(df[df['amount'] > 0]),
+        'debit_count': len(df[df['amount'] < 0]),
+        'total_transactions': len(df)
+    }
+    
+    return {
+        'transactions': transactions,
+        'summary': summary,
+        'account_info': {}  # Add account info if available
+    }
+
+def parse_phonepe_statement_old(file_path):
     """
     Parses a PhonePe bank statement and extracts transaction data.
 
