@@ -17,7 +17,7 @@ export const UPI_APPS: UPIApp[] = [
     shortName: 'SBI',
     description: 'India\'s largest public sector bank',
     category: 'public',
-    available: true,
+    available: false,
     bankCode: 'SBI'
   },
   {
@@ -26,7 +26,7 @@ export const UPI_APPS: UPIApp[] = [
     shortName: 'BOB',
     description: 'Leading public sector bank',
     category: 'public',
-    available: true,
+    available: false,
     bankCode: 'BARB'
   },
   {
@@ -35,7 +35,7 @@ export const UPI_APPS: UPIApp[] = [
     shortName: 'PNB',
     description: 'One of India\'s oldest public sector banks',
     category: 'public',
-    available: true,
+    available: false,
     bankCode: 'PUNB'
   },
   {
@@ -43,7 +43,7 @@ export const UPI_APPS: UPIApp[] = [
     name: 'Canara Bank',
     description: 'Major public sector bank',
     category: 'public',
-    available: true,
+    available: false,
     bankCode: 'CNRB'
   },
 
@@ -53,7 +53,7 @@ export const UPI_APPS: UPIApp[] = [
     name: 'HDFC Bank',
     description: 'India\'s largest private sector bank',
     category: 'private',
-    available: true,
+    available: false,
     bankCode: 'HDFC'
   },
   {
@@ -61,7 +61,7 @@ export const UPI_APPS: UPIApp[] = [
     name: 'ICICI Bank',
     description: 'Leading private sector bank',
     category: 'private',
-    available: true,
+    available: false,
     bankCode: 'ICIC'
   },
   {
@@ -69,7 +69,7 @@ export const UPI_APPS: UPIApp[] = [
     name: 'Axis Bank',
     description: 'Major private sector bank',
     category: 'private',
-    available: true,
+    available: false,
     bankCode: 'UTIB'
   },
   {
@@ -89,7 +89,7 @@ export const UPI_APPS: UPIApp[] = [
     shortName: 'Paytm',
     description: 'Digital payments and banking services',
     category: 'payment',
-    available: true,
+    available: false,
     bankCode: 'PYTM'
   },
   {
@@ -98,7 +98,7 @@ export const UPI_APPS: UPIApp[] = [
     shortName: 'Airtel',
     description: 'Digital banking services',
     category: 'payment',
-    available: true,
+    available: false,
     bankCode: 'AIRP'
   },
   {
@@ -107,7 +107,7 @@ export const UPI_APPS: UPIApp[] = [
     shortName: 'Jio',
     description: 'Digital banking platform',
     category: 'payment',
-    available: true,
+    available: false,
     bankCode: 'JIOP'
   },
 
@@ -118,7 +118,7 @@ export const UPI_APPS: UPIApp[] = [
     shortName: 'AU Bank',
     description: 'Small finance banking services',
     category: 'small-finance',
-    available: true,
+    available: false,
     bankCode: 'AUBL'
   },
   {
@@ -127,7 +127,7 @@ export const UPI_APPS: UPIApp[] = [
     shortName: 'Equitas',
     description: 'Small finance banking services',
     category: 'small-finance',
-    available: true,
+    available: false,
     bankCode: 'ESFB'
   },
 
@@ -137,7 +137,7 @@ export const UPI_APPS: UPIApp[] = [
     name: 'Citibank',
     description: 'International banking services',
     category: 'foreign',
-    available: true,
+    available: false,
     bankCode: 'CITI'
   },
   {
@@ -145,7 +145,7 @@ export const UPI_APPS: UPIApp[] = [
     name: 'HSBC Bank',
     description: 'Global banking and financial services',
     category: 'foreign',
-    available: true,
+    available: false,
     bankCode: 'HSBC'
   },
 
@@ -162,23 +162,250 @@ export const UPI_APPS: UPIApp[] = [
     name: 'Google Pay',
     description: 'Google\'s payment service',
     category: 'payment',
-    available: true
+    available: false
   },
   {
     id: 'bhim',
     name: 'BHIM',
     description: 'Government\'s UPI payment app',
     category: 'payment',
-    available: true
+    available: false
+  },
+  {
+    id: 'adityabirla',
+    name: 'Aditya Birla Capital Digital',
+    description: 'Digital financial solutions',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'amazonpay',
+    name: 'Amazon Pay',
+    description: 'Digital payment service by Amazon',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'bajajfinserv',
+    name: 'Bajaj Finserv',
+    description: 'Financial services company',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'bharatpe',
+    name: 'BharatPe',
+    description: 'QR code-based payment app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'changejar',
+    name: 'ChangeJar',
+    description: 'Digital savings and investment app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'cred',
+    name: 'CRED',
+    description: 'Credit card bill payment platform',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'curiemoney',
+    name: 'Curie Money',
+    description: 'Financial services app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'famapp',
+    name: 'FamApp by Trio',
+    description: 'Family-oriented payment app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'fimoney',
+    name: 'Fi Money',
+    description: 'Neobanking and money management app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'flipkartupi',
+    name: 'Flipkart UPI',
+    description: 'UPI service by Flipkart',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'freo',
+    name: 'Freo',
+    description: 'Credit and financial wellness app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'groww',
+    name: 'Groww',
+    description: 'Investment and trading platform',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'indmoney',
+    name: 'IND Money',
+    description: 'Wealth management and investment app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'jupitermoney',
+    name: 'Jupiter Money',
+    description: 'Digital banking and money management app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'kiwi',
+    name: 'Kiwi',
+    description: 'Credit on UPI app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'kreditpe',
+    name: 'Kredit.Pe',
+    description: 'Digital credit platform',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'mobikwik',
+    name: 'MobiKwik',
+    description: 'Digital wallet and payment app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'moneyview',
+    name: 'Money View',
+    description: 'Personal finance management app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'navi',
+    name: 'Navi',
+    description: 'Personal loans and financial products',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'niyoglobal',
+    name: 'Niyo Global',
+    description: 'Digital banking for international travelers',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'onecard',
+    name: 'One Card',
+    description: 'Credit card and rewards platform',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'popclub',
+    name: 'POPclub',
+    description: 'Shopping and rewards app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'riomoney',
+    name: 'Rio Money',
+    description: 'Financial services app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'samsungpay',
+    name: 'Samsung Pay',
+    description: 'Mobile payment and digital wallet',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'salaryse',
+    name: 'salaryse',
+    description: 'Financial wellness and credit app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'shriramone',
+    name: 'Shriram One',
+    description: 'Financial services and investment app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'supermoney',
+    name: 'super.money',
+    description: 'Financial services app',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'tataneu',
+    name: 'Tata Neu',
+    description: 'Super-app for shopping and payments',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'timepay',
+    name: 'TimePay',
+    description: 'Digital payment solutions',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'twallet',
+    name: 'T Wallet',
+    description: 'Official digital wallet of Telangana',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'twidpay',
+    name: 'Twid Pay',
+    description: 'Rewards-based payment network',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'ultracash',
+    name: 'Ultracash',
+    description: 'Mobile payment and financial services',
+    category: 'payment',
+    available: false
+  },
+  {
+    id: 'whatsapp',
+    name: 'WhatsApp',
+    description: 'Messaging app with payment features',
+    category: 'payment',
+    available: false
   }
 ];
 
-export const getAppsByCategory = (category?: UPIApp['category'], onlyAvailable: boolean = false) => {
+export const getAppsByCategory = (category?: UPIApp['category']) => {
   let apps = UPI_APPS;
-  
-  if (onlyAvailable) {
-    apps = apps.filter(app => app.available);
-  }
   
   if (category) {
     return apps.filter(app => app.category === category);

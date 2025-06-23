@@ -61,15 +61,13 @@ const UPIAppCard = memo(({ app, onSelect, isSelected }: UPIAppCardProps) => {
 interface UPIAppGridProps {
   onSelectApp: (app: UPIApp) => void;
   selectedAppId?: string;
-  showOnlyAvailable?: boolean;
 }
 
 const UPIAppGrid = memo(({ 
   onSelectApp, 
-  selectedAppId,
-  showOnlyAvailable = true 
+  selectedAppId
 }: UPIAppGridProps) => {
-  const allApps = getAppsByCategory(undefined, showOnlyAvailable);
+  const allApps = getAppsByCategory();
   
   const categorizedApps = allApps.reduce((acc, app) => {
     if (!acc[app.category]) {

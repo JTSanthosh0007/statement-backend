@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import { Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { UPIApp, getAppsByCategory } from '../constants/upiApps';
 
 export default function UPIAppsPage() {
   const router = useRouter();
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [selectedApp, setSelectedApp] = useState('');
 
@@ -35,144 +34,16 @@ export default function UPIAppsPage() {
     });
   };
 
-  const handleAppClick = (appName: string) => {
-    if (appName === 'PhonePe') {
-      router.push('/phonepe');
+  const handleAppClick = (app: UPIApp) => {
+    if (app.available) {
+      router.push(`/${app.id}`);
     } else {
-      setSelectedApp(appName);
+      setSelectedApp(app.name);
       setShowComingSoon(true);
     }
   };
 
-  const upiApps = [
-    {
-      name: 'PhonePe',
-      logo: 'PP',
-      color: '#5f259f',
-      description: 'Digital payments & financial services',
-      category: 'Popular',
-      bankPartners: ['Yes Bank', 'ICICI Bank', 'Axis Bank']
-    },
-    {
-      name: 'Google Pay',
-      logo: 'GPay',
-      color: '#4285F4',
-      description: 'Google\'s UPI payment service',
-      category: 'Popular',
-      bankPartners: ['Axis Bank', 'HDFC Bank', 'ICICI Bank', 'SBI']
-    },
-    {
-      name: 'Paytm',
-      logo: 'paytm',
-      color: '#00B9F1',
-      description: 'Digital payments & commerce',
-      category: 'Popular',
-      bankPartners: ['Yes Bank', 'Axis Bank', 'HDFC Bank', 'SBI'],
-      isSpecialLogo: true
-    },
-    {
-      name: 'WhatsApp Pay',
-      logo: 'WA',
-      color: '#25D366',
-      description: 'WhatsApp\'s UPI payments',
-      category: 'Popular',
-      bankPartners: ['ICICI Bank', 'Axis Bank', 'HDFC Bank', 'SBI']
-    },
-    {
-      name: 'Amazon Pay',
-      logo: 'Pay',
-      color: '#FF9900',
-      description: 'Amazon\'s payment service',
-      category: 'Popular',
-      bankPartners: ['Axis Bank', 'Yes Bank', 'RBL Bank']
-    },
-    {
-      name: 'CRED',
-      logo: 'CRED',
-      color: '#000000',
-      description: 'Credit card payments & rewards',
-      category: 'Finance',
-      bankPartners: ['Axis Bank', 'Yes Bank']
-    },
-    {
-      name: 'Flipkart',
-      logo: 'FK',
-      color: '#2874F0',
-      description: 'Flipkart\'s UPI payment service',
-      category: 'Shopping',
-      bankPartners: ['Axis Bank']
-    },
-    {
-      name: 'MobiKwik',
-      logo: 'MK',
-      color: '#232C65',
-      description: 'Digital wallet & payments',
-      category: 'Finance',
-      bankPartners: ['HDFC Bank']
-    },
-    {
-      name: 'Jupiter Money',
-      logo: 'JM',
-      color: '#5D3FD3',
-      description: 'Banking & payments app',
-      category: 'Finance',
-      bankPartners: ['Axis Bank']
-    },
-    {
-      name: 'Groww',
-      logo: 'GW',
-      color: '#5367FF',
-      description: 'Investment & payments platform',
-      category: 'Finance',
-      bankPartners: ['Yes Bank']
-    },
-    {
-      name: 'Tata Neu',
-      logo: 'TN',
-      color: '#FF0000',
-      description: 'Tata\'s super app with payments',
-      category: 'Shopping',
-      bankPartners: ['ICICI Bank']
-    },
-    {
-      name: 'Samsung Pay',
-      logo: 'SP',
-      color: '#1428A0',
-      description: 'Samsung\'s payment service',
-      category: 'Tech',
-      bankPartners: ['Axis Bank']
-    },
-    {
-      name: 'Bajaj Finserv',
-      logo: 'BF',
-      color: '#00A3E0',
-      description: 'Financial services & payments',
-      category: 'Finance',
-      bankPartners: ['Axis Bank']
-    },
-    {
-      name: 'Fi Money',
-      logo: 'Fi',
-      color: '#8A2BE2',
-      description: 'Neo-banking & payments',
-      category: 'Finance',
-      bankPartners: ['Federal Bank']
-    },
-    {
-      name: 'Navi',
-      logo: 'NV',
-      color: '#7B68EE',
-      description: 'Financial services platform',
-      category: 'Finance',
-      bankPartners: ['Axis Bank']
-    }
-  ];
-
-  const categories = ['all', 'Popular', 'Finance', 'Shopping', 'Tech'];
-  
-  const filteredApps = selectedCategory === 'all' 
-    ? upiApps 
-    : upiApps.filter(app => app.category === selectedCategory);
+  const upiApps = getAppsByCategory('payment');
 
   const favoriteApps = upiApps.filter(app => favorites.has(app.name));
 
@@ -205,25 +76,6 @@ export default function UPIAppsPage() {
         </div>
       )}
 
-      {/* Category Filter */}
-      <div className="px-4 pb-2">
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-full text-sm whitespace-nowrap ${
-                selectedCategory === category
-                  ? 'bg-white text-black'
-                  : 'bg-zinc-800 text-white hover:bg-zinc-700'
-              }`}
-            >
-              {category === 'all' ? 'All Apps' : category}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Favorites Section */}
       {favoriteApps.length > 0 && (
         <div className="px-4 mb-6">
@@ -231,32 +83,24 @@ export default function UPIAppsPage() {
           <div className="grid grid-cols-1 gap-4">
             {favoriteApps.map((app) => (
               <div 
-                key={app.name}
-                onClick={() => handleAppClick(app.name)}
+                key={app.id}
+                onClick={() => handleAppClick(app)}
                 className="group bg-zinc-800/80 p-4 rounded-2xl border border-zinc-700/50 hover:bg-zinc-700/80 transition-all duration-300 cursor-pointer"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden"
-                       style={{ backgroundColor: app.isSpecialLogo ? 'white' : app.color }}>
-                    {app.isSpecialLogo ? (
-                      <div className="flex flex-col items-center">
-                        <span style={{ color: app.color }} className="text-sm font-bold leading-none">pay</span>
-                        <span style={{ color: app.color }} className="text-[7px] font-bold leading-none mt-0.5">tm</span>
-                      </div>
-                    ) : (
-                      <span className="text-white text-sm font-bold">{app.logo}</span>
-                    )}
+                  <div className="w-12 h-12 bg-gray-600 rounded-2xl flex items-center justify-center overflow-hidden">
+                    <span className="text-white text-sm font-bold">
+                      {app.shortName?.charAt(0) || app.name.charAt(0)}
+                    </span>
                   </div>
                   <div className="flex-1">
                     <h3 className="text-white font-medium">{app.name}</h3>
                     <p className="text-sm text-zinc-400 mt-0.5">{app.description}</p>
-                    <p className="text-xs text-zinc-500 mt-1">Partners: {app.bankPartners.join(', ')}</p>
                   </div>
-                  <button
-                    onClick={(e) => toggleFavorite(e, app.name)}
-                    className="text-white"
-                  >
-                    <Star className="w-5 h-5 fill-white" />
+                  <button onClick={(e) => toggleFavorite(e, app.name)} className="text-zinc-400 hover:text-yellow-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 ${favorites.has(app.name) ? 'text-yellow-400' : ''}`} fill={favorites.has(app.name) ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                    </svg>
                   </button>
                 </div>
               </div>
@@ -265,38 +109,30 @@ export default function UPIAppsPage() {
         </div>
       )}
 
-      {/* All Apps */}
-      <div className="p-4">
-        <h2 className="text-white font-medium mb-3">{selectedCategory === 'all' ? 'All Apps' : selectedCategory}</h2>
+      {/* All Apps Section */}
+      <div className="px-4">
+        <h2 className="text-white font-medium mb-3">All UPI Apps</h2>
         <div className="grid grid-cols-1 gap-4">
-          {filteredApps.map((app) => (
+          {upiApps.map((app) => (
             <div 
-              key={app.name}
-              onClick={() => handleAppClick(app.name)}
-              className="group bg-zinc-900/80 p-4 rounded-2xl border border-zinc-800/50 hover:bg-zinc-800/80 transition-all duration-300 cursor-pointer"
+              key={app.id}
+              onClick={() => handleAppClick(app)}
+              className="group bg-zinc-800/80 p-4 rounded-2xl border border-zinc-700/50 hover:bg-zinc-700/80 transition-all duration-300 cursor-pointer"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden"
-                     style={{ backgroundColor: app.isSpecialLogo ? 'white' : app.color }}>
-                  {app.isSpecialLogo ? (
-                    <div className="flex flex-col items-center">
-                      <span style={{ color: app.color }} className="text-sm font-bold leading-none">pay</span>
-                      <span style={{ color: app.color }} className="text-[7px] font-bold leading-none mt-0.5">tm</span>
-                    </div>
-                  ) : (
-                    <span className="text-white text-sm font-bold">{app.logo}</span>
-                  )}
+                <div className="w-12 h-12 bg-gray-600 rounded-2xl flex items-center justify-center overflow-hidden">
+                   <span className="text-white text-sm font-bold">
+                      {app.shortName?.charAt(0) || app.name.charAt(0)}
+                    </span>
                 </div>
                 <div className="flex-1">
                   <h3 className="text-white font-medium">{app.name}</h3>
                   <p className="text-sm text-zinc-400 mt-0.5">{app.description}</p>
-                  <p className="text-xs text-zinc-500 mt-1">Partners: {app.bankPartners.join(', ')}</p>
                 </div>
-                <button
-                  onClick={(e) => toggleFavorite(e, app.name)}
-                  className="text-zinc-500 hover:text-white transition-colors"
-                >
-                  <Star className={`w-5 h-5 ${favorites.has(app.name) ? 'fill-white text-white' : ''}`} />
+                <button onClick={(e) => toggleFavorite(e, app.name)} className="text-zinc-400 hover:text-yellow-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 ${favorites.has(app.name) ? 'text-yellow-400' : ''}`} fill={favorites.has(app.name) ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
                 </button>
               </div>
             </div>
