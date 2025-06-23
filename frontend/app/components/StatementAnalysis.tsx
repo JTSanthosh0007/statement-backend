@@ -770,19 +770,19 @@ export const PhonePeAnalysisView: React.FC<{
                 {/* Total Received */}
                 <div className="bg-zinc-800/50 p-4 rounded-xl">
                   <p className="text-sm text-zinc-400">Total Received (CR)</p>
-                  <p className="text-xl font-medium text-green-400">₹{analysisResults.summary.totalReceived.toFixed(2)}</p>
+                  <p className="text-xl font-medium text-green-400">₹{(analysisResults.summary.totalReceived ?? 0).toFixed(2)}</p>
                 </div>
                 
                 {/* Total Spent */}
                 <div className="bg-zinc-800/50 p-4 rounded-xl">
                   <p className="text-sm text-zinc-400">Total Spent (DR)</p>
-                  <p className="text-xl font-medium text-red-400">₹{Math.abs(analysisResults.summary.totalSpent).toFixed(2)}</p>
+                  <p className="text-xl font-medium text-red-400">₹{Math.abs(analysisResults.summary.totalSpent ?? 0).toFixed(2)}</p>
                 </div>
                 
                 {/* New: Total Amount */}
                 <div className="bg-zinc-800/50 p-4 rounded-xl">
                   <p className="text-sm text-zinc-400">Total Amount</p>
-                  <p className="text-xl font-medium text-white">₹{(analysisResults.summary.totalReceived + Math.abs(analysisResults.summary.totalSpent)).toFixed(2)}</p>
+                  <p className="text-xl font-medium text-white">₹{((analysisResults.summary.totalReceived ?? 0) + Math.abs(analysisResults.summary.totalSpent ?? 0)).toFixed(2)}</p>
                 </div>
               </div>
               <div className="mt-4 p-3 bg-zinc-800/50 rounded-2xl">
@@ -995,12 +995,12 @@ export const PhonePeAnalysisView: React.FC<{
                           </div>
                           <div className="flex items-center justify-between text-xs text-zinc-400 mb-1">
                             <span>Portion of spending</span>
-                            <span className="font-semibold" style={{ color }}>{cat.percentage.toFixed(1)}%</span>
+                            <span className="font-semibold" style={{ color }}>{(cat.percentage ?? 0).toFixed(1)}%</span>
                           </div>
                           <div className="relative h-2 bg-zinc-700 rounded-full overflow-hidden mb-2">
                             <div
                               className="absolute top-0 left-0 h-full rounded-full transition-all duration-500"
-                              style={{ width: `${cat.percentage}%`, background: color }}
+                              style={{ width: `${(cat.percentage ?? 0)}%`, background: color }}
                             />
                           </div>
                           <div className="text-xs text-zinc-400">{cat.count} transaction{cat.count !== 1 ? 's' : ''}</div>
@@ -1293,19 +1293,19 @@ export const KotakAnalysisView: React.FC<{
                 {/* Total Received */}
                 <div className="bg-zinc-800/50 p-4 rounded-xl">
                   <p className="text-sm text-zinc-400">Total Received (CR)</p>
-                  <p className="text-xl font-medium text-green-400">₹{analysisResults.summary.totalReceived.toFixed(2)}</p>
+                  <p className="text-xl font-medium text-green-400">₹{(analysisResults.summary.totalReceived ?? 0).toFixed(2)}</p>
                 </div>
                 
                 {/* Total Spent */}
                 <div className="bg-zinc-800/50 p-4 rounded-xl">
                   <p className="text-sm text-zinc-400">Total Spent (DR)</p>
-                  <p className="text-xl font-medium text-red-400">₹{Math.abs(analysisResults.summary.totalSpent).toFixed(2)}</p>
+                  <p className="text-xl font-medium text-red-400">₹{Math.abs(analysisResults.summary.totalSpent ?? 0).toFixed(2)}</p>
                 </div>
                 
                 {/* New: Total Amount */}
                 <div className="bg-zinc-800/50 p-4 rounded-xl">
                   <p className="text-sm text-zinc-400">Total Amount</p>
-                  <p className="text-xl font-medium text-white">₹{(analysisResults.summary.totalReceived + Math.abs(analysisResults.summary.totalSpent)).toFixed(2)}</p>
+                  <p className="text-xl font-medium text-white">₹{((analysisResults.summary.totalReceived ?? 0) + Math.abs(analysisResults.summary.totalSpent ?? 0)).toFixed(2)}</p>
                 </div>
               </div>
               <div className="mt-4 p-3 bg-zinc-800/50 rounded-2xl">
