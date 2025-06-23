@@ -2207,7 +2207,12 @@ export default function StatementAnalysis({
       });
 
       console.log('Received response from API:', response.status);
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        data = { error: 'Server error or timeout. Please try again later.' };
+      }
       console.log('API Response Data:', data);
 
       if (!response.ok) {
