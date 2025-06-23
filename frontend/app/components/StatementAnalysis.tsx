@@ -832,6 +832,16 @@ export const PhonePeAnalysisView: React.FC<{
                   <p className="text-xs text-zinc-500">{analysisResults.pageCount} pages</p>
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-2 mt-4">
+                <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
+                  <span className="text-xs text-zinc-400">Total Credit Transactions</span>
+                  <span className="text-lg font-bold text-green-400">{analysisResults.summary.creditCount ?? 0}</span>
+                </div>
+                <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
+                  <span className="text-xs text-zinc-400">Total Debit Transactions</span>
+                  <span className="text-lg font-bold text-red-400">{analysisResults.summary.debitCount ?? 0}</span>
+                </div>
+              </div>
             </div>
 
             {/* Charts */}
@@ -1324,6 +1334,16 @@ export const KotakAnalysisView: React.FC<{
                 <div className="flex justify-between items-center mt-1">
                   <p className="text-xs text-zinc-500">Total {analysisResults.summary.totalTransactions} transactions</p>
                   <p className="text-xs text-zinc-500">{analysisResults.pageCount} pages</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mt-4">
+                <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
+                  <span className="text-xs text-zinc-400">Total Credit Transactions</span>
+                  <span className="text-lg font-bold text-green-400">{analysisResults.summary.creditCount ?? 0}</span>
+                </div>
+                <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
+                  <span className="text-xs text-zinc-400">Total Debit Transactions</span>
+                  <span className="text-lg font-bold text-red-400">{analysisResults.summary.debitCount ?? 0}</span>
                 </div>
               </div>
             </div>
