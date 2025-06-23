@@ -2,9 +2,20 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function SettingsPage() {
   const router = useRouter()
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -55,12 +66,14 @@ export default function SettingsPage() {
           Help & Support
         </button>
 
+        {/* Divider */}
+        <div className="pt-4">
+          <div className="border-t border-zinc-800"></div>
+        </div>
+
         <button 
-          onClick={() => {
-            // Add logout logic here
-            router.push('/login')
-          }}
-          className="w-full bg-red-600 rounded-xl p-4 text-center font-medium hover:bg-red-700 transition-all duration-300 mt-8"
+          onClick={handleLogout}
+          className="w-full bg-zinc-900 rounded-xl p-4 text-center font-medium text-red-500 hover:bg-zinc-800/80 transition-all duration-300"
         >
           Log Out
         </button>
