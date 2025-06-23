@@ -158,6 +158,22 @@ interface AccountSettingsViewProps {
   // supabase: any; // Pass Supabase client - uncomment when client is configured
 }
 
+// Add a color palette for categories
+const CATEGORY_COLORS: Record<string, string> = {
+  Bills: '#3B82F6',
+  Entertainment: '#EF4444',
+  Food: '#22C55E',
+  Others: '#6366F1',
+  Salary: '#A855F7',
+  Shopping: '#F59E42',
+  Travel: '#F472B6',
+  Groceries: '#FBBF24',
+  Health: '#10B981',
+  Investments: '#F87171',
+  // fallback
+  Default: '#64748B',
+};
+
 const HomeView: React.FC<HomeViewProps> = ({
   setCurrentView,
   setIsSearchOpen,
@@ -959,18 +975,41 @@ export const PhonePeAnalysisView: React.FC<{
               </div>
             )}
 
-            {/* Category Breakdown */}
-            <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-              <h3 className="text-lg font-medium text-white mb-4">Spending by Category</h3>
-              <div className="space-y-4">
-                {Object.entries(analysisResults.categoryBreakdown).map(([category, { amount, percentage, count }]) => (
-                  <div key={category} className="flex justify-between items-center">
-                    <span className="text-zinc-300">{category}</span>
-                    <span className="text-zinc-400">₹{Math.abs(amount).toLocaleString()}</span>
-                  </div>
-                ))}
+            {/* Category Breakdown Section (always show, below chart) */}
+            {analysisResults?.categoryBreakdown && (
+              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50 mt-6">
+                <h3 className="text-lg font-semibold text-white mb-6">Detailed Category Breakdown</h3>
+                <div className="space-y-4">
+                  {Object.entries(analysisResults.categoryBreakdown)
+                    .sort(([, a], [, b]) => Math.abs(b.amount) - Math.abs(a.amount))
+                    .map(([category, cat], idx) => {
+                      const color = CATEGORY_COLORS[category] || CATEGORY_COLORS.Default;
+                      return (
+                        <div key={category} className="rounded-xl bg-zinc-800/70 p-4 border border-zinc-700/50 shadow flex flex-col">
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <span className="w-3 h-3 rounded-full" style={{ background: color }}></span>
+                              <span className="font-semibold text-white text-base">{category}</span>
+                            </div>
+                            <span className="font-bold text-lg text-white">₹{cat.amount.toLocaleString(undefined, {maximumFractionDigits:2})}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-zinc-400 mb-1">
+                            <span>Portion of spending</span>
+                            <span className="font-semibold" style={{ color }}>{cat.percentage.toFixed(1)}%</span>
+                          </div>
+                          <div className="relative h-2 bg-zinc-700 rounded-full overflow-hidden mb-2">
+                            <div
+                              className="absolute top-0 left-0 h-full rounded-full transition-all duration-500"
+                              style={{ width: `${cat.percentage}%`, background: color }}
+                            />
+                          </div>
+                          <div className="text-xs text-zinc-400">{cat.count} transaction{cat.count !== 1 ? 's' : ''}</div>
+                        </div>
+                      );
+                    })}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Recent Transactions */}
             <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
