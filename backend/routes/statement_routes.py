@@ -4,7 +4,7 @@ from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 import os
 from parsers.kotak_parser import parse_kotak_statement
-from parsers.statement_parser import detect_statement_type, parse_statement, StatementParser
+from statement_parser import StatementParser
 
 statement_routes = Blueprint('statement_routes', __name__)
 
