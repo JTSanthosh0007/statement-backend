@@ -160,7 +160,12 @@ async def analyze_phonepe_statement(
                         })
             if not transactions:
                 logger.warning("No transactions extracted from PhonePe statement.")
-                return {"transactions": [], "summary": {}, "categoryBreakdown": {}}
+                return {
+                    "transactions": [],
+                    "summary": {"totalSpent": 0, "totalReceived": 0},
+                    "categoryBreakdown": {},
+                    "pageCount": 0
+                }
             df = pd.DataFrame(transactions)
             # Calculate summary statistics
             total_spent = sum(t['amount'] for t in transactions if t['amount'] < 0)
