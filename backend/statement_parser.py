@@ -13,6 +13,8 @@ import plotly.graph_objects as go
 from datetime import datetime
 import json
 import sys
+from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi.responses import JSONResponse
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -538,4 +540,57 @@ def main():
         sys.exit(1)
 
 if __name__ == "__main__":
-    main() 
+    main()
+
+app = FastAPI()
+
+@app.post("/analyze-pdf/")
+async def analyze_pdf(file: UploadFile = File(...)):
+    """
+    Analyzes an uploaded PDF file.
+
+    This endpoint reads the uploaded PDF, validates it, and extracts
+    basic information like the number of pages.
+    """
+    if not file.filename.endswith('.pdf'):
+        raise HTTPException(status_code=400, detail="Invalid file type. Please upload a PDF.")
+
+    try:
+        # 1. Read the uploaded file into memory
+        pdf_bytes = await file.read()
+        
+        # 2. Wrap the bytes in a BytesIO object to make it a seekable file-like object
+        pdf_stream = io.BytesIO(pdf_bytes)
+
+        # 3. Use fitz.open() to open the PDF from the stream
+        #    The 'stream' argument requires the file extension to be specified.
+        with fitz.open(stream=pdf_stream, filetype="pdf") as doc:
+            
+            # 4. Analyze the PDF
+            num_pages = doc.page_count
+            logger.info(f"Successfully opened '{file.filename}'. It has {num_pages} page(s).")
+            
+            # Example: Extract text from the first page
+            first_page_text = ""
+            if num_pages > 0:
+                first_page = doc.load_page(0)
+                first_page_text = first_page.get_text()
+
+            # 5. Return a success response
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "filename": file.filename,
+                    "message": "PDF analyzed successfully",
+                    "page_count": num_pages,
+                    "first_page_text_sample": first_page_text[:200] + "..." if first_page_text else "No text found."
+                }
+            )
+
+    except Exception as e:
+        logger.error(f"Failed to process PDF {file.filename}: {str(e)}")
+        # Handle errors properly
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while processing the PDF: {str(e)}"
+        ) 
