@@ -174,6 +174,25 @@ const CATEGORY_COLORS: Record<string, string> = {
   Default: '#64748B',
 };
 
+// Add this helper function near the top (after CATEGORY_COLORS):
+const getChartData = (categoryBreakdown: any) => {
+  const labels = Object.keys(categoryBreakdown);
+  const data = labels.map(label => Math.abs(categoryBreakdown[label].amount ?? 0));
+  const backgroundColors = labels.map((label) => CATEGORY_COLORS[label] || CATEGORY_COLORS.Default);
+  return {
+    labels,
+    datasets: [
+      {
+        label: 'Amount Spent',
+        data,
+        backgroundColor: backgroundColors,
+        borderColor: backgroundColors,
+        borderWidth: 1,
+      },
+    ],
+  };
+};
+
 const HomeView: React.FC<HomeViewProps> = ({
   setCurrentView,
   setIsSearchOpen,
@@ -838,103 +857,64 @@ export const PhonePeAnalysisView: React.FC<{
                   <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
                     <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                     <div className="h-64">
-                      <Chart
-                        data={analysisResults.chartData.data}
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: {
-                              position: 'right',
-                              labels: {
-                                color: 'white',
-                                font: {
-                                  size: 12
-                                },
-                                padding: 20
-                              }
-                            },
-                            tooltip: {
-                              callbacks: {
-                                label: function(context) {
-                                  return `${context.label}: ${context.parsed.toFixed(1)}%`;
+                      {chartData && (
+                        <Chart
+                          data={chartData}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: {
+                                position: 'right',
+                                labels: {
+                                  color: 'white',
+                                  font: { size: 12 },
+                                  padding: 20
+                                }
+                              },
+                              tooltip: {
+                                callbacks: {
+                                  label: function(context) {
+                                    return `${context.label}: ${context.parsed.toFixed(1)}%`;
+                                  }
                                 }
                               }
                             }
-                          }
-                        }}
-                      />
+                          }}
+                        />
+                      )}
                     </div>
                   </div>
                 ) : (
                   <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
                     <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                     <div className="h-64">
-                       <Bar
-                          data={{
-                            labels: Object.keys(analysisResults.categoryBreakdown),
-                            datasets: [{
-                              label: 'Amount Spent',
-                              data: Object.values(analysisResults.categoryBreakdown).map(cat => Math.abs(cat.amount)),
-                              backgroundColor: [ // Example colors, you might want to generate these dynamically
-                                  'rgba(255, 99, 132, 0.8)',
-                                  'rgba(54, 162, 235, 0.8)',
-                                  'rgba(255, 206, 86, 0.8)',
-                                  'rgba(75, 192, 192, 0.8)',
-                                  'rgba(153, 102, 255, 0.8)',
-                                  'rgba(255, 159, 64, 0.8)',
-                                  'rgba(199, 199, 199, 0.8)',
-                                  'rgba(83, 102, 255, 0.8)',
-                                  'rgba(40, 159, 64, 0.8)',
-                                  'rgba(210, 99, 132, 0.8)',
-                              ],
-                              borderColor: [ // Example colors
-                                  'rgba(255, 99, 132, 1)',
-                                  'rgba(54, 162, 235, 1)',
-                                  'rgba(255, 206, 86, 1)',
-                                  'rgba(75, 192, 192, 1)',
-                                  'rgba(153, 102, 255, 1)',
-                                  'rgba(255, 159, 64, 1)',
-                                  'rgba(199, 199, 199, 1)',
-                                  'rgba(83, 102, 255, 1)',
-                                  'rgba(40, 159, 64, 1)',
-                                  'rgba(210, 99, 132, 1)',
-                              ],
-                              borderWidth: 1,
-                            }]
-                          }}
+                      {chartData && (
+                        <Bar
+                          data={chartData}
                           options={{
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: {
                               legend: {
-                                display: false, // Hide legend for bar chart if categories are on x-axis
-                                labels: {
-                                  color: 'white',
-                                }
+                                display: false,
+                                labels: { color: 'white' }
                               }
                             },
                             scales: {
                               y: {
                                 beginAtZero: true,
-                                ticks: {
-                                  color: 'white'
-                                },
-                                grid: {
-                                  color: 'rgba(255, 255, 255, 0.1)'
-                                }
+                                ticks: { color: 'white' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
                               },
                               x: {
-                                 ticks: {
-                                  color: 'white'
-                                },
-                                grid: {
-                                  color: 'rgba(255, 255, 255, 0.1)'
-                                }
+                                ticks: { color: 'white' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
                               }
                             }
                           }}
                         />
+                      )}
                     </div>
                   </div>
                 )}
@@ -1242,6 +1222,10 @@ export const PhonePeAnalysisView: React.FC<{
       }]
     };
   }, [analysisResults?.transactions]);
+
+  const chartData =
+    analysisResults?.chartData?.data ||
+    (analysisResults?.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0 && getChartData(analysisResults.categoryBreakdown));
 
   return (
     <div className="min-h-screen bg-black">
