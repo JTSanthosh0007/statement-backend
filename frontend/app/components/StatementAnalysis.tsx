@@ -790,10 +790,10 @@ export const PhonePeAnalysisView: React.FC<{
                   <p className="text-sm text-zinc-400">Total Amount</p>
                   <div className="text-right">
                     <p className={`text-lg font-medium ${(analysisResults.summary.totalReceived + analysisResults.summary.totalSpent) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      ₹{Math.abs(analysisResults.summary.totalReceived + analysisResults.summary.totalSpent).toLocaleString()}
-                      </p>
-                    </div>
+                      ₹{Math.abs((analysisResults.summary.totalReceived ?? 0) + (analysisResults.summary.totalSpent ?? 0)).toLocaleString()}
+                    </p>
                   </div>
+                </div>
                 <div className="flex justify-between items-center mt-1">
                   <p className="text-xs text-zinc-500">Total {analysisResults.summary.totalTransactions} transactions</p>
                   <p className="text-xs text-zinc-500">{analysisResults.pageCount} pages</p>
@@ -991,7 +991,7 @@ export const PhonePeAnalysisView: React.FC<{
                               <span className="w-3 h-3 rounded-full" style={{ background: color }}></span>
                               <span className="font-semibold text-white text-base">{category}</span>
                             </div>
-                            <span className="font-bold text-lg text-white">₹{cat.amount.toLocaleString(undefined, {maximumFractionDigits:2})}</span>
+                            <span className="font-bold text-lg text-white">₹{(cat.amount ?? 0).toLocaleString(undefined, {maximumFractionDigits:2})}</span>
                           </div>
                           <div className="flex items-center justify-between text-xs text-zinc-400 mb-1">
                             <span>Portion of spending</span>
@@ -1028,9 +1028,7 @@ export const PhonePeAnalysisView: React.FC<{
                         </span>
                       </div>
                     </div>
-                    <span className={`font-medium ${transaction.amount >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      ₹{Math.abs(transaction.amount).toLocaleString()}
-                    </span>
+                    <span className={`font-medium ${transaction.amount >= 0 ? 'text-green-500' : 'text-red-500'}`}>₹{Math.abs(transaction.amount ?? 0).toLocaleString()}</span>
                   </div>
                 ))}
               </div>
@@ -1315,7 +1313,7 @@ export const KotakAnalysisView: React.FC<{
                   <p className="text-sm text-zinc-400">Total Amount</p>
                   <div className="text-right">
                     <p className={`text-lg font-medium ${(analysisResults.summary.totalReceived + analysisResults.summary.totalSpent) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      ₹{Math.abs(analysisResults.summary.totalReceived + analysisResults.summary.totalSpent).toLocaleString()}
+                      ₹{Math.abs((analysisResults.summary.totalReceived ?? 0) + (analysisResults.summary.totalSpent ?? 0)).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -1450,9 +1448,7 @@ export const KotakAnalysisView: React.FC<{
                         </span>
                       </div>
                     </div>
-                    <span className={`font-medium ${transaction.amount >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      ₹{Math.abs(transaction.amount).toLocaleString()}
-                    </span>
+                    <span className={`font-medium ${transaction.amount >= 0 ? 'text-green-500' : 'text-red-500'}`}>₹{Math.abs(transaction.amount ?? 0).toLocaleString()}</span>
                   </div>
                 ))}
               </div>
