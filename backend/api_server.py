@@ -36,9 +36,16 @@ class FileObject:
     def __init__(self, filename, content):
         self.name = filename
         self._content = content
+        self._io = io.BytesIO(content)
 
     def read(self, *args):
-        return self._content
+        return self._io.read(*args)
+
+    def seek(self, offset, whence=0):
+        return self._io.seek(offset, whence)
+
+    def tell(self):
+        return self._io.tell()
 
 @app.post("/analyze")
 async def analyze_statement(
