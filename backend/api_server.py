@@ -4,6 +4,11 @@ from fastapi.responses import JSONResponse
 import uvicorn
 from statement_parser import StatementParser
 import io
+import fitz
+import pdfplumber
+import pandas as pd
+import re
+import logging
 
 app = FastAPI()
 
@@ -107,31 +112,67 @@ async def analyze_phonepe_statement(
 
         # Read the file content
         content = await file.read()
-        
-        # Create a proper file-like object
-        file_obj = FileObject(file.filename, content)
-        
+
+        logger = logging.getLogger(__name__)
+        transactions = []
         try:
-            # Use the general parser for now
-            parser = StatementParser(file_obj)
-            df = parser.parse()
-            
-            # Convert to dictionary format
-            transactions = df.to_dict('records')
-            
+            # Try PyMuPDF (fitz) first
+            doc = fitz.open(stream=content, filetype="pdf")
+            all_text = ""
+            for page in doc:
+                all_text += page.get_text("text") + "\n"
+            doc.close()
+            lines = all_text.split('\n')
+            # Simple PhonePe transaction extraction (date, amount, description)
+            date_patterns = [
+                r'(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4})',
+                r'(\d{1,2}-\d{1,2}-\d{4})',
+                r'(\d{1,2}/\d{1,2}/\d{4})'
+            ]
+            amount_pattern = r'(?:₹|Rs|INR)?\s*(\d+(?:,\d+)*(?:\.\d{2})?)'
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                date_match = None
+                for pattern in date_patterns:
+                    match = re.search(pattern, line)
+                    if match:
+                        date_match = match.group(1)
+                        break
+                if date_match:
+                    amount_match = re.search(amount_pattern, line)
+                    if amount_match:
+                        amount_str = amount_match.group(1).replace(',', '')
+                        amount = float(amount_str)
+                        is_debit = any(word in line.lower() for word in ['paid', 'payment', 'sent', 'debit'])
+                        if is_debit:
+                            amount = -amount
+                        try:
+                            date = pd.to_datetime(date_match)
+                        except Exception:
+                            date = pd.Timestamp.now()
+                        transactions.append({
+                            'date': date,
+                            'description': line,
+                            'amount': amount,
+                            'category': 'PhonePe'
+                        })
+            if not transactions:
+                logger.warning("No transactions extracted from PhonePe statement.")
+                return {"transactions": [], "summary": {}, "categoryBreakdown": {}}
+            df = pd.DataFrame(transactions)
             # Calculate summary statistics
             total_spent = sum(t['amount'] for t in transactions if t['amount'] < 0)
             total_received = sum(t['amount'] for t in transactions if t['amount'] > 0)
-            
             # Calculate category breakdown
             category_breakdown = {}
             for t in transactions:
-                if t['amount'] < 0:  # Only consider spending
+                if t['amount'] < 0:
                     category = t['category']
                     category_breakdown[category] = category_breakdown.get(category, 0) + t['amount']
-            
             return {
-                "transactions": transactions,
+                "transactions": df.to_dict('records'),
                 "summary": {
                     "totalSpent": total_spent,
                     "totalReceived": total_received
@@ -139,8 +180,8 @@ async def analyze_phonepe_statement(
                 "categoryBreakdown": category_breakdown
             }
         except Exception as e:
+            logger.error(f"Error processing PhonePe statement: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Error processing PhonePe statement: {str(e)}")
-            
     except Exception as e:
         if isinstance(e, HTTPException):
             raise e
