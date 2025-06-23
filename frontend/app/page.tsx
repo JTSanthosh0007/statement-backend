@@ -93,7 +93,7 @@ export default function Home() {
           </button>
           <button 
             onClick={handleLogout}
-            className="w-10 h-10 rounded-full bg-red-600/80 flex items-center justify-center hover:bg-red-500/80 transition-colors" 
+            className="w-10 h-10 rounded-full bg-zinc-800/80 flex items-center justify-center hover:bg-zinc-700/80 transition-colors" 
             aria-label="Logout"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
