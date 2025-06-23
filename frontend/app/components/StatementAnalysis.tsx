@@ -23,11 +23,13 @@ import {
 import { useRouter } from 'next/navigation'
 import AccountAnalysis from './AccountAnalysis'
 import LoadingSpinner from './LoadingSpinner'
+import type { TooltipItem } from 'chart.js'
 
 // Dynamically import Chart.js components with no SSR
 const Chart = dynamic(() => import('react-chartjs-2').then(mod => mod.Pie), { ssr: false })
 const Line = dynamic(() => import('react-chartjs-2').then(mod => mod.Line), { ssr: false })
 const Bar = dynamic(() => import('react-chartjs-2').then(mod => mod.Bar), { ssr: false })
+const Doughnut = dynamic(() => import('react-chartjs-2').then(mod => mod.Doughnut), { ssr: false })
 
 // Register Chart.js components
 ChartJS.register(
@@ -160,18 +162,21 @@ interface AccountSettingsViewProps {
 
 // Add a color palette for categories
 const CATEGORY_COLORS: Record<string, string> = {
-  Bills: '#3B82F6',
-  Entertainment: '#EF4444',
-  Food: '#22C55E',
-  Others: '#6366F1',
-  Salary: '#A855F7',
-  Shopping: '#F59E42',
-  Travel: '#F472B6',
-  Groceries: '#FBBF24',
-  Health: '#10B981',
-  Investments: '#F87171',
-  // fallback
-  Default: '#64748B',
+  Bills: '#3B82F6',         // Blue
+  Entertainment: '#EF4444', // Red
+  Food: '#22C55E',          // Green
+  Others: '#6366F1',        // Indigo
+  Salary: '#A855F7',        // Purple
+  Shopping: '#F59E42',      // Orange
+  Travel: '#F472B6',        // Pink
+  Groceries: '#FBBF24',     // Yellow
+  Health: '#10B981',        // Emerald
+  Investments: '#F87171',   // Rose
+  Transfer: '#8B5CF6',      // Violet
+  Transportation: '#06B6D4',// Cyan
+  Education: '#FACC15',     // Amber
+  Utilities: '#64748B',     // Slate
+  Default: '#64748B',       // Slate
 };
 
 // Add this helper function near the top (after CATEGORY_COLORS):
@@ -765,7 +770,7 @@ export const PhonePeAnalysisView: React.FC<{
   handleDrop,
   fileInputRef
 }) => {
-  const [selectedChartType, setSelectedChartType] = useState<'pie' | 'bar'>('pie');
+  const [selectedChartType, setSelectedChartType] = useState<'pie' | 'bar' | 'doughnut' | 'horizontalBar'>('pie');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -861,6 +866,18 @@ export const PhonePeAnalysisView: React.FC<{
                   >
                     Bar Chart
                   </button>
+                  <button
+                    className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'doughnut' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
+                    onClick={() => setSelectedChartType('doughnut')}
+                  >
+                    Doughnut
+                  </button>
+                  <button
+                    className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'horizontalBar' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
+                    onClick={() => setSelectedChartType('horizontalBar')}
+                  >
+                    Horizontal Bar
+                  </button>
                 </div>
 
                 {selectedChartType === 'pie' ? (
@@ -875,16 +892,79 @@ export const PhonePeAnalysisView: React.FC<{
                             maintainAspectRatio: false,
                             plugins: {
                               legend: {
-                                position: 'right',
+                                position: 'right' as const,
                                 labels: {
                                   color: 'white',
                                   font: { size: 12 },
+                                  padding: 20,
+                                  // 3. Show percentages and amounts in legend
+                                  generateLabels: (chart: ChartJS<'pie'>) => {
+                                    const data = chart.data;
+                                    const labels = (data.labels ?? []) as string[];
+                                    const bgColors = (data.datasets[0].backgroundColor ?? []) as string[];
+                                    return labels.map((label, i) => {
+                                      const value = data.datasets[0].data[i];
+                                      const percent = chartPercents[i];
+                                      return {
+                                        text: `${label}: ₹${Number(value).toLocaleString()} (${percent?.toFixed(1) ?? 0}%)`,
+                                        fillStyle: bgColors[i] ?? '#64748B',
+                                        strokeStyle: bgColors[i] ?? '#64748B',
+                                        index: i,
+                                      };
+                                    });
+                                  },
+                                },
+                                tooltip: {
+                                  callbacks: {
+                                    label: function(context: TooltipItem<'pie'>) {
+                                      const label = context.label || '';
+                                      const value = context.parsed;
+                                      const percent = chartPercents[context.dataIndex];
+                                      return `${label}: ₹${Number(value).toLocaleString()} (${percent?.toFixed(1) ?? 0}%)`;
+                                    }
+                                  }
+                                }
+                              },
+                              tooltip: {
+                                callbacks: {
+                                  label: function(context: TooltipItem<'pie'>) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const percent = chartPercents[context.dataIndex];
+                                    return `${label}: ₹${Number(value).toLocaleString()} (${percent?.toFixed(1) ?? 0}%)`;
+                                  }
+                                }
+                              }
+                            }
+                          }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                ) : selectedChartType === 'doughnut' ? (
+                  <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
+                    <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
+                    <div className="h-64">
+                      {chartData && (
+                        <Doughnut
+                          data={chartData}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: {
+                                position: 'right',
+                                labels: {
+                                  color: 'white',
+                                  font: {
+                                    size: 12
+                                  },
                                   padding: 20
                                 }
                               },
                               tooltip: {
                                 callbacks: {
-                                  label: function(context) {
+                                  label: function(context: TooltipItem<'doughnut'>) {
                                     return `${context.label}: ${context.parsed.toFixed(1)}%`;
                                   }
                                 }
@@ -1233,11 +1313,81 @@ export const PhonePeAnalysisView: React.FC<{
     };
   }, [analysisResults?.transactions]);
 
-  const chartData =
-    analysisResults?.chartData?.data ||
-    (analysisResults?.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0
-      ? getChartData(analysisResults.categoryBreakdown)
-      : null);
+  // 1. Sort categories by amount spent (descending) for chart and legend
+  const sortedCategories = useMemo(() => {
+    if (!analysisResults?.categoryBreakdown) return [];
+    return Object.entries(analysisResults.categoryBreakdown)
+      .sort(([, a], [, b]) => Math.abs(b.amount) - Math.abs(a.amount));
+  }, [analysisResults?.categoryBreakdown]);
+
+  // 2. Build chart data using sorted categories
+  const chartLabels = sortedCategories.map(([cat]) => cat);
+  const chartAmounts = sortedCategories.map(([, v]) => Math.abs(v.amount));
+  const chartPercents = sortedCategories.map(([, v]) => v.percentage);
+  const chartColors = chartLabels.map((cat) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.Default);
+  const chartData = {
+    labels: chartLabels,
+    datasets: [
+      {
+        label: 'Amount Spent',
+        data: chartAmounts,
+        backgroundColor: chartColors,
+        borderColor: chartColors,
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const pieOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'right' as const,
+        labels: {
+          color: 'white',
+          font: { size: 12 },
+          padding: 20,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context: TooltipItem<'pie'>) {
+            const label = context.label || '';
+            const value = context.parsed;
+            return `${label}: ₹${Number(value).toLocaleString()}`;
+          }
+        }
+      }
+    }
+  };
+  const barOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: function(context: TooltipItem<'bar'>) {
+            const label = context.label || '';
+            const value = context.parsed;
+            return `${label}: ₹${Number(value).toLocaleString()}`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { color: 'white' },
+        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+      },
+      x: {
+        ticks: { color: 'white' },
+        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black">
@@ -1279,7 +1429,7 @@ export const KotakAnalysisView: React.FC<{
   handleDrop,
   fileInputRef
 }) => {
-  const [selectedChartType, setSelectedChartType] = useState<'pie' | 'bar'>('pie');
+  const [selectedChartType, setSelectedChartType] = useState<'pie' | 'bar' | 'doughnut' | 'horizontalBar'>('pie');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -1365,77 +1515,53 @@ export const KotakAnalysisView: React.FC<{
                   >
                     Bar Chart
                   </button>
+                  <button
+                    className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'doughnut' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
+                    onClick={() => setSelectedChartType('doughnut')}
+                  >
+                    Doughnut
+                  </button>
+                  <button
+                    className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'horizontalBar' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
+                    onClick={() => setSelectedChartType('horizontalBar')}
+                  >
+                    Horizontal Bar
+                  </button>
                 </div>
                 {selectedChartType === 'pie' ? (
                   <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
                     <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                     <div className="h-64">
-                      <Chart
-                        data={analysisResults.chartData.data}
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: {
-                              position: 'right',
-                              labels: {
-                                color: 'white',
-                                font: {
-                                  size: 12
-                                },
-                                padding: 20
-                              }
-                            },
-                            tooltip: {
-                              callbacks: {
-                                label: function(context) {
-                                  return `${context.label}: ${context.parsed.toFixed(1)}%`;
-                                }
-                              }
-                            }
-                          }
-                        }}
-                      />
+                      {chartData && (
+                        <Chart
+                          data={chartData}
+                          options={pieOptions}
+                        />
+                      )}
+                    </div>
+                  </div>
+                ) : selectedChartType === 'doughnut' ? (
+                  <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
+                    <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
+                    <div className="h-64">
+                      {chartData && (
+                        <Doughnut
+                          data={chartData}
+                          options={pieOptions}
+                        />
+                      )}
                     </div>
                   </div>
                 ) : (
                   <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
                     <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                     <div className="h-64">
-                      <Bar
-                        data={analysisResults.chartData.data}
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: {
-                              display: false,
-                              labels: {
-                                color: 'white',
-                              }
-                            }
-                          },
-                          scales: {
-                            y: {
-                              beginAtZero: true,
-                              ticks: {
-                                color: 'white'
-                              },
-                              grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                              }
-                            },
-                            x: {
-                              ticks: {
-                                color: 'white'
-                              },
-                              grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                              }
-                            }
-                          }
-                        }}
-                      />
+                      {chartData && (
+                        <Bar
+                          data={chartData}
+                          options={barOptions}
+                        />
+                      )}
                     </div>
                   </div>
                 )}
@@ -1534,6 +1660,81 @@ export const KotakAnalysisView: React.FC<{
             </div>
           </div>
         );
+    }
+  };
+
+  const sortedCategories = useMemo(() => {
+    if (!analysisResults?.categoryBreakdown) return [];
+    return Object.entries(analysisResults.categoryBreakdown)
+      .sort(([, a], [, b]) => Math.abs(b.amount) - Math.abs(a.amount));
+  }, [analysisResults?.categoryBreakdown]);
+
+  const chartLabels = sortedCategories.map(([cat]) => cat);
+  const chartAmounts = sortedCategories.map(([, v]) => Math.abs(v.amount));
+  const chartColors = chartLabels.map((cat) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.Default);
+
+  const chartData = {
+    labels: chartLabels,
+    datasets: [
+      {
+        label: 'Amount Spent',
+        data: chartAmounts,
+        backgroundColor: chartColors,
+        borderColor: chartColors,
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const pieOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'right' as const,
+        labels: {
+          color: 'white',
+          font: { size: 12 },
+          padding: 20,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context: TooltipItem<'pie'>) {
+            const label = context.label || '';
+            const value = context.parsed;
+            return `${label}: ₹${Number(value).toLocaleString()}`;
+          }
+        }
+      }
+    }
+  };
+
+  const barOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: function(context: TooltipItem<'bar'>) {
+            const label = context.label || '';
+            const value = context.parsed;
+            return `${label}: ₹${Number(value).toLocaleString()}`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { color: 'white' },
+        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+      },
+      x: {
+        ticks: { color: 'white' },
+        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+      }
     }
   };
 
