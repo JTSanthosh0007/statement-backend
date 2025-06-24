@@ -991,7 +991,40 @@ export const PhonePeAnalysisView: React.FC<{
                   <p className="text-xl font-medium text-white">₹{((analysisResults.summary.totalReceived ?? 0) + Math.abs(analysisResults.summary.totalSpent ?? 0)).toLocaleString()}</p>
                 </div>
               </div>
-              {/* Optionally, add Highest/Lowest Amount, Total Amount (summary), and transaction counts below, matching Kotak style */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                {/* Highest Amount */}
+                <div className="bg-zinc-800/50 p-4 rounded-xl">
+                  <p className="text-sm text-zinc-400">Highest Amount</p>
+                  <p className="text-xl font-medium text-blue-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
+                </div>
+                {/* Lowest Amount */}
+                <div className="bg-zinc-800/50 p-4 rounded-xl">
+                  <p className="text-sm text-zinc-400">Lowest Amount</p>
+                  <p className="text-xl font-medium text-orange-400">₹{analysisResults.summary.lowestAmount?.toLocaleString() || '0'}</p>
+                </div>
+              </div>
+              <div className="mt-4 p-3 bg-zinc-800/50 rounded-2xl">
+                <div className="flex justify-between items-center">
+                  <p className="text-sm text-zinc-400">Total Amount</p>
+                  <div className="text-right">
+                    <p className={`text-lg font-medium ${(analysisResults.summary.totalReceived + analysisResults.summary.totalSpent) >= 0 ? 'text-green-500' : 'text-red-500'}`}>₹{Math.abs((analysisResults.summary.totalReceived ?? 0) + (analysisResults.summary.totalSpent ?? 0)).toLocaleString()}</p>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center mt-1">
+                  <p className="text-xs text-zinc-500">Total {analysisResults.summary.totalTransactions} transactions</p>
+                  <p className="text-xs text-zinc-500">{analysisResults.pageCount} pages</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mt-4">
+                <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
+                  <span className="text-xs text-zinc-400">Total Credit Transactions</span>
+                  <span className="text-lg font-bold text-green-400">{analysisResults.summary.creditCount ?? 0}</span>
+                </div>
+                <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
+                  <span className="text-xs text-zinc-400">Total Debit Transactions</span>
+                  <span className="text-lg font-bold text-red-400">{analysisResults.summary.debitCount ?? 0}</span>
+                </div>
+              </div>
             </div>
 
             {/* Charts */}
