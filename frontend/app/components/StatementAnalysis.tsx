@@ -913,29 +913,35 @@ export const PhonePeAnalysisView: React.FC<{
                 </div>
               </div>
               
-              <div className="bg-zinc-800/50 rounded-2xl p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-zinc-400">Highest Amount</p>
-                    <p className="text-xl font-bold text-blue-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
-                  </div>
-                  <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
-                    <span className="text-blue-400 text-lg">↑</span>
+              {/* Highest Amount */}
+              {analysisResults.summary.highestAmount && analysisResults.summary.highestAmount > 0 && (
+                <div className="bg-zinc-800/50 rounded-2xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-zinc-400">Highest Amount</p>
+                      <p className="text-xl font-bold text-blue-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
+                    </div>
+                    <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                      <span className="text-blue-400 text-lg">↑</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
               
-              <div className="bg-zinc-800/50 rounded-2xl p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-zinc-400">Lowest Amount</p>
-                    <p className="text-xl font-bold text-orange-400">₹{analysisResults.summary.lowestAmount?.toLocaleString() || '0'}</p>
-                  </div>
-                  <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
-                    <span className="text-orange-400 text-lg">↓</span>
+              {/* Lowest Amount */}
+              {analysisResults.summary.lowestAmount && analysisResults.summary.lowestAmount > 0 && (
+                <div className="bg-zinc-800/50 rounded-2xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-zinc-400">Lowest Amount</p>
+                      <p className="text-xl font-bold text-orange-400">₹{analysisResults.summary.lowestAmount?.toLocaleString() || '0'}</p>
+                    </div>
+                    <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
+                      <span className="text-orange-400 text-lg">↓</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Transaction Details */}
