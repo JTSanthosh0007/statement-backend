@@ -1,9 +1,12 @@
+import os
 from celery import Celery
+
+REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 
 celery = Celery(
     'tasks',
-    broker='redis://localhost:6379/0',  # Use your Render Redis URL in production
-    backend='redis://localhost:6379/0'
+    broker=REDIS_URL,
+    backend=REDIS_URL
 )
 
 @celery.task(bind=True)
