@@ -269,6 +269,42 @@ class StatementParser:
             'Shopping': [
                 'amazon', 'flipkart', 'myntra', 'shop', 'store', 'retail', 'purchase', 'buy', 'mall', 'ajio', 'nykaa', 'tatacliq', 'meesho', 'snapdeal', 'lifestyle', 'shoppers stop', 'westside', 'pantaloons', 'fashion', 'clothing', 'footwear', 'accessories', 'jewelry', 'electronics', 'mobile', 'laptop', 'tv', 'furniture', 'appliances', 'toys', 'sports', 'beauty', 'personal care', 'baby products'
             ],
+            'Subscriptions': [
+                'netflix', 'prime', 'hotstar', 'spotify', 'apple music', 'subscription', 'monthly plan', 'zee5', 'sonyliv', 'gaana', 'wynk', 'saavn'
+            ],
+            'Kids': [
+                'toys', 'kids', 'baby', 'school fees', 'childcare', 'playschool', 'nursery', 'daycare'
+            ],
+            'Home Improvement': [
+                'furniture', 'appliances', 'renovation', 'paint', 'decor', 'home center', 'ikea', 'pepperfry', 'urban ladder', 'homelane'
+            ],
+            'Festivals & Gifts': [
+                'diwali', 'christmas', 'eid', 'pongal', 'rakhi', 'gift', 'festival', 'present', 'offering'
+            ],
+            'Travel Insurance': [
+                'travel insurance', 'trip insurance', 'flight insurance'
+            ],
+            'Charity & Social': [
+                'ngo', 'charity', 'donation', 'fundraiser', 'crowdfunding', 'temple', 'church', 'mosque'
+            ],
+            'Dining Out': [
+                'dineout', 'fine dining', 'buffet', 'brunch', 'bar', 'pub', 'restaurant', 'cafe'
+            ],
+            'Fitness & Sports': [
+                'gym', 'yoga', 'fitness', 'sports', 'marathon', 'cycling', 'swimming', 'workout', 'zumba'
+            ],
+            'Electronics & Gadgets': [
+                'electronics', 'gadget', 'mobile', 'laptop', 'tv', 'smart watch', 'headphones', 'earphones', 'tablet'
+            ],
+            'Beauty & Wellness': [
+                'beauty', 'spa', 'salon', 'wellness', 'skincare', 'makeup', 'cosmetics', 'grooming'
+            ],
+            'Automobile': [
+                'car', 'bike', 'auto', 'petrol', 'diesel', 'service', 'insurance', 'toll', 'parking', 'fuel'
+            ],
+            'Stationery & Books': [
+                'stationery', 'books', 'novel', 'magazine', 'library', 'textbook', 'pen', 'notebook'
+            ],
             'Transportation': [
                 'uber', 'ola', 'metro', 'bus', 'train', 'flight', 'airline', 'travel', 'taxi', 'cab', 'auto', 'rickshaw', 'petrol', 'diesel', 'fuel', 'yulu', 'rapido', 'irctc', 'makemytrip', 'redbus', 'goibibo', 'toll', 'parking', 'fastag'
             ],
