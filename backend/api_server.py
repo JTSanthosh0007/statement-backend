@@ -234,7 +234,7 @@ async def analyze_phonepe_statement(
                 except Exception as e:
                     logger.warning(f"Error extracting text from page {page_num+1}: {e}")
             # Regex match for transaction lines (improved for PhonePe text format)
-            txn_pattern = re.compile(r'([A-Za-z]{3} \d{2}, \d{4}) (.+?) (Credit|Debit) INR ([\d,.]+)', re.IGNORECASE)
+            txn_pattern = re.compile(r'([A-Za-z]{3} \d{2}, \d{4}) (.+?) (CREDIT|DEBIT) ?[₹INR ]+([\d,.]+)', re.IGNORECASE)
             for line in all_text_lines:
                 logger.warning(f"Checking line: {line}")
                 if not line:
