@@ -54,7 +54,7 @@ export default function SearchPage() {
       </button>
 
       {/* Search Input */}
-      <div className="sticky top-0 bg-black pb-4">
+      <div className="sticky top-0 bg-black pb-4 z-10">
         <div className="flex items-center gap-2 bg-zinc-900 rounded-xl p-3">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -87,7 +87,7 @@ export default function SearchPage() {
             {/* UPI Apps Section */}
             {groupedApps.upiApps.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-zinc-400 px-1">UPI Apps</h3>
+                <h3 className="text-lg font-semibold text-white mb-3 px-1">UPI Apps</h3>
                 {groupedApps.upiApps.map((app) => (
                   <div 
                     key={app.id}
@@ -114,6 +114,9 @@ export default function SearchPage() {
                         }`}>
                           {app.available ? 'Available' : 'Coming Soon'}
                         </div>
+                        <div className="text-xs text-zinc-400 mt-1 capitalize">
+                          {app.category.replace('-', ' ')}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -124,7 +127,7 @@ export default function SearchPage() {
             {/* Public Sector Banks Section */}
             {groupedApps.publicBanks.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-zinc-400 px-1">Public Sector Banks</h3>
+                <h3 className="text-lg font-semibold text-white mb-3 px-1">Public Sector Banks</h3>
                 {groupedApps.publicBanks.map((app) => (
                   <div 
                     key={app.id}
@@ -154,6 +157,9 @@ export default function SearchPage() {
                         }`}>
                           {app.available ? 'Available' : 'Coming Soon'}
                         </div>
+                        <div className="text-xs text-zinc-400 mt-1 capitalize">
+                          {app.category.replace('-', ' ')}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -164,7 +170,7 @@ export default function SearchPage() {
             {/* Private Sector Banks Section */}
             {groupedApps.privateBanks.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-zinc-400 px-1">Private Sector Banks</h3>
+                <h3 className="text-lg font-semibold text-white mb-3 px-1">Private Sector Banks</h3>
                 {groupedApps.privateBanks.map((app) => (
                   <div 
                     key={app.id}
@@ -194,6 +200,9 @@ export default function SearchPage() {
                         }`}>
                           {app.available ? 'Available' : 'Coming Soon'}
                         </div>
+                        <div className="text-xs text-zinc-400 mt-1 capitalize">
+                          {app.category.replace('-', ' ')}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -204,7 +213,7 @@ export default function SearchPage() {
             {/* Payment Banks Section */}
             {groupedApps.paymentBanks.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-zinc-400 px-1">Payment Banks</h3>
+                <h3 className="text-lg font-semibold text-white mb-3 px-1">Payment Banks</h3>
                 {groupedApps.paymentBanks.map((app) => (
                   <div 
                     key={app.id}
@@ -234,6 +243,9 @@ export default function SearchPage() {
                         }`}>
                           {app.available ? 'Available' : 'Coming Soon'}
                         </div>
+                        <div className="text-xs text-zinc-400 mt-1 capitalize">
+                          {app.category.replace('-', ' ')}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -244,7 +256,7 @@ export default function SearchPage() {
             {/* Small Finance Banks Section */}
             {groupedApps.smallFinanceBanks.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-zinc-400 px-1">Small Finance Banks</h3>
+                <h3 className="text-lg font-semibold text-white mb-3 px-1">Small Finance Banks</h3>
                 {groupedApps.smallFinanceBanks.map((app) => (
                   <div 
                     key={app.id}
@@ -274,6 +286,9 @@ export default function SearchPage() {
                         }`}>
                           {app.available ? 'Available' : 'Coming Soon'}
                         </div>
+                        <div className="text-xs text-zinc-400 mt-1 capitalize">
+                          {app.category.replace('-', ' ')}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -284,7 +299,7 @@ export default function SearchPage() {
             {/* Foreign Banks Section */}
             {groupedApps.foreignBanks.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-zinc-400 px-1">Foreign Banks</h3>
+                <h3 className="text-lg font-semibold text-white mb-3 px-1">Foreign Banks</h3>
                 {groupedApps.foreignBanks.map((app) => (
                   <div 
                     key={app.id}
@@ -313,6 +328,9 @@ export default function SearchPage() {
                             : 'bg-yellow-500/20 text-yellow-400'
                         }`}>
                           {app.available ? 'Available' : 'Coming Soon'}
+                        </div>
+                        <div className="text-xs text-zinc-400 mt-1 capitalize">
+                          {app.category.replace('-', ' ')}
                         </div>
                       </div>
                     </div>
