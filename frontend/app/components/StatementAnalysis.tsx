@@ -174,21 +174,32 @@ interface AccountSettingsViewProps {
 
 // Add a color palette for categories
 const CATEGORY_COLORS: Record<string, string> = {
-  Bills: '#3B82F6',         // Blue
-  Entertainment: '#EF4444', // Red
-  Food: '#22C55E',          // Green
-  Others: '#6366F1',        // Indigo
-  Salary: '#A855F7',        // Purple
-  Shopping: '#F59E42',      // Orange
-  Travel: '#F472B6',        // Pink
-  Groceries: '#FBBF24',     // Yellow
-  Health: '#10B981',        // Emerald
-  Investments: '#F87171',   // Rose
-  Transfer: '#8B5CF6',      // Violet
-  Transportation: '#06B6D4',// Cyan
-  Education: '#FACC15',     // Amber
-  Utilities: '#64748B',     // Slate
-  Default: '#64748B',       // Slate
+  'Food & Dining': '#22C55E',        // Green
+  'Groceries': '#FBBF24',           // Yellow
+  'Shopping': '#F59E42',            // Orange
+  'Transportation': '#06B6D4',      // Cyan
+  'Bills & Utilities': '#3B82F6',   // Blue
+  'Health & Medical': '#10B981',    // Emerald
+  'Education': '#FACC15',           // Amber
+  'Travel': '#F472B6',              // Pink
+  'Personal Care': '#E879F9',       // Fuchsia
+  'Pets': '#A3E635',                // Lime
+  'Investments': '#F87171',         // Rose
+  'Insurance': '#6366F1',           // Indigo
+  'Rent': '#A855F7',                // Purple
+  'EMI & Loans': '#FB7185',         // Red
+  'Gifts & Donations': '#F472B6',   // Pink
+  'Taxes & Fees': '#64748B',        // Slate
+  'Transfer': '#8B5CF6',            // Violet
+  'Others': '#94A3B8',              // Gray
+  // Legacy/compatibility
+  'Bills': '#3B82F6',
+  'Entertainment': '#EF4444',
+  'Food': '#22C55E',
+  'Salary': '#A855F7',
+  'Health': '#10B981',
+  'Utilities': '#64748B',
+  'Default': '#64748B',
 };
 
 // Add this helper function near the top (after CATEGORY_COLORS):
@@ -1170,25 +1181,12 @@ export const PhonePeAnalysisView: React.FC<{
                     .map(([category, cat], idx) => {
                       const color = CATEGORY_COLORS[category] || CATEGORY_COLORS.Default;
                       return (
-                        <div key={category} className="rounded-xl bg-zinc-800/70 p-4 border border-zinc-700/50 shadow flex flex-col">
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-2">
-                              <span className="w-3 h-3 rounded-full" style={{ background: color }}></span>
-                              <span className="font-semibold text-white text-base">{category}</span>
-                            </div>
-                            <span className="font-bold text-lg text-white">₹{(cat.amount ?? 0).toLocaleString(undefined, {maximumFractionDigits:2})}</span>
+                        <div key={category} className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: color }}></span>
+                            <span className="text-zinc-300">{category}</span>
                           </div>
-                          <div className="flex items-center justify-between text-xs text-zinc-400 mb-1">
-                            <span>Portion of spending</span>
-                            <span className="font-semibold" style={{ color }}>{(cat.percentage ?? 0).toFixed(1)}%</span>
-                          </div>
-                          <div className="relative h-2 bg-zinc-700 rounded-full overflow-hidden mb-2">
-                            <div
-                              className="absolute top-0 left-0 h-full rounded-full transition-all duration-500"
-                              style={{ width: `${(cat.percentage ?? 0)}%`, background: color }}
-                            />
-                          </div>
-                          <div className="text-xs text-zinc-400">{cat.count} transaction{cat.count !== 1 ? 's' : ''}</div>
+                          <span className="text-zinc-400">₹{Math.abs(cat.amount).toLocaleString()}</span>
                         </div>
                       );
                     })}
