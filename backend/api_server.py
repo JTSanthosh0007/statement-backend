@@ -268,6 +268,18 @@ async def analyze_phonepe_statement(
         credit_count = sum(1 for t in transactions if t['amount'] > 0)
         debit_count = sum(1 for t in transactions if t['amount'] < 0)
         total_transactions = len(transactions)
+        # Calculate highest and lowest amounts
+        if transactions:
+            amounts = [t['amount'] for t in transactions]
+            highest_amount = max(amounts)
+            lowest_amount = min(amounts)
+            highest_transaction = next((t for t in transactions if t['amount'] == highest_amount), None)
+            lowest_transaction = next((t for t in transactions if t['amount'] == lowest_amount), None)
+        else:
+            highest_amount = 0
+            lowest_amount = 0
+            highest_transaction = None
+            lowest_transaction = None
         # Build category breakdown
         category_map = {}
         for t in transactions:
@@ -289,7 +301,11 @@ async def analyze_phonepe_statement(
                 "totalReceived": total_received,
                 "creditCount": credit_count,
                 "debitCount": debit_count,
-                "totalTransactions": total_transactions
+                "totalTransactions": total_transactions,
+                "highestAmount": highest_amount,
+                "lowestAmount": lowest_amount,
+                "highestTransaction": highest_transaction,
+                "lowestTransaction": lowest_transaction
             },
             "categoryBreakdown": category_map,
             "pageCount": debug_info["pages"],
@@ -367,6 +383,18 @@ async def analyze_kotak_statement(file: UploadFile = File(...)):
             credit_count = sum(1 for t in transactions if t['amount'] > 0)
             debit_count = sum(1 for t in transactions if t['amount'] < 0)
             total_transactions = len(transactions)
+            # Calculate highest and lowest amounts
+            if transactions:
+                amounts = [t['amount'] for t in transactions]
+                highest_amount = max(amounts)
+                lowest_amount = min(amounts)
+                highest_transaction = next((t for t in transactions if t['amount'] == highest_amount), None)
+                lowest_transaction = next((t for t in transactions if t['amount'] == lowest_amount), None)
+            else:
+                highest_amount = 0
+                lowest_amount = 0
+                highest_transaction = None
+                lowest_transaction = None
             # Build category breakdown
             category_map = {}
             for t in transactions:
@@ -387,7 +415,11 @@ async def analyze_kotak_statement(file: UploadFile = File(...)):
                     "totalReceived": total_received,
                     "creditCount": credit_count,
                     "debitCount": debit_count,
-                    "totalTransactions": total_transactions
+                    "totalTransactions": total_transactions,
+                    "highestAmount": highest_amount,
+                    "lowestAmount": lowest_amount,
+                    "highestTransaction": highest_transaction,
+                    "lowestTransaction": lowest_transaction
                 },
                 "categoryBreakdown": category_map,
                 "pageCount": page_count
