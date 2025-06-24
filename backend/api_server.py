@@ -133,15 +133,17 @@ async def analyze_phonepe_statement(
             with pdfplumber.open(io.BytesIO(content)) as pdf:
                 debug_info["pages"] = len(pdf.pages)
                 methods_used.append("pdfplumber")
-                if len(pdf.pages) > 200:
+                if len(pdf.pages) > 800:
                     logger.warning(f"PDF has {len(pdf.pages)} pages, which exceeds the supported limit.")
-                    raise HTTPException(status_code=400, detail="PDF too large to analyze (over 200 pages). Please upload a smaller file.")
+                    raise HTTPException(status_code=400, detail="PDF too large to analyze (over 800 pages). Please upload a smaller file.")
                 if len(pdf.pages) > 100:
                     logger.warning(f"Large PDF detected: {len(pdf.pages)} pages.")
-                batch_size = 5  # Reduced from 20 to 5 for better memory handling
+                batch_size = 20  # Set batch size to 20
+                batch_times = []
                 for batch_start in range(0, len(pdf.pages), batch_size):
                     batch_end = min(batch_start + batch_size, len(pdf.pages))
                     logger.info(f"Processing pages {batch_start+1} to {batch_end} of {len(pdf.pages)} (batch size: {batch_size})")
+                    batch_time_start = time.time()
                     for page_num in range(batch_start, batch_end):
                         page = pdf.pages[page_num]
                         page_lines = []
@@ -187,12 +189,15 @@ async def analyze_phonepe_statement(
                                             'category': 'PhonePe',
                                             'type': txn_type
                                         })
-                                    # Do not store all_lines or sample_matches for large PDFs
-                        # Fallback: extract_text line by line (do not store all_lines for large PDFs)
-                        # Only keep debug info for first page
-                        if page_num == 0:
-                            debug_info["first_20_lines"] = (page.extract_text() or '').split('\n')[:20]
-                        debug_info["lines_per_page"].append(len(page_lines))
+                    batch_time_end = time.time()
+                    batch_times.append(batch_time_end - batch_time_start)
+                # Estimate total time after first batch
+                if batch_times:
+                    avg_batch_time = sum(batch_times) / len(batch_times)
+                    total_batches = (len(pdf.pages) + batch_size - 1) // batch_size
+                    estimated_seconds = int(avg_batch_time * total_batches)
+                else:
+                    estimated_seconds = 0
         except Exception as e:
             logger.error(f"pdfplumber extraction error: {e}")
             debug_info["errors"].append(f"pdfplumber: {e}")
@@ -305,7 +310,8 @@ async def analyze_phonepe_statement(
             },
             "categoryBreakdown": category_map,
             "pageCount": debug_info["pages"],
-            "debug": debug_info
+            "debug": debug_info,
+            "estimated_seconds": estimated_seconds
         }
     except Exception as e:
         logger.error(f"Error processing PhonePe statement: {str(e)}")
