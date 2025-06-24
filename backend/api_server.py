@@ -270,11 +270,17 @@ async def analyze_phonepe_statement(
         total_transactions = len(transactions)
         # Calculate highest and lowest amounts
         if transactions:
-            amounts = [t['amount'] for t in transactions]
-            highest_amount = max(amounts)
-            lowest_amount = min(amounts)
-            highest_transaction = next((t for t in transactions if t['amount'] == highest_amount), None)
-            lowest_transaction = next((t for t in transactions if t['amount'] == lowest_amount), None)
+            amounts = [abs(t['amount']) for t in transactions if abs(t['amount']) > 0]
+            if amounts:
+                highest_amount = max(amounts)
+                lowest_amount = min(amounts)
+                highest_transaction = next((t for t in transactions if abs(t['amount']) == highest_amount), None)
+                lowest_transaction = next((t for t in transactions if abs(t['amount']) == lowest_amount), None)
+            else:
+                highest_amount = 0
+                lowest_amount = 0
+                highest_transaction = None
+                lowest_transaction = None
         else:
             highest_amount = 0
             lowest_amount = 0
@@ -385,11 +391,17 @@ async def analyze_kotak_statement(file: UploadFile = File(...)):
             total_transactions = len(transactions)
             # Calculate highest and lowest amounts
             if transactions:
-                amounts = [t['amount'] for t in transactions]
-                highest_amount = max(amounts)
-                lowest_amount = min(amounts)
-                highest_transaction = next((t for t in transactions if t['amount'] == highest_amount), None)
-                lowest_transaction = next((t for t in transactions if t['amount'] == lowest_amount), None)
+                amounts = [abs(t['amount']) for t in transactions if abs(t['amount']) > 0]
+                if amounts:
+                    highest_amount = max(amounts)
+                    lowest_amount = min(amounts)
+                    highest_transaction = next((t for t in transactions if abs(t['amount']) == highest_amount), None)
+                    lowest_transaction = next((t for t in transactions if abs(t['amount']) == lowest_amount), None)
+                else:
+                    highest_amount = 0
+                    lowest_amount = 0
+                    highest_transaction = None
+                    lowest_transaction = None
             else:
                 highest_amount = 0
                 lowest_amount = 0
