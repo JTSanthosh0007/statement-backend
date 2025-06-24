@@ -255,11 +255,14 @@ async def analyze_phonepe_statement(
                         amount = -abs(amount)
                     elif 'credit' in txn_type.lower():
                         amount = abs(amount)
+                    # Use StatementParser's categorization for detailed categories
+                    parser = StatementParser(type('FileObj', (object,), {'name': file.filename, 'read': lambda: content})())
+                    category = parser._categorize_transaction(description)
                     transactions.append({
                         'date': date,
                         'description': description,
                         'amount': amount,
-                        'category': 'PhonePe',
+                        'category': category,
                         'type': txn_type
                     })
         debug_info["transactions_found"] = len(transactions)
@@ -328,7 +331,7 @@ async def analyze_phonepe_statement(
             "categoryBreakdown": category_map,
             "pageCount": debug_info["pages"],
             "debug": debug_info,
-            "estimated_seconds": estimated_seconds
+            "estimated_seconds": estimated_seconds if 'estimated_seconds' in locals() else debug_info.get("analysis_time_seconds", 0)
         }
     except Exception as e:
         logger.error(f"Error processing PhonePe statement: {str(e)}")
