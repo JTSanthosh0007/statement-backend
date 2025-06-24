@@ -135,10 +135,10 @@ async def analyze_phonepe_statement(
             with pdfplumber.open(io.BytesIO(content)) as pdf:
                 debug_info["pages"] = len(pdf.pages)
                 methods_used.append("pdfplumber")
-                batch_size = 20
+                batch_size = 5
                 for batch_start in range(0, len(pdf.pages), batch_size):
                     batch_end = min(batch_start + batch_size, len(pdf.pages))
-                    logger.info(f"Processing pages {batch_start+1} to {batch_end} of {len(pdf.pages)}")
+                    logger.info(f"Processing pages {batch_start+1} to {batch_end} of {len(pdf.pages)} (batch size: {batch_size})")
                     for page_num in range(batch_start, batch_end):
                         page = pdf.pages[page_num]
                         page_lines = []
