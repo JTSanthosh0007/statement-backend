@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect, useCallback, useRef, memo, Suspense } fro
 import { HomeIcon, ChartBarIcon, FolderIcon, Cog6ToothIcon, PlusIcon, ArrowLeftIcon, DocumentTextIcon, ArrowUpTrayIcon, DocumentIcon, WalletIcon } from '@heroicons/react/24/outline'
 import Image from 'next/image'
 // import { createClient } from '@supabase/supabase-js'
-import { UPIApp, UPI_APPS } from '../constants/upiApps'
+import { UPIApp, UPI_APPS, searchApps } from '../constants/upiApps'
 import UPIAppGrid from './UPIAppGrid'
 import { Star } from 'lucide-react'
 import dynamic from 'next/dynamic'
@@ -675,30 +675,46 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
 
   useEffect(() => {
     if (searchQuery.trim()) {
-      // Only declare allApps once, and ensure all objects match UPIApp type
-      const bankApps: UPIApp[] = [
-        { id: 'sbi', name: 'State Bank of India', description: "India's largest public sector bank", category: 'public', available: true },
-        { id: 'hdfc', name: 'HDFC Bank', description: 'Leading private sector bank', category: 'private', available: true },
-        { id: 'icici', name: 'ICICI Bank', description: 'Major private sector bank', category: 'private', available: true },
-        { id: 'axis', name: 'Axis Bank', description: 'Private sector banking services', category: 'private', available: true },
-        { id: 'kotak', name: 'Kotak Mahindra Bank', description: 'Private sector banking', category: 'private', available: true },
-        { id: 'bob', name: 'Bank of Baroda', description: 'Major public sector bank', category: 'public', available: true },
-        { id: 'pnb', name: 'Punjab National Bank', description: 'Public sector banking', category: 'public', available: true },
-        { id: 'canara', name: 'Canara Bank', description: 'Public sector banking services', category: 'public', available: true },
-        { id: 'ubi', name: 'Union Bank of India', description: 'Public sector bank', category: 'public', available: true },
-        { id: 'yes', name: 'Yes Bank', description: 'Private sector banking', category: 'private', available: true },
-      ];
-      const allApps: UPIApp[] = [...UPI_APPS, ...bankApps];
-      const filtered = allApps.filter(app => 
-        app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        app.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ((app as UPIApp).shortName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
-      );
-      setFilteredApps(filtered);
+      // Use the searchApps function from constants for better search results
+      const searchResults = searchApps(searchQuery);
+      setFilteredApps(searchResults);
     } else {
-      setFilteredApps([]);
+      // Show all apps when no search query
+      setFilteredApps(UPI_APPS);
     }
   }, [searchQuery]);
+
+  // Group apps by category for better organization
+  const groupedApps = useMemo(() => {
+    const groups: Record<string, UPIApp[]> = {
+      'UPI Apps': [],
+      'Public Sector Banks': [],
+      'Private Sector Banks': [],
+      'Payment Banks': [],
+      'Small Finance Banks': [],
+      'Foreign Banks': []
+    };
+
+    filteredApps.forEach(app => {
+      if (app.category === 'payment' && !app.bankCode) {
+        groups['UPI Apps'].push(app);
+      } else if (app.category === 'public') {
+        groups['Public Sector Banks'].push(app);
+      } else if (app.category === 'private') {
+        groups['Private Sector Banks'].push(app);
+      } else if (app.category === 'payment' && app.bankCode) {
+        groups['Payment Banks'].push(app);
+      } else if (app.category === 'small-finance') {
+        groups['Small Finance Banks'].push(app);
+      } else if (app.category === 'foreign') {
+        groups['Foreign Banks'].push(app);
+      } else {
+        groups['UPI Apps'].push(app);
+      }
+    });
+
+    return groups;
+  }, [filteredApps]);
 
   if (!isOpen) return null;
 
@@ -711,50 +727,108 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
               <ArrowLeftIcon className="w-6 h-6" />
             </button>
             <div className="flex-1">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search UPI apps..."
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search UPI apps and banks..."
                 className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  autoFocus
-                />
-              </div>
+                autoFocus
+              />
             </div>
-
-          <div className="space-y-4">
-            {filteredApps.length > 0 ? (
-              <div className="grid grid-cols-1 gap-3">
-                {filteredApps.map(app => (
-                  <div key={app.id} className="bg-gray-800 p-4 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
-                        <span className="text-lg font-medium text-white">
-                          {app.name.charAt(0)}
-                        </span>
           </div>
-                      <div className="flex-1">
-                        <h3 className="text-white font-medium">{app.name}</h3>
-                        <p className="text-sm text-gray-400">{app.description}</p>
-        </div>
-                      <div className="text-sm text-gray-400 capitalize">
-                        {(app.category || 'uncategorized').toUpperCase()}
-              </div>
+
+          <div className="space-y-6">
+            {Object.keys(groupedApps).map(category => {
+              const apps = groupedApps[category];
+              if (apps.length === 0) return null;
+
+              return (
+                <div key={category}>
+                  <h3 className="text-lg font-semibold text-white mb-3">{category}</h3>
+                  <div className="grid grid-cols-1 gap-3">
+                    {apps.map(app => (
+                      <div 
+                        key={app.id} 
+                        className="bg-gray-800 p-4 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer"
+                        onClick={() => {
+                          // Navigate to appropriate route based on app
+                          if (app.id === 'phonepe') {
+                            window.location.href = '/phonepe';
+                          } else if (app.id === 'kotak') {
+                            window.location.href = '/kotak';
+                          } else if (app.id === 'paytm') {
+                            window.location.href = '/paytm';
+                          } else {
+                            // For other apps, show coming soon or navigate to general route
+                            window.location.href = '/banks';
+                          }
+                          onClose();
+                        }}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center">
+                            <span className="text-lg font-medium text-white">
+                              {app.shortName ? app.shortName.charAt(0) : app.name.charAt(0)}
+                            </span>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-white font-medium">{app.name}</h3>
+                            <p className="text-sm text-gray-400">{app.description}</p>
+                            {app.bankCode && (
+                              <p className="text-xs text-gray-500">Code: {app.bankCode}</p>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <div className={`text-sm px-2 py-1 rounded-full ${
+                              app.available 
+                                ? 'bg-green-500/20 text-green-400' 
+                                : 'bg-yellow-500/20 text-yellow-400'
+                            }`}>
+                              {app.available ? 'Available' : 'Coming Soon'}
+                            </div>
+                            <div className="text-xs text-gray-400 mt-1 capitalize">
+                              {app.category.replace('-', ' ')}
+                            </div>
                           </div>
                         </div>
+                      </div>
                     ))}
-              </div>
-            ) : (
+                  </div>
+                </div>
+              );
+            })}
+
+            {filteredApps.length === 0 && searchQuery && (
               <div className="text-center py-8">
                 <div className="w-16 h-16 bg-gray-800 rounded-full mx-auto flex items-center justify-center mb-4">
                   <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                          </div>
+                  </svg>
+                </div>
                 <p className="text-gray-400">
-                  {searchQuery ? 'No UPI apps found' : 'Start typing to search UPI apps and BANKS'}
-                            </p>
-                          </div>
+                  No apps found matching "{searchQuery}"
+                </p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Try searching for: "SBI", "HDFC", "PhonePe", "Paytm", etc.
+                </p>
+              </div>
+            )}
+
+            {!searchQuery && (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-gray-800 rounded-full mx-auto flex items-center justify-center mb-4">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <p className="text-gray-400">
+                  Start typing to search UPI apps and banks
+                </p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Search for banks like SBI, HDFC, ICICI or apps like PhonePe, Paytm
+                </p>
+              </div>
             )}
           </div>
         </div>
