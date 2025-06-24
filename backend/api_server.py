@@ -225,13 +225,23 @@ async def analyze_phonepe_statement(
             except Exception as e:
                 logger.error(f"fitz extraction error: {e}")
                 debug_info["errors"].append(f"fitz: {e}")
+            # Collect all text lines from all pages
+            all_text_lines = []
+            for page_num in range(debug_info["pages"]):
+                try:
+                    text = pdf.pages[page_num].extract_text() or ''
+                    all_text_lines.extend(text.split('\n'))
+                except Exception as e:
+                    logger.warning(f"Error extracting text from page {page_num+1}: {e}")
             # Regex match for transaction lines (improved for PhonePe text format)
             txn_pattern = re.compile(r'([A-Za-z]{3} \d{2}, \d{4}) (.+?) (Credit|Debit) INR ([\d,.]+)', re.IGNORECASE)
-            for line in page_lines:
+            for line in all_text_lines:
+                logger.warning(f"Checking line: {line}")
                 if not line:
                     continue
                 match = txn_pattern.search(line)
                 if match:
+                    logger.warning(f"Matched transaction line: {line}")
                     date_str = match.group(1)
                     description = match.group(2).strip()
                     txn_type = match.group(3)
