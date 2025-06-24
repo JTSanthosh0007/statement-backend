@@ -126,16 +126,19 @@ async def analyze_phonepe_statement(
             raise HTTPException(status_code=400, detail="No file provided")
         content = await file.read()
         transactions = []
-        all_lines = []
         methods_used = []
-        sample_matches = []
         tables_found = 0
         # 1. Try pdfplumber for tables (PhonePe format) in batches
         try:
             with pdfplumber.open(io.BytesIO(content)) as pdf:
                 debug_info["pages"] = len(pdf.pages)
                 methods_used.append("pdfplumber")
-                batch_size = 5
+                if len(pdf.pages) > 200:
+                    logger.warning(f"PDF has {len(pdf.pages)} pages, which exceeds the supported limit.")
+                    raise HTTPException(status_code=400, detail="PDF too large to analyze (over 200 pages). Please upload a smaller file.")
+                if len(pdf.pages) > 100:
+                    logger.warning(f"Large PDF detected: {len(pdf.pages)} pages.")
+                batch_size = 5  # Reduced from 20 to 5 for better memory handling
                 for batch_start in range(0, len(pdf.pages), batch_size):
                     batch_end = min(batch_start + batch_size, len(pdf.pages))
                     logger.info(f"Processing pages {batch_start+1} to {batch_end} of {len(pdf.pages)} (batch size: {batch_size})")
@@ -146,16 +149,13 @@ async def analyze_phonepe_statement(
                         if tables:
                             tables_found += len(tables)
                             for table in tables:
-                                # Try to find header row
                                 for row in table:
                                     if (len(row) >= 4 and
                                         ("Date" in row[0] and "Transaction" in row[1] and "Type" in row[2] and "Amount" in row[3])):
                                         continue  # skip header
-                                    # Parse row: [Date, Details, Type, Amount]
                                     if len(row) >= 4:
                                         date_str = row[0].strip() if row[0] else ''
                                         time_str = ''
-                                        # If next row is time, use it
                                         if re.match(r'\d{1,2}:\d{2} (am|pm|AM|PM)', row[1] or ''):
                                             time_str = row[1].strip()
                                             details = row[2].strip() if len(row) > 2 else ''
@@ -165,20 +165,17 @@ async def analyze_phonepe_statement(
                                             details = row[1].strip() if row[1] else ''
                                             txn_type = row[2].strip() if row[2] else ''
                                             amount_str = row[3].strip() if row[3] else ''
-                                        # Combine date and time
                                         dt_str = f"{date_str} {time_str}".strip()
                                         try:
                                             date = pd.to_datetime(dt_str, errors='coerce')
                                         except Exception:
                                             date = pd.NaT
-                                        # Clean amount
                                         amount = float(re.sub(r'[^\d.]', '', amount_str.replace(',', ''))) if amount_str else 0.0
                                         if 'debit' in txn_type.lower():
                                             amount = -abs(amount)
                                         elif 'credit' in txn_type.lower():
                                             amount = abs(amount)
                                         else:
-                                            # fallback: look for DR/CR in amount_str
                                             if 'dr' in amount_str.lower():
                                                 amount = -abs(amount)
                                             elif 'cr' in amount_str.lower():
@@ -190,16 +187,12 @@ async def analyze_phonepe_statement(
                                             'category': 'PhonePe',
                                             'type': txn_type
                                         })
-                                        sample_matches.append(f"{dt_str} | {details} | {txn_type} | {amount_str}")
-                                    page_lines.append(' | '.join([str(cell) for cell in row if cell]))
-                        # Fallback: extract_text line by line
-                        text = page.extract_text() or ''
-                        for line in text.split('\n'):
-                            page_lines.append(line.strip())
+                                    # Do not store all_lines or sample_matches for large PDFs
+                        # Fallback: extract_text line by line (do not store all_lines for large PDFs)
+                        # Only keep debug info for first page
                         if page_num == 0:
-                            debug_info["first_20_lines"] = page_lines[:20]
+                            debug_info["first_20_lines"] = (page.extract_text() or '').split('\n')[:20]
                         debug_info["lines_per_page"].append(len(page_lines))
-                        all_lines.extend(page_lines)
         except Exception as e:
             logger.error(f"pdfplumber extraction error: {e}")
             debug_info["errors"].append(f"pdfplumber: {e}")
@@ -217,14 +210,13 @@ async def analyze_phonepe_statement(
                     if page_num == 0:
                         debug_info["first_20_lines"] = page_lines[:20]
                     debug_info["lines_per_page"].append(len(page_lines))
-                    all_lines.extend(page_lines)
                 doc.close()
             except Exception as e:
                 logger.error(f"fitz extraction error: {e}")
                 debug_info["errors"].append(f"fitz: {e}")
             # Regex match for transaction lines
             txn_pattern = re.compile(r'(\w+ \d{2}, \d{4}).*?(CREDIT|DEBIT).*?([\u20B9₹RsINR]+\s*\d+[,.\d]*)', re.IGNORECASE)
-            for line in all_lines:
+            for line in page_lines:
                 if not line:
                     continue
                 match = txn_pattern.search(line)
@@ -248,9 +240,7 @@ async def analyze_phonepe_statement(
                         'category': 'PhonePe',
                         'type': txn_type
                     })
-                    sample_matches.append(line)
         debug_info["transactions_found"] = len(transactions)
-        debug_info["sample_matches"] = sample_matches[:5]
         debug_info["methods_used"] = methods_used
         # 3. Always return a valid response
         if not transactions:
