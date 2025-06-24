@@ -181,16 +181,6 @@ export default function SignUpPage() {
             </button>
           </div>
 
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={() => setForgotPasswordMode(true)}
-              className="text-sm text-zinc-400 hover:text-white underline"
-            >
-              Forgot Password?
-            </button>
-          </div>
-
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           <button
