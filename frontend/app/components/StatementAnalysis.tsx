@@ -177,6 +177,18 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Food & Dining': '#22C55E',        // Green
   'Groceries': '#FBBF24',           // Yellow
   'Shopping': '#F59E42',            // Orange
+  'Subscriptions': '#FFB300',      // Amber
+  'Kids': '#FF69B4',               // Hot Pink
+  'Home Improvement': '#8D6E63',   // Brown
+  'Festivals & Gifts': '#FFD700',  // Gold
+  'Travel Insurance': '#00B8D4',   // Light Blue
+  'Charity & Social': '#6D4C41',   // Deep Brown
+  'Dining Out': '#FF7043',         // Deep Orange
+  'Fitness & Sports': '#43A047',   // Green
+  'Electronics & Gadgets': '#7E57C2', // Purple
+  'Beauty & Wellness': '#EC407A',  // Pink
+  'Automobile': '#455A64',         // Blue Grey
+  'Stationery & Books': '#8D6E63', // Brown
   'Transportation': '#06B6D4',      // Cyan
   'Bills & Utilities': '#3B82F6',   // Blue
   'Health & Medical': '#10B981',    // Emerald
