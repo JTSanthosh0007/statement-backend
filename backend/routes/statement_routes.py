@@ -41,13 +41,25 @@ def analyze_phonepe():
         total_credit = df[df['amount'] > 0]['amount'].sum()
         total_debit = df[df['amount'] < 0]['amount'].sum()
         
+        # Calculate highest and lowest amounts
+        highest_amount = df['amount'].max() if not df.empty else 0
+        lowest_amount = df['amount'].min() if not df.empty else 0
+        
+        # Find transactions with highest and lowest amounts
+        highest_transaction = df.loc[df['amount'].idxmax()].to_dict() if not df.empty else None
+        lowest_transaction = df.loc[df['amount'].idxmin()].to_dict() if not df.empty else None
+        
         summary_details = {
             'totalReceived': total_credit,
             'totalSpent': total_debit,
             'balance': total_credit + total_debit,
             'creditCount': len(df[df['amount'] > 0]),
             'debitCount': len(df[df['amount'] < 0]),
-            'totalTransactions': len(df)
+            'totalTransactions': len(df),
+            'highestAmount': highest_amount,
+            'lowestAmount': lowest_amount,
+            'highestTransaction': highest_transaction,
+            'lowestTransaction': lowest_transaction
         }
         
         # Use existing helper functions
@@ -96,6 +108,22 @@ def analyze_statement():
         # For now, let's assume a generic parser is used.
         result = parse_statement(file_stream, 'unknown')
 
+        # Calculate highest and lowest amounts
+        transactions = result['transactions']
+        if transactions:
+            amounts = [t['amount'] for t in transactions]
+            highest_amount = max(amounts)
+            lowest_amount = min(amounts)
+            
+            # Find transactions with highest and lowest amounts
+            highest_transaction = next((t for t in transactions if t['amount'] == highest_amount), None)
+            lowest_transaction = next((t for t in transactions if t['amount'] == lowest_amount), None)
+        else:
+            highest_amount = 0
+            lowest_amount = 0
+            highest_transaction = None
+            lowest_transaction = None
+
         # Format the response
         response = {
             'transactions': result['transactions'],
@@ -105,7 +133,11 @@ def analyze_statement():
                 'balance': result['summary']['net_balance'],
                 'creditCount': result['summary']['credit_count'],
                 'debitCount': result['summary']['debit_count'],
-                'totalTransactions': result['summary']['total_transactions']
+                'totalTransactions': result['summary']['total_transactions'],
+                'highestAmount': highest_amount,
+                'lowestAmount': lowest_amount,
+                'highestTransaction': highest_transaction,
+                'lowestTransaction': lowest_transaction
             },
             'categoryBreakdown': calculate_category_breakdown(result['transactions']),
             'pageCount': len(result.get('pages', [])) if 'pages' in result else 1,
@@ -167,4 +199,69 @@ def extract_accounts_info(result):
             }
         })
     
-    return accounts 
+    return accounts
+
+def parse_statement(file_stream, statement_type):
+    """Parse statement using the StatementParser class."""
+    try:
+        from statement_parser import StatementParser
+        parser = StatementParser(file_stream)
+        df = parser.parse()
+        
+        if df.empty:
+            return {
+                'transactions': [],
+                'summary': {
+                    'total_credit': 0,
+                    'total_debit': 0,
+                    'net_balance': 0,
+                    'credit_count': 0,
+                    'debit_count': 0,
+                    'total_transactions': 0
+                },
+                'pages': []
+            }
+        
+        # Convert DataFrame to list of dictionaries
+        transactions = []
+        for _, row in df.iterrows():
+            transactions.append({
+                'date': row['date'].isoformat() if hasattr(row['date'], 'isoformat') else str(row['date']),
+                'amount': float(row['amount']),
+                'description': str(row['description']),
+                'category': str(row['category'])
+            })
+        
+        # Calculate summary
+        total_credit = df[df['amount'] > 0]['amount'].sum()
+        total_debit = df[df['amount'] < 0]['amount'].sum()
+        credit_count = len(df[df['amount'] > 0])
+        debit_count = len(df[df['amount'] < 0])
+        
+        return {
+            'transactions': transactions,
+            'summary': {
+                'total_credit': float(total_credit),
+                'total_debit': float(total_debit),
+                'net_balance': float(total_credit + total_debit),
+                'credit_count': int(credit_count),
+                'debit_count': int(debit_count),
+                'total_transactions': len(df)
+            },
+            'pages': []
+        }
+        
+    except Exception as e:
+        print(f"Error parsing statement: {e}")
+        return {
+            'transactions': [],
+            'summary': {
+                'total_credit': 0,
+                'total_debit': 0,
+                'net_balance': 0,
+                'credit_count': 0,
+                'debit_count': 0,
+                'total_transactions': 0
+            },
+            'pages': []
+        } 

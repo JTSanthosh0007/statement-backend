@@ -96,6 +96,18 @@ export interface AnalysisResult {
     creditCount: number;
     debitCount: number;
     totalTransactions: number;
+    highestAmount?: number;
+    lowestAmount?: number;
+    highestTransaction?: {
+      date: string;
+      amount: number;
+      description: string;
+    };
+    lowestTransaction?: {
+      date: string;
+      amount: number;
+      description: string;
+    };
   };
   categoryBreakdown: Record<string, {
     amount: number;
@@ -801,6 +813,84 @@ export const PhonePeAnalysisView: React.FC<{
               </div>
             )}
 
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div className="bg-zinc-800/50 rounded-2xl p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-zinc-400">Total Received</p>
+                    <p className="text-xl font-bold text-green-400">₹{analysisResults.summary.totalReceived?.toLocaleString() || '0'}</p>
+                  </div>
+                  <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+                    <span className="text-green-400 text-lg">↑</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-zinc-800/50 rounded-2xl p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-zinc-400">Total Spent</p>
+                    <p className="text-xl font-bold text-red-400">₹{Math.abs(analysisResults.summary.totalSpent || 0).toLocaleString()}</p>
+                  </div>
+                  <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center">
+                    <span className="text-red-400 text-lg">↓</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-zinc-800/50 rounded-2xl p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-zinc-400">Highest Amount</p>
+                    <p className="text-xl font-bold text-blue-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
+                  </div>
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                    <span className="text-blue-400 text-lg">↑</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-zinc-800/50 rounded-2xl p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-zinc-400">Lowest Amount</p>
+                    <p className="text-xl font-bold text-orange-400">₹{analysisResults.summary.lowestAmount?.toLocaleString() || '0'}</p>
+                  </div>
+                  <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
+                    <span className="text-orange-400 text-lg">↓</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Transaction Details */}
+            {analysisResults.summary.highestTransaction && (
+              <div className="bg-zinc-800/50 rounded-2xl p-4 mb-4">
+                <h4 className="text-sm font-medium text-zinc-400 mb-2">Highest Transaction</h4>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white font-medium">{analysisResults.summary.highestTransaction.description || 'N/A'}</p>
+                    <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.highestTransaction.date).toLocaleDateString()}</p>
+                  </div>
+                  <p className="text-lg font-bold text-green-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
+                </div>
+              </div>
+            )}
+            
+            {analysisResults.summary.lowestTransaction && (
+              <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
+                <h4 className="text-sm font-medium text-zinc-400 mb-2">Lowest Transaction</h4>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white font-medium">{analysisResults.summary.lowestTransaction.description || 'N/A'}</p>
+                    <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.lowestTransaction.date).toLocaleDateString()}</p>
+                  </div>
+                  <p className="text-lg font-bold text-red-400">₹{Math.abs(analysisResults.summary.lowestAmount || 0).toLocaleString()}</p>
+                </div>
+              </div>
+            )}
+
             {/* Summary Card */}
             <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
               <h3 className="text-lg font-medium text-white mb-4">Transaction Summary</h3>
@@ -823,6 +913,20 @@ export const PhonePeAnalysisView: React.FC<{
                   <p className="text-xl font-medium text-white">₹{((analysisResults.summary.totalReceived ?? 0) + Math.abs(analysisResults.summary.totalSpent ?? 0)).toFixed(2)}</p>
                 </div>
               </div>
+              
+              {/* Highest and Lowest Amount Cards */}
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="bg-zinc-800/50 p-4 rounded-xl">
+                  <p className="text-sm text-zinc-400">Highest Amount</p>
+                  <p className="text-xl font-medium text-blue-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
+                </div>
+                
+                <div className="bg-zinc-800/50 p-4 rounded-xl">
+                  <p className="text-sm text-zinc-400">Lowest Amount</p>
+                  <p className="text-xl font-medium text-orange-400">₹{analysisResults.summary.lowestAmount?.toLocaleString() || '0'}</p>
+                </div>
+              </div>
+              
               <div className="mt-4 p-3 bg-zinc-800/50 rounded-2xl">
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-zinc-400">Total Amount</p>
@@ -850,7 +954,7 @@ export const PhonePeAnalysisView: React.FC<{
             </div>
 
             {/* Charts */}
-            {mounted && analysisResults?.chartData && analysisResults?.categoryBreakdown && (
+            {mounted && analysisResults?.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0 && (
               <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
                 <h3 className="text-lg font-medium text-white mb-4">Spending Analysis</h3>
                 <div className="flex space-x-2 mb-4">
@@ -884,7 +988,7 @@ export const PhonePeAnalysisView: React.FC<{
                   <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
                     <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                     <div className="h-64">
-                      {chartData && (
+                      {chartData && chartData.labels && chartData.labels.length > 0 && (
                         <Chart
                           data={chartData}
                           options={{
@@ -918,7 +1022,7 @@ export const PhonePeAnalysisView: React.FC<{
                   <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
                     <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                     <div className="h-64">
-                      {chartData && (
+                      {chartData && chartData.labels && chartData.labels.length > 0 && (
                         <Doughnut
                           data={chartData}
                           options={{
@@ -952,7 +1056,7 @@ export const PhonePeAnalysisView: React.FC<{
                   <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
                     <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                     <div className="h-64">
-                      {chartData && (
+                      {chartData && chartData.labels && chartData.labels.length > 0 && (
                         <Bar
                           data={chartData}
                           options={{
@@ -983,52 +1087,54 @@ export const PhonePeAnalysisView: React.FC<{
                 )}
 
                 {/* Line Chart */}
-                <div className="bg-zinc-800/50 rounded-2xl p-4">
-                  <h4 className="text-sm font-medium text-zinc-400 mb-4">Monthly Trends</h4>
-                  <div className="h-64">
-                    <Line
-                      data={{
-                        labels: analysisResults.transactions.map(t => new Date(t.date).toLocaleDateString()),
-                        datasets: [{
-                          label: 'Transaction Amount',
-                          data: analysisResults.transactions.map(t => t.amount),
-                          borderColor: 'rgb(75, 192, 192)',
-                          tension: 0.1
-                        }]
-                      }}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                          legend: {
-                            position: 'bottom',
-                            labels: {
-                              color: 'white'
-                            }
-                          }
-                        },
-                        scales: {
-                          y: {
-                            ticks: {
-                              color: 'white'
-                            },
-                            grid: {
-                              color: 'rgba(255, 255, 255, 0.1)'
+                {analysisResults.transactions && analysisResults.transactions.length > 0 && (
+                  <div className="bg-zinc-800/50 rounded-2xl p-4">
+                    <h4 className="text-sm font-medium text-zinc-400 mb-4">Monthly Trends</h4>
+                    <div className="h-64">
+                      <Line
+                        data={{
+                          labels: analysisResults.transactions.map(t => new Date(t.date).toLocaleDateString()),
+                          datasets: [{
+                            label: 'Transaction Amount',
+                            data: analysisResults.transactions.map(t => t.amount),
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                          }]
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'bottom',
+                              labels: {
+                                color: 'white'
+                              }
                             }
                           },
-                          x: {
-                            ticks: {
-                              color: 'white'
+                          scales: {
+                            y: {
+                              ticks: {
+                                color: 'white'
+                              },
+                              grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                              }
                             },
-                            grid: {
-                              color: 'rgba(255, 255, 255, 0.1)'
+                            x: {
+                              ticks: {
+                                color: 'white'
+                              },
+                              grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                              }
                             }
                           }
-                        }
-                      }}
-                    />
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
 
@@ -1409,6 +1515,29 @@ export const KotakAnalysisView: React.FC<{
     setMounted(true);
   }, []);
 
+  // Chart data generation for KotakAnalysisView
+  const sortedCategories = useMemo(() => {
+    if (!analysisResults?.categoryBreakdown) return [];
+    return Object.entries(analysisResults.categoryBreakdown)
+      .sort(([, a], [, b]) => Math.abs(b.amount) - Math.abs(a.amount));
+  }, [analysisResults?.categoryBreakdown]);
+
+  const chartLabels = sortedCategories.map(([cat]) => cat);
+  const chartAmounts = sortedCategories.map(([, v]) => Math.abs(v.amount));
+  const chartColors = chartLabels.map((cat) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.Default);
+  const chartData = {
+    labels: chartLabels,
+    datasets: [
+      {
+        label: 'Amount Spent',
+        data: chartAmounts,
+        backgroundColor: chartColors,
+        borderColor: chartColors,
+        borderWidth: 1,
+      },
+    ],
+  };
+
   const renderContent = () => {
     switch (analysisState) {
       case 'analyzing':
@@ -1445,6 +1574,20 @@ export const KotakAnalysisView: React.FC<{
                   <p className="text-xl font-medium text-white">₹{((analysisResults.summary.totalReceived ?? 0) + Math.abs(analysisResults.summary.totalSpent ?? 0)).toFixed(2)}</p>
                 </div>
               </div>
+              
+              {/* Highest and Lowest Amount Cards */}
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="bg-zinc-800/50 p-4 rounded-xl">
+                  <p className="text-sm text-zinc-400">Highest Amount</p>
+                  <p className="text-xl font-medium text-blue-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
+                </div>
+                
+                <div className="bg-zinc-800/50 p-4 rounded-xl">
+                  <p className="text-sm text-zinc-400">Lowest Amount</p>
+                  <p className="text-xl font-medium text-orange-400">₹{analysisResults.summary.lowestAmount?.toLocaleString() || '0'}</p>
+                </div>
+              </div>
+              
               <div className="mt-4 p-3 bg-zinc-800/50 rounded-2xl">
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-zinc-400">Total Amount</p>
@@ -1471,8 +1614,35 @@ export const KotakAnalysisView: React.FC<{
               </div>
             </div>
 
+            {/* Transaction Details */}
+            {analysisResults.summary.highestTransaction && (
+              <div className="bg-zinc-800/50 rounded-2xl p-4 mb-4">
+                <h4 className="text-sm font-medium text-zinc-400 mb-2">Highest Transaction</h4>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white font-medium">{analysisResults.summary.highestTransaction.description || 'N/A'}</p>
+                    <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.highestTransaction.date).toLocaleDateString()}</p>
+                  </div>
+                  <p className="text-lg font-bold text-green-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
+                </div>
+              </div>
+            )}
+            
+            {analysisResults.summary.lowestTransaction && (
+              <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
+                <h4 className="text-sm font-medium text-zinc-400 mb-2">Lowest Transaction</h4>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white font-medium">{analysisResults.summary.lowestTransaction.description || 'N/A'}</p>
+                    <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.lowestTransaction.date).toLocaleDateString()}</p>
+                  </div>
+                  <p className="text-lg font-bold text-red-400">₹{Math.abs(analysisResults.summary.lowestAmount || 0).toLocaleString()}</p>
+                </div>
+              </div>
+            )}
+
             {/* Charts */}
-            {mounted && analysisResults?.chartData && analysisResults?.categoryBreakdown && (
+            {mounted && analysisResults?.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0 && (
               <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
                 <h3 className="text-lg font-medium text-white mb-4">Spending Analysis</h3>
                 <div className="flex space-x-2 mb-4">
@@ -1501,14 +1671,37 @@ export const KotakAnalysisView: React.FC<{
                     Horizontal Bar
                   </button>
                 </div>
+
                 {selectedChartType === 'pie' ? (
                   <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
                     <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                     <div className="h-64">
-                      {chartData && (
+                      {chartData && chartData.labels && chartData.labels.length > 0 && (
                         <Chart
                           data={chartData}
-                          options={pieOptions}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: {
+                                position: 'right' as const,
+                                labels: {
+                                  color: 'white',
+                                  font: { size: 12 },
+                                  padding: 20,
+                                },
+                              },
+                              tooltip: {
+                                callbacks: {
+                                  label: function(context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    return `${label}: ₹${Number(value).toLocaleString()}`;
+                                  }
+                                }
+                              }
+                            }
+                          }}
                         />
                       )}
                     </div>
@@ -1517,10 +1710,32 @@ export const KotakAnalysisView: React.FC<{
                   <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
                     <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                     <div className="h-64">
-                      {chartData && (
+                      {chartData && chartData.labels && chartData.labels.length > 0 && (
                         <Doughnut
                           data={chartData}
-                          options={pieOptions}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: {
+                                position: 'right',
+                                labels: {
+                                  color: 'white',
+                                  font: {
+                                    size: 12
+                                  },
+                                  padding: 20
+                                }
+                              },
+                              tooltip: {
+                                callbacks: {
+                                  label: function(context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
+                                    return `${context.label}: ${context.parsed.toFixed(1)}%`;
+                                  }
+                                }
+                              }
+                            }
+                          }}
                         />
                       )}
                     </div>
@@ -1529,12 +1744,82 @@ export const KotakAnalysisView: React.FC<{
                   <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
                     <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                     <div className="h-64">
-                      {chartData && (
+                      {chartData && chartData.labels && chartData.labels.length > 0 && (
                         <Bar
                           data={chartData}
-                          options={barOptions}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: {
+                                display: false,
+                                labels: { color: 'white' }
+                              }
+                            },
+                            scales: {
+                              y: {
+                                beginAtZero: true,
+                                ticks: { color: 'white' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                              },
+                              x: {
+                                ticks: { color: 'white' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                              }
+                            }
+                          }}
                         />
                       )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Line Chart */}
+                {analysisResults.transactions && analysisResults.transactions.length > 0 && (
+                  <div className="bg-zinc-800/50 rounded-2xl p-4">
+                    <h4 className="text-sm font-medium text-zinc-400 mb-4">Monthly Trends</h4>
+                    <div className="h-64">
+                      <Line
+                        data={{
+                          labels: analysisResults.transactions.map(t => new Date(t.date).toLocaleDateString()),
+                          datasets: [{
+                            label: 'Transaction Amount',
+                            data: analysisResults.transactions.map(t => t.amount),
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                          }]
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'bottom',
+                              labels: {
+                                color: 'white'
+                              }
+                            }
+                          },
+                          scales: {
+                            y: {
+                              ticks: {
+                                color: 'white'
+                              },
+                              grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                              }
+                            },
+                            x: {
+                              ticks: {
+                                color: 'white'
+                              },
+                              grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                              }
+                            }
+                          }
+                        }}
+                      />
                     </div>
                   </div>
                 )}
@@ -1633,81 +1918,6 @@ export const KotakAnalysisView: React.FC<{
             </div>
           </div>
         );
-    }
-  };
-
-  const sortedCategories = useMemo(() => {
-    if (!analysisResults?.categoryBreakdown) return [];
-    return Object.entries(analysisResults.categoryBreakdown)
-      .sort(([, a], [, b]) => Math.abs(b.amount) - Math.abs(a.amount));
-  }, [analysisResults?.categoryBreakdown]);
-
-  const chartLabels = sortedCategories.map(([cat]) => cat);
-  const chartAmounts = sortedCategories.map(([, v]) => Math.abs(v.amount));
-  const chartColors = chartLabels.map((cat) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.Default);
-
-  const chartData = {
-    labels: chartLabels,
-    datasets: [
-      {
-        label: 'Amount Spent',
-        data: chartAmounts,
-        backgroundColor: chartColors,
-        borderColor: chartColors,
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const pieOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'right' as const,
-        labels: {
-          color: 'white',
-          font: { size: 12 },
-          padding: 20,
-        },
-      },
-      tooltip: {
-        callbacks: {
-          label: function(context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
-            const label = context.label || '';
-            const value = context.parsed;
-            return `${label}: ₹${Number(value).toLocaleString()}`;
-          }
-        }
-      }
-    }
-  };
-
-  const barOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: {
-          label: function(context: any) {
-            const label = context.label || '';
-            const value = context.parsed;
-            return `${label}: ₹${Number(value).toLocaleString()}`;
-          }
-        }
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: { color: 'white' },
-        grid: { color: 'rgba(255, 255, 255, 0.1)' }
-      },
-      x: {
-        ticks: { color: 'white' },
-        grid: { color: 'rgba(255, 255, 255, 0.1)' }
-      }
     }
   };
 
