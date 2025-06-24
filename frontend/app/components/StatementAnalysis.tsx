@@ -974,51 +974,24 @@ export const PhonePeAnalysisView: React.FC<{
             {/* Summary Card */}
             <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
               <h3 className="text-lg font-medium text-white mb-4">Transaction Summary</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                {/* Only show Total Amount in summary, not Total Received/Spent (those are at the top) */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                {/* Total Received (CR) */}
+                <div className="bg-zinc-800/50 p-4 rounded-xl">
+                  <p className="text-sm text-zinc-400">Total Received (CR)</p>
+                  <p className="text-xl font-medium text-green-400">₹{(analysisResults.summary.totalReceived ?? 0).toLocaleString()}</p>
+                </div>
+                {/* Total Spent (DR) */}
+                <div className="bg-zinc-800/50 p-4 rounded-xl">
+                  <p className="text-sm text-zinc-400">Total Spent (DR)</p>
+                  <p className="text-xl font-medium text-red-400">₹{Math.abs(analysisResults.summary.totalSpent ?? 0).toLocaleString()}</p>
+                </div>
+                {/* Total Amount */}
                 <div className="bg-zinc-800/50 p-4 rounded-xl">
                   <p className="text-sm text-zinc-400">Total Amount</p>
-                  <p className="text-xl font-medium text-white">₹{(analysisResults.summary.balance ?? 0).toLocaleString()}</p>
-                </div>
-                {/* Highest Amount */}
-                {analysisResults.summary.highestAmount && analysisResults.summary.highestAmount > 0 && (
-                  <div className="bg-zinc-800/50 p-4 rounded-xl">
-                    <p className="text-sm text-zinc-400">Highest Amount</p>
-                    <p className="text-xl font-medium text-blue-400">₹{analysisResults.summary.highestAmount?.toLocaleString()}</p>
-                  </div>
-                )}
-                {/* Lowest Amount */}
-                {analysisResults.summary.lowestAmount && analysisResults.summary.lowestAmount > 0 && (
-                  <div className="bg-zinc-800/50 p-4 rounded-xl">
-                    <p className="text-sm text-zinc-400">Lowest Amount</p>
-                    <p className="text-xl font-medium text-orange-400">₹{analysisResults.summary.lowestAmount?.toLocaleString()}</p>
-                  </div>
-                )}
-              </div>
-              <div className="mt-4 p-3 bg-zinc-800/50 rounded-2xl">
-                <div className="flex justify-between items-center">
-                  <p className="text-sm text-zinc-400">Total Amount</p>
-                  <div className="text-right">
-                    <p className={`text-lg font-medium ${(analysisResults.summary.totalReceived + analysisResults.summary.totalSpent) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      ₹{Math.abs((analysisResults.summary.totalReceived ?? 0) + (analysisResults.summary.totalSpent ?? 0)).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center mt-1">
-                  <p className="text-xs text-zinc-500">Total {analysisResults.summary.totalTransactions} transactions</p>
-                  <p className="text-xs text-zinc-500">{analysisResults.pageCount} pages</p>
+                  <p className="text-xl font-medium text-white">₹{((analysisResults.summary.totalReceived ?? 0) + Math.abs(analysisResults.summary.totalSpent ?? 0)).toLocaleString()}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2 mt-4">
-                <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
-                  <span className="text-xs text-zinc-400">Total Credit Transactions</span>
-                  <span className="text-lg font-bold text-green-400">{analysisResults.summary.creditCount ?? 0}</span>
-                </div>
-                <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
-                  <span className="text-xs text-zinc-400">Total Debit Transactions</span>
-                  <span className="text-lg font-bold text-red-400">{analysisResults.summary.debitCount ?? 0}</span>
-                </div>
-              </div>
+              {/* Optionally, add Highest/Lowest Amount, Total Amount (summary), and transaction counts below, matching Kotak style */}
             </div>
 
             {/* Charts */}
@@ -1380,6 +1353,19 @@ export const PhonePeAnalysisView: React.FC<{
                 </div>
               </div>
             </div>
+
+            {/* Spending by Category List */}
+            <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50 mt-6">
+              <h3 className="text-lg font-medium text-white mb-4">Spending by Category</h3>
+              <div className="space-y-2">
+                {sortedCategories.map(([category, data]) => (
+                  <div key={category} className="flex justify-between items-center py-1">
+                    <span className="text-white">{category}</span>
+                    <span className="text-zinc-300 font-medium">₹{Math.abs(data.amount).toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         );
 
@@ -1624,62 +1610,23 @@ export const KotakAnalysisView: React.FC<{
             <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
               <h3 className="text-lg font-medium text-white mb-4">Transaction Summary</h3>
               <div className="grid grid-cols-3 gap-4">
-                {/* Total Received */}
+                {/* Total Received (CR) */}
                 <div className="bg-zinc-800/50 p-4 rounded-xl">
                   <p className="text-sm text-zinc-400">Total Received (CR)</p>
-                  <p className="text-xl font-medium text-green-400">₹{(analysisResults.summary.totalReceived ?? 0).toFixed(2)}</p>
+                  <p className="text-xl font-medium text-green-400">₹{(analysisResults.summary.totalReceived ?? 0).toLocaleString()}</p>
                 </div>
-                
-                {/* Total Spent */}
+                {/* Total Spent (DR) */}
                 <div className="bg-zinc-800/50 p-4 rounded-xl">
                   <p className="text-sm text-zinc-400">Total Spent (DR)</p>
-                  <p className="text-xl font-medium text-red-400">₹{Math.abs(analysisResults.summary.totalSpent ?? 0).toFixed(2)}</p>
+                  <p className="text-xl font-medium text-red-400">₹{Math.abs(analysisResults.summary.totalSpent ?? 0).toLocaleString()}</p>
                 </div>
-                
-                {/* New: Total Amount */}
+                {/* Total Amount */}
                 <div className="bg-zinc-800/50 p-4 rounded-xl">
                   <p className="text-sm text-zinc-400">Total Amount</p>
-                  <p className="text-xl font-medium text-white">₹{((analysisResults.summary.totalReceived ?? 0) + Math.abs(analysisResults.summary.totalSpent ?? 0)).toFixed(2)}</p>
+                  <p className="text-xl font-medium text-white">₹{((analysisResults.summary.totalReceived ?? 0) + Math.abs(analysisResults.summary.totalSpent ?? 0)).toLocaleString()}</p>
                 </div>
               </div>
-              
-              {/* Highest and Lowest Amount Cards */}
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div className="bg-zinc-800/50 p-4 rounded-xl">
-                  <p className="text-sm text-zinc-400">Highest Amount</p>
-                  <p className="text-xl font-medium text-blue-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
-                </div>
-                
-                <div className="bg-zinc-800/50 p-4 rounded-xl">
-                  <p className="text-sm text-zinc-400">Lowest Amount</p>
-                  <p className="text-xl font-medium text-orange-400">₹{analysisResults.summary.lowestAmount?.toLocaleString() || '0'}</p>
-                </div>
-              </div>
-              
-              <div className="mt-4 p-3 bg-zinc-800/50 rounded-2xl">
-                <div className="flex justify-between items-center">
-                  <p className="text-sm text-zinc-400">Total Amount</p>
-                  <div className="text-right">
-                    <p className={`text-lg font-medium ${(analysisResults.summary.totalReceived + analysisResults.summary.totalSpent) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      ₹{Math.abs((analysisResults.summary.totalReceived ?? 0) + (analysisResults.summary.totalSpent ?? 0)).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center mt-1">
-                  <p className="text-xs text-zinc-500">Total {analysisResults.summary.totalTransactions} transactions</p>
-                  <p className="text-xs text-zinc-500">{analysisResults.pageCount} pages</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 mt-4">
-                <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
-                  <span className="text-xs text-zinc-400">Total Credit Transactions</span>
-                  <span className="text-lg font-bold text-green-400">{analysisResults.summary.creditCount ?? 0}</span>
-                </div>
-                <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
-                  <span className="text-xs text-zinc-400">Total Debit Transactions</span>
-                  <span className="text-lg font-bold text-red-400">{analysisResults.summary.debitCount ?? 0}</span>
-                </div>
-              </div>
+              {/* Optionally, add Highest/Lowest Amount, Total Amount (summary), and transaction counts below, matching Kotak style */}
             </div>
 
             {/* Transaction Details */}
