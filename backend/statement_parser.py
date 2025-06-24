@@ -259,22 +259,59 @@ class StatementParser:
         description = description.lower()
         
         categories = {
-            'Food & Dining': ['food', 'restaurant', 'cafe', 'coffee', 'swiggy', 'zomato', 'hotel', 'eatery', 'kitchen', 'dine', 'meal', 'lunch', 'dinner', 'breakfast'],
-            'Shopping': ['amazon', 'flipkart', 'myntra', 'shop', 'store', 'retail', 'purchase', 'buy', 'mart', 'mall', 'bazaar', 'market'],
-            'Transportation': ['uber', 'ola', 'metro', 'bus', 'train', 'flight', 'airline', 'travel', 'taxi', 'cab', 'auto', 'rickshaw', 'petrol', 'diesel', 'fuel'],
-            'Entertainment': ['movie', 'theatre', 'netflix', 'prime', 'hotstar', 'disney', 'show', 'concert', 'event', 'ticket', 'game', 'gaming', 'play'],
-            'Bills & Utilities': ['electricity', 'water', 'gas', 'internet', 'mobile', 'phone', 'bill', 'recharge', 'dth', 'broadband', 'wifi', 'utility', 'service'],
-            'Health & Medical': ['hospital', 'clinic', 'pharmacy', 'medical', 'doctor', 'health', 'medicine', 'drug', 'healthcare', 'dental', 'lab', 'test'],
-            'Education': ['school', 'college', 'university', 'course', 'training', 'class', 'tuition', 'education', 'learning', 'study', 'book', 'stationery'],
-            'Travel': ['hotel', 'booking', 'trip', 'travel', 'tour', 'vacation', 'holiday', 'resort', 'stay', 'accommodation'],
-            'Personal Care': ['salon', 'spa', 'beauty', 'gym', 'fitness', 'parlour', 'cosmetics', 'grooming', 'wellness'],
-            'Investments': ['investment', 'mutual fund', 'stock', 'share', 'equity', 'demat', 'trading', 'portfolio', 'dividend', 'interest'],
-            'Insurance': ['insurance', 'policy', 'premium', 'coverage', 'claim', 'life', 'health', 'vehicle'],
-            'Rent': ['rent', 'lease', 'housing', 'accommodation', 'property'],
-            'EMI & Loans': ['emi', 'loan', 'credit', 'finance', 'installment', 'repayment'],
-            'Gifts & Donations': ['gift', 'donation', 'charity', 'contribute', 'present', 'offering'],
-            'Taxes & Fees': ['tax', 'gst', 'fee', 'charge', 'penalty', 'fine'],
-            'Transfer': ['transfer', 'sent', 'received', 'upi', 'phonepe', 'gpay', 'paytm', 'payment', 'pay', 'wallet'],
+            'Food & Dining': [
+                'food', 'restaurant', 'cafe', 'coffee', 'swiggy', 'zomato', 'hotel', 'eatery', 'kitchen', 'dine', 'meal', 'lunch', 'dinner', 'breakfast',
+                'dominos', 'pizza', 'dhaba', 'biryani', 'snacks', 'bakery', 'sweets', 'juice', 'milk', 'tea', 'beverage', 'bar', 'pub', 'canteen', 'tiffin', 'mess'
+            ],
+            'Groceries': [
+                'grocery', 'vegetable', 'fruit', 'supermarket', 'kirana', 'bigbasket', 'grofers', 'blinkit', 'reliance fresh', 'more retail', 'mart', 'bazaar', 'market', 'hypermarket', 'provision store', 'departmental store'
+            ],
+            'Shopping': [
+                'amazon', 'flipkart', 'myntra', 'shop', 'store', 'retail', 'purchase', 'buy', 'mall', 'ajio', 'nykaa', 'tatacliq', 'meesho', 'snapdeal', 'lifestyle', 'shoppers stop', 'westside', 'pantaloons', 'fashion', 'clothing', 'footwear', 'accessories', 'jewelry', 'electronics', 'mobile', 'laptop', 'tv', 'furniture', 'appliances', 'toys', 'sports', 'beauty', 'personal care', 'baby products'
+            ],
+            'Transportation': [
+                'uber', 'ola', 'metro', 'bus', 'train', 'flight', 'airline', 'travel', 'taxi', 'cab', 'auto', 'rickshaw', 'petrol', 'diesel', 'fuel', 'yulu', 'rapido', 'irctc', 'makemytrip', 'redbus', 'goibibo', 'toll', 'parking', 'fastag'
+            ],
+            'Bills & Utilities': [
+                'electricity', 'water', 'gas', 'internet', 'mobile', 'phone', 'bill', 'recharge', 'dth', 'broadband', 'wifi', 'utility', 'service', 'jio', 'airtel', 'vodafone', 'vi', 'bsnl', 'tata power', 'adani', 'bescom', 'tangedco', 'mahadiscom', 'postpaid', 'prepaid', 'cylinder', 'maintenance', 'society'
+            ],
+            'Health & Medical': [
+                'hospital', 'clinic', 'pharmacy', 'medical', 'doctor', 'health', 'medicine', 'drug', 'healthcare', 'dental', 'lab', 'test', 'apollo', 'medplus', 'netmeds', 'pharmeasy', 'diagnostic', 'consultation', 'treatment', 'therapy', 'ayurveda', 'yoga'
+            ],
+            'Education': [
+                'school', 'college', 'university', 'course', 'training', 'class', 'tuition', 'education', 'learning', 'study', 'book', 'stationery', 'byju', 'unacademy', 'vedantu', 'exam', 'test series', 'workshop', 'coaching', 'fees'
+            ],
+            'Travel': [
+                'hotel', 'booking', 'trip', 'tour', 'vacation', 'holiday', 'resort', 'stay', 'accommodation', 'flight', 'airbnb', 'makemytrip', 'goibibo', 'yatra', 'abhibus', 'irctc', 'travel'
+            ],
+            'Personal Care': [
+                'salon', 'spa', 'beauty', 'gym', 'fitness', 'parlour', 'cosmetics', 'grooming', 'wellness', 'haircut', 'massage', 'makeup'
+            ],
+            'Pets': [
+                'pet', 'dog', 'cat', 'vet', 'petcare', 'pet shop', 'pet food', 'boarding', 'grooming'
+            ],
+            'Investments': [
+                'investment', 'mutual fund', 'stock', 'share', 'equity', 'demat', 'trading', 'portfolio', 'dividend', 'interest', 'sip', 'fd', 'rd', 'nps', 'pension', 'lic', 'insurance', 'premium', 'policy', 'ulip', 'bond', 'gold', 'ppf', 'elss', 'etf', 'ipo', 'brokerage', 'securities'
+            ],
+            'Insurance': [
+                'insurance', 'policy', 'premium', 'coverage', 'claim', 'life', 'health', 'vehicle', 'max bupa', 'hdfc ergo', 'icici lombard', 'sbi general', 'bajaj allianz', 'star health', 'new india assurance', 'oriental insurance', 'national insurance', 'united india insurance', 'reliance general', 'tata aig', 'future generali', 'iffco tokio', 'cholamandalam', 'raheja qbe', 'aditya birla health', 'niva bupa'
+            ],
+            'Rent': [
+                'rent', 'lease', 'housing', 'accommodation', 'property', 'pg', 'hostel', 'tenant', 'landlord', 'flat', 'apartment', 'room', 'house rent', 'rent payment'
+            ],
+            'EMI & Loans': [
+                'emi', 'loan', 'credit', 'finance', 'installment', 'repayment', 'personal loan', 'home loan', 'car loan', 'auto loan', 'education loan', 'gold loan', 'overdraft', 'repay', 'borrow', 'lending', 'nbfc', 'bank loan', 'credit card', 'debit card', 'standing instruction', 'si', 'mandate', 'autopay', 'ecs', 'nach', 'auto debit'
+            ],
+            'Gifts & Donations': [
+                'gift', 'donation', 'charity', 'contribute', 'present', 'offering', 'ngo', 'temple', 'church', 'mosque', 'zakat', 'tithe', 'fundraiser', 'crowdfunding'
+            ],
+            'Taxes & Fees': [
+                'tax', 'gst', 'fee', 'charge', 'penalty', 'fine', 'income tax', 'tds', 'service tax', 'cess', 'stamp duty', 'registration', 'processing fee', 'late fee', 'convenience fee', 'surcharge'
+            ],
+            'Transfer': [
+                'transfer', 'sent', 'received', 'upi', 'phonepe', 'gpay', 'paytm', 'payment', 'pay', 'wallet', 'neft', 'imps', 'rtgs', 'withdraw', 'deposit', 'cash', 'atm', 'cheque', 'dd', 'pay to', 'received from', 'trf', 'chq', 'vpa', 'fund transfer', 'money transfer', 'account transfer', 'self transfer'
+            ],
+            'Others': []
         }
         
         # PhonePe specific merchants and categories
