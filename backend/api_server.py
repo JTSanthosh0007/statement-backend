@@ -225,28 +225,29 @@ async def analyze_phonepe_statement(
             except Exception as e:
                 logger.error(f"fitz extraction error: {e}")
                 debug_info["errors"].append(f"fitz: {e}")
-            # Regex match for transaction lines
-            txn_pattern = re.compile(r'(\w+ \d{2}, \d{4}).*?(CREDIT|DEBIT).*?([\u20B9₹RsINR]+\s*\d+[,.\d]*)', re.IGNORECASE)
+            # Regex match for transaction lines (improved for PhonePe text format)
+            txn_pattern = re.compile(r'([A-Za-z]{3} \d{2}, \d{4}) (.+?) (Credit|Debit) INR ([\d,.]+)', re.IGNORECASE)
             for line in page_lines:
                 if not line:
                     continue
                 match = txn_pattern.search(line)
                 if match:
                     date_str = match.group(1)
-                    txn_type = match.group(2)
-                    amount_str = match.group(3)
+                    description = match.group(2).strip()
+                    txn_type = match.group(3)
+                    amount_str = match.group(4)
                     try:
                         date = pd.to_datetime(date_str, errors='coerce')
                     except Exception:
                         date = pd.NaT
-                    amount = float(re.sub(r'[^\d.]', '', amount_str.replace(',', '')))
+                    amount = float(amount_str.replace(',', ''))
                     if 'debit' in txn_type.lower():
                         amount = -abs(amount)
                     elif 'credit' in txn_type.lower():
                         amount = abs(amount)
                     transactions.append({
                         'date': date,
-                        'description': line,
+                        'description': description,
                         'amount': amount,
                         'category': 'PhonePe',
                         'type': txn_type
