@@ -198,6 +198,12 @@ async def analyze_phonepe_statement(
                     estimated_seconds = int(avg_batch_time * total_batches)
                 else:
                     estimated_seconds = 0
+                # Print first 20 lines of first page for debugging
+                if len(pdf.pages) > 0:
+                    first_page_text = pdf.pages[0].extract_text() or ''
+                    logger.warning('First 20 lines of first page:')
+                    for i, line in enumerate(first_page_text.split('\n')[:20]):
+                        logger.warning(f'{i+1}: {line}')
         except Exception as e:
             logger.error(f"pdfplumber extraction error: {e}")
             debug_info["errors"].append(f"pdfplumber: {e}")
