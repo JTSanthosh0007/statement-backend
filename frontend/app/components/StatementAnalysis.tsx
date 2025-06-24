@@ -837,6 +837,64 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
   );
 });
 
+// Add a shared TransactionSummaryCard component
+const TransactionSummaryCard: React.FC<{ summary: any; pageCount: number }> = ({ summary, pageCount }) => (
+  <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
+    <h3 className="text-lg font-medium text-white mb-4">Transaction Summary</h3>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      {/* Total Received (CR) */}
+      <div className="bg-zinc-800/50 p-4 rounded-xl">
+        <p className="text-sm text-zinc-400">Total Received (CR)</p>
+        <p className="text-xl font-medium text-green-400">₹{(summary.totalReceived ?? 0).toLocaleString()}</p>
+      </div>
+      {/* Total Spent (DR) */}
+      <div className="bg-zinc-800/50 p-4 rounded-xl">
+        <p className="text-sm text-zinc-400">Total Spent (DR)</p>
+        <p className="text-xl font-medium text-red-400">₹{Math.abs(summary.totalSpent ?? 0).toLocaleString()}</p>
+      </div>
+      {/* Total Amount */}
+      <div className="bg-zinc-800/50 p-4 rounded-xl">
+        <p className="text-sm text-zinc-400">Total Amount</p>
+        <p className="text-xl font-medium text-white">₹{((summary.totalReceived ?? 0) + Math.abs(summary.totalSpent ?? 0)).toLocaleString()}</p>
+      </div>
+    </div>
+    <div className="grid grid-cols-2 gap-4 mb-4">
+      {/* Highest Amount */}
+      <div className="bg-zinc-800/50 p-4 rounded-xl">
+        <p className="text-sm text-zinc-400">Highest Amount</p>
+        <p className="text-xl font-medium text-blue-400">₹{summary.highestAmount?.toLocaleString() || '0'}</p>
+      </div>
+      {/* Lowest Amount */}
+      <div className="bg-zinc-800/50 p-4 rounded-xl">
+        <p className="text-sm text-zinc-400">Lowest Amount</p>
+        <p className="text-xl font-medium text-orange-400">₹{summary.lowestAmount?.toLocaleString() || '0'}</p>
+      </div>
+    </div>
+    <div className="mt-4 p-3 bg-zinc-800/50 rounded-2xl">
+      <div className="flex justify-between items-center">
+        <p className="text-sm text-zinc-400">Total Amount</p>
+        <div className="text-right">
+          <p className={`text-lg font-medium ${(summary.totalReceived + summary.totalSpent) >= 0 ? 'text-green-500' : 'text-red-500'}`}>₹{Math.abs((summary.totalReceived ?? 0) + (summary.totalSpent ?? 0)).toLocaleString()}</p>
+        </div>
+      </div>
+      <div className="flex justify-between items-center mt-1">
+        <p className="text-xs text-zinc-500">Total {summary.totalTransactions} transactions</p>
+        <p className="text-xs text-zinc-500">{pageCount} pages</p>
+      </div>
+    </div>
+    <div className="grid grid-cols-2 gap-2 mt-4">
+      <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
+        <span className="text-xs text-zinc-400">Total Credit Transactions</span>
+        <span className="text-lg font-bold text-green-400">{summary.creditCount ?? 0}</span>
+      </div>
+      <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
+        <span className="text-xs text-zinc-400">Total Debit Transactions</span>
+        <span className="text-lg font-bold text-red-400">{summary.debitCount ?? 0}</span>
+      </div>
+    </div>
+  </div>
+);
+
 export const PhonePeAnalysisView: React.FC<{ 
   setCurrentView: (view: View) => void;
   selectedFile: File | null;
@@ -888,61 +946,7 @@ export const PhonePeAnalysisView: React.FC<{
             )}
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <div className="bg-zinc-800/50 rounded-2xl p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-zinc-400">Total Received</p>
-                    <p className="text-xl font-bold text-green-400">₹{analysisResults.summary.totalReceived?.toLocaleString() || '0'}</p>
-                  </div>
-                  <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
-                    <span className="text-green-400 text-lg">↑</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-zinc-800/50 rounded-2xl p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-zinc-400">Total Spent</p>
-                    <p className="text-xl font-bold text-red-400">₹{Math.abs(analysisResults.summary.totalSpent || 0).toLocaleString()}</p>
-                  </div>
-                  <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center">
-                    <span className="text-red-400 text-lg">↓</span>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Highest Amount */}
-              {analysisResults.summary.highestAmount && analysisResults.summary.highestAmount > 0 && (
-                <div className="bg-zinc-800/50 rounded-2xl p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-zinc-400">Highest Amount</p>
-                      <p className="text-xl font-bold text-blue-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
-                    </div>
-                    <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
-                      <span className="text-blue-400 text-lg">↑</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {/* Lowest Amount */}
-              {analysisResults.summary.lowestAmount && analysisResults.summary.lowestAmount > 0 && (
-                <div className="bg-zinc-800/50 rounded-2xl p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-zinc-400">Lowest Amount</p>
-                      <p className="text-xl font-bold text-orange-400">₹{analysisResults.summary.lowestAmount?.toLocaleString() || '0'}</p>
-                    </div>
-                    <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
-                      <span className="text-orange-400 text-lg">↓</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+            <TransactionSummaryCard summary={analysisResults.summary} pageCount={analysisResults.pageCount} />
 
             {/* Transaction Details */}
             {analysisResults.summary.highestTransaction && (
@@ -970,62 +974,6 @@ export const PhonePeAnalysisView: React.FC<{
                 </div>
               </div>
             )}
-
-            {/* Summary Card */}
-            <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-              <h3 className="text-lg font-medium text-white mb-4">Transaction Summary</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                {/* Total Received (CR) */}
-                <div className="bg-zinc-800/50 p-4 rounded-xl">
-                  <p className="text-sm text-zinc-400">Total Received (CR)</p>
-                  <p className="text-xl font-medium text-green-400">₹{(analysisResults.summary.totalReceived ?? 0).toLocaleString()}</p>
-                </div>
-                {/* Total Spent (DR) */}
-                <div className="bg-zinc-800/50 p-4 rounded-xl">
-                  <p className="text-sm text-zinc-400">Total Spent (DR)</p>
-                  <p className="text-xl font-medium text-red-400">₹{Math.abs(analysisResults.summary.totalSpent ?? 0).toLocaleString()}</p>
-                </div>
-                {/* Total Amount */}
-                <div className="bg-zinc-800/50 p-4 rounded-xl">
-                  <p className="text-sm text-zinc-400">Total Amount</p>
-                  <p className="text-xl font-medium text-white">₹{((analysisResults.summary.totalReceived ?? 0) + Math.abs(analysisResults.summary.totalSpent ?? 0)).toLocaleString()}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                {/* Highest Amount */}
-                <div className="bg-zinc-800/50 p-4 rounded-xl">
-                  <p className="text-sm text-zinc-400">Highest Amount</p>
-                  <p className="text-xl font-medium text-blue-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
-                </div>
-                {/* Lowest Amount */}
-                <div className="bg-zinc-800/50 p-4 rounded-xl">
-                  <p className="text-sm text-zinc-400">Lowest Amount</p>
-                  <p className="text-xl font-medium text-orange-400">₹{analysisResults.summary.lowestAmount?.toLocaleString() || '0'}</p>
-                </div>
-              </div>
-              <div className="mt-4 p-3 bg-zinc-800/50 rounded-2xl">
-                <div className="flex justify-between items-center">
-                  <p className="text-sm text-zinc-400">Total Amount</p>
-                  <div className="text-right">
-                    <p className={`text-lg font-medium ${(analysisResults.summary.totalReceived + analysisResults.summary.totalSpent) >= 0 ? 'text-green-500' : 'text-red-500'}`}>₹{Math.abs((analysisResults.summary.totalReceived ?? 0) + (analysisResults.summary.totalSpent ?? 0)).toLocaleString()}</p>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center mt-1">
-                  <p className="text-xs text-zinc-500">Total {analysisResults.summary.totalTransactions} transactions</p>
-                  <p className="text-xs text-zinc-500">{analysisResults.pageCount} pages</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 mt-4">
-                <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
-                  <span className="text-xs text-zinc-400">Total Credit Transactions</span>
-                  <span className="text-lg font-bold text-green-400">{analysisResults.summary.creditCount ?? 0}</span>
-                </div>
-                <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
-                  <span className="text-xs text-zinc-400">Total Debit Transactions</span>
-                  <span className="text-lg font-bold text-red-400">{analysisResults.summary.debitCount ?? 0}</span>
-                </div>
-              </div>
-            </div>
 
             {/* Charts */}
             {mounted && analysisResults?.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0 && (
@@ -1386,19 +1334,6 @@ export const PhonePeAnalysisView: React.FC<{
                 </div>
               </div>
             </div>
-
-            {/* Spending by Category List */}
-            <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50 mt-6">
-              <h3 className="text-lg font-medium text-white mb-4">Spending by Category</h3>
-              <div className="space-y-2">
-                {sortedCategories.map(([category, data]) => (
-                  <div key={category} className="flex justify-between items-center py-1">
-                    <span className="text-white">{category}</span>
-                    <span className="text-zinc-300 font-medium">₹{Math.abs(data.amount).toLocaleString()}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         );
 
@@ -1640,27 +1575,7 @@ export const KotakAnalysisView: React.FC<{
         return (
           <div className="p-4 space-y-6">
             {/* Summary Card */}
-            <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-              <h3 className="text-lg font-medium text-white mb-4">Transaction Summary</h3>
-              <div className="grid grid-cols-3 gap-4">
-                {/* Total Received (CR) */}
-                <div className="bg-zinc-800/50 p-4 rounded-xl">
-                  <p className="text-sm text-zinc-400">Total Received (CR)</p>
-                  <p className="text-xl font-medium text-green-400">₹{(analysisResults.summary.totalReceived ?? 0).toLocaleString()}</p>
-                </div>
-                {/* Total Spent (DR) */}
-                <div className="bg-zinc-800/50 p-4 rounded-xl">
-                  <p className="text-sm text-zinc-400">Total Spent (DR)</p>
-                  <p className="text-xl font-medium text-red-400">₹{Math.abs(analysisResults.summary.totalSpent ?? 0).toLocaleString()}</p>
-                </div>
-                {/* Total Amount */}
-                <div className="bg-zinc-800/50 p-4 rounded-xl">
-                  <p className="text-sm text-zinc-400">Total Amount</p>
-                  <p className="text-xl font-medium text-white">₹{((analysisResults.summary.totalReceived ?? 0) + Math.abs(analysisResults.summary.totalSpent ?? 0)).toLocaleString()}</p>
-                </div>
-              </div>
-              {/* Optionally, add Highest/Lowest Amount, Total Amount (summary), and transaction counts below, matching Kotak style */}
-            </div>
+            <TransactionSummaryCard summary={analysisResults.summary} pageCount={analysisResults.pageCount} />
 
             {/* Transaction Details */}
             {analysisResults.summary.highestTransaction && (
@@ -2354,7 +2269,7 @@ const ReferAndEarnView: React.FC<{ setCurrentView: (view: View) => void }> = ({ 
               <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-500" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z" clipRule="evenodd" />
-                  <path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z" />
+                    <path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z" />
                 </svg>
               </div>
               <div>
