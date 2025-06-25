@@ -11,7 +11,6 @@ import re
 import logging
 import time
 from parsers.kotak_parser import parse_kotak_statement
-from celery_worker import process_pdf_task
 
 app = FastAPI()
 
@@ -279,8 +278,8 @@ async def analyze_phonepe_statement(
                 "debug": debug_info
             }
         df = pd.DataFrame(transactions)
-            total_spent = sum(t['amount'] for t in transactions if t['amount'] < 0)
-            total_received = sum(t['amount'] for t in transactions if t['amount'] > 0)
+        total_spent = sum(t['amount'] for t in transactions if t['amount'] < 0)
+        total_received = sum(t['amount'] for t in transactions if t['amount'] > 0)
         credit_count = sum(1 for t in transactions if t['amount'] > 0)
         debit_count = sum(1 for t in transactions if t['amount'] < 0)
         total_transactions = len(transactions)
@@ -304,7 +303,7 @@ async def analyze_phonepe_statement(
             lowest_transaction = None
         # Build category breakdown
         category_map = {}
-            for t in transactions:
+        for t in transactions:
             cat = t.get('category', 'Others')
             if cat not in category_map:
                 category_map[cat] = {'amount': 0, 'count': 0}
@@ -316,10 +315,10 @@ async def analyze_phonepe_statement(
             amt = category_map[cat]['amount']
             category_map[cat]['percentage'] = (amt / abs(total_spent) * 100) if total_spent else 0
         debug_info["analysis_time_seconds"] = round(time.time() - start_time, 2)
-            return {
+        return {
             "transactions": df.to_dict('records'),
-                "summary": {
-                    "totalSpent": total_spent,
+            "summary": {
+                "totalSpent": total_spent,
                 "totalReceived": total_received,
                 "creditCount": credit_count,
                 "debitCount": debit_count,
@@ -480,22 +479,6 @@ async def http_exception_handler(request, exc):
         status_code=exc.status_code,
         content={"error": exc.detail}
     )
-
-@app.route('/api/submit-job', methods=['POST'])
-def submit_job():
-    file = request.files['file']
-    file_path = f"/tmp/{file.filename}"
-    file.save(file_path)
-    task = process_pdf_task.apply_async(args=[file_path])
-    return jsonify({"job_id": task.id})
-
-@app.route('/api/job-status')
-def job_status():
-    job_id = request.args.get('job_id')
-    task = process_pdf_task.AsyncResult(job_id)
-    if task.state == 'SUCCESS':
-        return jsonify({"status": "done", "result": task.result})
-    return jsonify({"status": task.state.lower()})
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000) 
