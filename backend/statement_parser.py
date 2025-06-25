@@ -39,9 +39,9 @@ class StatementParser:
     def _parse_pdf(self):
         """Handle PDF parsing with a more robust strategy."""
         try:
-            if hasattr(self.file_obj, 'seek'):
-                self.file_obj.seek(0)
-
+                if hasattr(self.file_obj, 'seek'):
+                    self.file_obj.seek(0)
+                
             # Use PyMuPDF (fitz) for reliable text extraction
             doc = fitz.open(stream=self.file_obj, filetype="pdf")
             
@@ -50,9 +50,9 @@ class StatementParser:
                 first_page_text = doc[0].get_text()
             
             # Detect PhonePe statement
-            is_phonepe = any(keyword in first_page_text.lower() for keyword in ['phonepe', 'phone pe', 'statement of transactions'])
-            
-            if is_phonepe:
+                is_phonepe = any(keyword in first_page_text.lower() for keyword in ['phonepe', 'phone pe', 'statement of transactions'])
+                
+                if is_phonepe:
                 logger.info("Detected PhonePe statement. Using PyMuPDF parser.")
                 return self._parse_phonepe_with_fitz(doc)
 
@@ -89,49 +89,49 @@ class StatementParser:
         ]
         amount_pattern = r'(?:₹|Rs|INR)?\s*(\d+(?:,\d+)*(?:\.\d{2})?)'
 
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                
             # Skip common header/footer lines
-            if any(header in line.lower() for header in ['statement', 'page', 'transaction id', 'opening balance', 'closing balance']):
-                continue
-            
-            date_match = None
-            for pattern in date_patterns:
-                match = re.search(pattern, line)
-                if match:
-                    date_match = match.group(1)
-                    break
-            
-            if date_match:
-                amount_match = re.search(amount_pattern, line)
-                if amount_match:
+                if any(header in line.lower() for header in ['statement', 'page', 'transaction id', 'opening balance', 'closing balance']):
+                    continue
+                
+                date_match = None
+                for pattern in date_patterns:
+                    match = re.search(pattern, line)
+                    if match:
+                        date_match = match.group(1)
+                        break
+                
+                if date_match:
+                    amount_match = re.search(amount_pattern, line)
+                    if amount_match:
                     amount_str = amount_match.group(1).replace(',', '')
                     amount = float(amount_str)
-                    
-                    is_debit = any(word in line.lower() for word in ['paid', 'payment', 'sent', 'debit'])
-                    if is_debit:
-                        amount = -amount
-                    
-                    try:
-                        date = pd.to_datetime(date_match)
+                        
+                        is_debit = any(word in line.lower() for word in ['paid', 'payment', 'sent', 'debit'])
+                        if is_debit:
+                            amount = -amount
+                        
+                        try:
+                                date = pd.to_datetime(date_match)
                     except ValueError:
-                        date = pd.Timestamp.now()
-                    
+                            date = pd.Timestamp.now()
+                        
                     all_transactions.append({
-                        'date': date,
+                            'date': date,
                         'description': line,
-                        'amount': amount,
+                            'amount': amount,
                         'category': self._categorize_transaction(line)
                     })
-        
-        if not all_transactions:
+            
+            if not all_transactions:
             logger.warning("No transactions extracted from PhonePe statement.")
             return pd.DataFrame()
 
-        df = pd.DataFrame(all_transactions)
+            df = pd.DataFrame(all_transactions)
         return df.sort_values('date', ascending=False)
         
     def _parse_with_pdfplumber(self):
@@ -467,7 +467,7 @@ def main():
         sys.exit(1)
 
 if __name__ == "__main__":
-    main()
+    main() 
 
 app = FastAPI()
 

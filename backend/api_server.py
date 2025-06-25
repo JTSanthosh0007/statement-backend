@@ -278,8 +278,8 @@ async def analyze_phonepe_statement(
                 "debug": debug_info
             }
         df = pd.DataFrame(transactions)
-        total_spent = sum(t['amount'] for t in transactions if t['amount'] < 0)
-        total_received = sum(t['amount'] for t in transactions if t['amount'] > 0)
+            total_spent = sum(t['amount'] for t in transactions if t['amount'] < 0)
+            total_received = sum(t['amount'] for t in transactions if t['amount'] > 0)
         credit_count = sum(1 for t in transactions if t['amount'] > 0)
         debit_count = sum(1 for t in transactions if t['amount'] < 0)
         total_transactions = len(transactions)
@@ -303,7 +303,7 @@ async def analyze_phonepe_statement(
             lowest_transaction = None
         # Build category breakdown
         category_map = {}
-        for t in transactions:
+            for t in transactions:
             cat = t.get('category', 'Others')
             if cat not in category_map:
                 category_map[cat] = {'amount': 0, 'count': 0}
@@ -315,10 +315,10 @@ async def analyze_phonepe_statement(
             amt = category_map[cat]['amount']
             category_map[cat]['percentage'] = (amt / abs(total_spent) * 100) if total_spent else 0
         debug_info["analysis_time_seconds"] = round(time.time() - start_time, 2)
-        return {
+            return {
             "transactions": df.to_dict('records'),
-            "summary": {
-                "totalSpent": total_spent,
+                "summary": {
+                    "totalSpent": total_spent,
                 "totalReceived": total_received,
                 "creditCount": credit_count,
                 "debitCount": debit_count,

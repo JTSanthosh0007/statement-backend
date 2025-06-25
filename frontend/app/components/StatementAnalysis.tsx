@@ -750,16 +750,16 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
               <ArrowLeftIcon className="w-6 h-6" />
             </button>
             <div className="flex-1">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search UPI apps and banks..."
                 className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                autoFocus
-              />
+                  autoFocus
+                />
+              </div>
             </div>
-          </div>
 
           <div className="space-y-6">
             {Object.keys(groupedApps).map(category => {
@@ -769,7 +769,7 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
               return (
                 <div key={category}>
                   <h3 className="text-lg font-semibold text-white mb-3">{category}</h3>
-                  <div className="grid grid-cols-1 gap-3">
+              <div className="grid grid-cols-1 gap-3">
                     {apps.map(app => (
                       <div 
                         key={app.id} 
@@ -789,19 +789,19 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
                           onClose();
                         }}
                       >
-                        <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3">
                           <div className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center">
-                            <span className="text-lg font-medium text-white">
+                        <span className="text-lg font-medium text-white">
                               {app.shortName ? app.shortName.charAt(0) : app.name.charAt(0)}
-                            </span>
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-white font-medium">{app.name}</h3>
-                            <p className="text-sm text-gray-400">{app.description}</p>
+                        </span>
+          </div>
+                      <div className="flex-1">
+                        <h3 className="text-white font-medium">{app.name}</h3>
+                        <p className="text-sm text-gray-400">{app.description}</p>
                             {app.bankCode && (
                               <p className="text-xs text-gray-500">Code: {app.bankCode}</p>
                             )}
-                          </div>
+        </div>
                           <div className="text-right">
                             <div className={`text-sm px-2 py-1 rounded-full ${
                               app.available 
@@ -813,11 +813,11 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
                             <div className="text-xs text-gray-400 mt-1 capitalize">
                               {app.category.replace('-', ' ')}
                             </div>
+              </div>
                           </div>
                         </div>
-                      </div>
                     ))}
-                  </div>
+              </div>
                 </div>
               );
             })}
@@ -827,15 +827,15 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
                 <div className="w-16 h-16 bg-gray-800 rounded-full mx-auto flex items-center justify-center mb-4">
                   <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
+                            </svg>
+                          </div>
                 <p className="text-gray-400">
                   No apps found matching "{searchQuery}"
                 </p>
                 <p className="text-sm text-gray-500 mt-2">
                   Try searching for: "SBI", "HDFC", "PhonePe", "Paytm", etc.
-                </p>
-              </div>
+                            </p>
+                          </div>
             )}
 
             {!searchQuery && (
@@ -844,7 +844,7 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
                   <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                </div>
+          </div>
                 <p className="text-gray-400">
                   Start typing to search UPI apps and banks
                 </p>
@@ -979,7 +979,7 @@ export const PhonePeAnalysisView: React.FC<{
                   <div>
                     <p className="text-white font-medium">{analysisResults.summary.highestTransaction.description || 'N/A'}</p>
                     <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.highestTransaction.date).toLocaleDateString()}</p>
-                  </div>
+                </div>
                   <p className="text-lg font-bold text-green-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
                 </div>
               </div>
@@ -992,10 +992,10 @@ export const PhonePeAnalysisView: React.FC<{
                   <div>
                     <p className="text-white font-medium">{analysisResults.summary.lowestTransaction.description || 'N/A'}</p>
                     <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.lowestTransaction.date).toLocaleDateString()}</p>
-                  </div>
+                    </div>
                   <p className="text-lg font-bold text-red-400">₹{Math.abs(analysisResults.summary.lowestAmount || 0).toLocaleString()}</p>
+                  </div>
                 </div>
-              </div>
             )}
 
             {/* Charts */}
@@ -1034,7 +1034,7 @@ export const PhonePeAnalysisView: React.FC<{
                     <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                     <div className="h-64">
                       {chartData && chartData.labels && chartData.labels.length > 0 && (
-                        <Chart
+                      <Chart
                           data={chartData}
                           options={{
                             responsive: true,
@@ -1070,30 +1070,30 @@ export const PhonePeAnalysisView: React.FC<{
                       {chartData && chartData.labels && chartData.labels.length > 0 && (
                         <Doughnut
                           data={chartData}
-                          options={{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                              legend: {
-                                position: 'right',
-                                labels: {
-                                  color: 'white',
-                                  font: {
-                                    size: 12
-                                  },
-                                  padding: 20
-                                }
-                              },
-                              tooltip: {
-                                callbacks: {
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'right',
+                              labels: {
+                                color: 'white',
+                                font: {
+                                  size: 12
+                                },
+                                padding: 20
+                              }
+                            },
+                            tooltip: {
+                              callbacks: {
                                   label: function(context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
-                                    return `${context.label}: ${context.parsed.toFixed(1)}%`;
-                                  }
+                                  return `${context.label}: ${context.parsed.toFixed(1)}%`;
                                 }
                               }
                             }
-                          }}
-                        />
+                          }
+                        }}
+                      />
                       )}
                     </div>
                   </div>
@@ -1133,52 +1133,52 @@ export const PhonePeAnalysisView: React.FC<{
 
                 {/* Line Chart */}
                 {analysisResults.transactions && analysisResults.transactions.length > 0 && (
-                  <div className="bg-zinc-800/50 rounded-2xl p-4">
-                    <h4 className="text-sm font-medium text-zinc-400 mb-4">Monthly Trends</h4>
-                    <div className="h-64">
-                      <Line
-                        data={{
-                          labels: analysisResults.transactions.map(t => new Date(t.date).toLocaleDateString()),
-                          datasets: [{
-                            label: 'Transaction Amount',
-                            data: analysisResults.transactions.map(t => t.amount),
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1
-                          }]
-                        }}
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: {
-                              position: 'bottom',
-                              labels: {
-                                color: 'white'
-                              }
-                            }
-                          },
-                          scales: {
-                            y: {
-                              ticks: {
-                                color: 'white'
-                              },
-                              grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                              }
-                            },
-                            x: {
-                              ticks: {
-                                color: 'white'
-                              },
-                              grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                              }
+                <div className="bg-zinc-800/50 rounded-2xl p-4">
+                  <h4 className="text-sm font-medium text-zinc-400 mb-4">Monthly Trends</h4>
+                  <div className="h-64">
+                    <Line
+                      data={{
+                        labels: analysisResults.transactions.map(t => new Date(t.date).toLocaleDateString()),
+                        datasets: [{
+                          label: 'Transaction Amount',
+                          data: analysisResults.transactions.map(t => t.amount),
+                          borderColor: 'rgb(75, 192, 192)',
+                          tension: 0.1
+                        }]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: 'bottom',
+                            labels: {
+                              color: 'white'
                             }
                           }
-                        }}
-                      />
-                    </div>
+                        },
+                        scales: {
+                          y: {
+                            ticks: {
+                              color: 'white'
+                            },
+                            grid: {
+                              color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                          },
+                          x: {
+                            ticks: {
+                              color: 'white'
+                            },
+                            grid: {
+                              color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                          }
+                        }
+                      }}
+                    />
                   </div>
+                </div>
                 )}
               </div>
             )}
@@ -1187,7 +1187,7 @@ export const PhonePeAnalysisView: React.FC<{
             {analysisResults?.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0 ? (
               <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50 mt-6">
                 <h3 className="text-lg font-semibold text-white mb-6">Detailed Category Breakdown</h3>
-                <div className="space-y-4">
+              <div className="space-y-4">
                   {Object.entries(analysisResults.categoryBreakdown)
                     .sort(([, a], [, b]) => Math.abs(b.amount) - Math.abs(a.amount))
                     .map(([category, cat], idx) => {
@@ -1196,13 +1196,13 @@ export const PhonePeAnalysisView: React.FC<{
                         <div key={category} className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-2">
                             <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: color }}></span>
-                            <span className="text-zinc-300">{category}</span>
-                          </div>
+                    <span className="text-zinc-300">{category}</span>
+                  </div>
                           <span className="text-zinc-400">₹{Math.abs(cat.amount).toLocaleString()}</span>
-                        </div>
+              </div>
                       );
                     })}
-                </div>
+            </div>
               </div>
             ) : (
               <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50 mt-6 text-zinc-400 text-center">
@@ -1595,7 +1595,7 @@ export const KotakAnalysisView: React.FC<{
                   <div>
                     <p className="text-white font-medium">{analysisResults.summary.highestTransaction.description || 'N/A'}</p>
                     <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.highestTransaction.date).toLocaleDateString()}</p>
-                  </div>
+                </div>
                   <p className="text-lg font-bold text-green-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
                 </div>
               </div>
@@ -1611,7 +1611,7 @@ export const KotakAnalysisView: React.FC<{
                   </div>
                   <p className="text-lg font-bold text-red-400">₹{Math.abs(analysisResults.summary.lowestAmount || 0).toLocaleString()}</p>
                 </div>
-              </div>
+                </div>
             )}
 
             {/* Charts */}
@@ -1650,7 +1650,7 @@ export const KotakAnalysisView: React.FC<{
                     <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                     <div className="h-64">
                       {chartData && chartData.labels && chartData.labels.length > 0 && (
-                        <Chart
+                      <Chart
                           data={chartData}
                           options={{
                             responsive: true,
@@ -1686,30 +1686,30 @@ export const KotakAnalysisView: React.FC<{
                       {chartData && chartData.labels && chartData.labels.length > 0 && (
                         <Doughnut
                           data={chartData}
-                          options={{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                              legend: {
-                                position: 'right',
-                                labels: {
-                                  color: 'white',
-                                  font: {
-                                    size: 12
-                                  },
-                                  padding: 20
-                                }
-                              },
-                              tooltip: {
-                                callbacks: {
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'right',
+                              labels: {
+                                color: 'white',
+                                font: {
+                                  size: 12
+                                },
+                                padding: 20
+                              }
+                            },
+                            tooltip: {
+                              callbacks: {
                                   label: function(context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
-                                    return `${context.label}: ${context.parsed.toFixed(1)}%`;
-                                  }
+                                  return `${context.label}: ${context.parsed.toFixed(1)}%`;
                                 }
                               }
                             }
-                          }}
-                        />
+                          }
+                        }}
+                      />
                       )}
                     </div>
                   </div>
@@ -1718,14 +1718,14 @@ export const KotakAnalysisView: React.FC<{
                     <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                     <div className="h-64">
                       {chartData && chartData.labels && chartData.labels.length > 0 && (
-                        <Bar
+                      <Bar
                           data={chartData}
-                          options={{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                              legend: {
-                                display: false,
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              display: false,
                                 labels: { color: 'white' }
                               }
                             },
@@ -2279,7 +2279,7 @@ const ReferAndEarnView: React.FC<{ setCurrentView: (view: View) => void }> = ({ 
               <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-500" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z" clipRule="evenodd" />
-                    <path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z" />
+                  <path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z" />
                 </svg>
               </div>
               <div>
