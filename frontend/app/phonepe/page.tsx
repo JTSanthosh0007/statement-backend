@@ -98,6 +98,9 @@ export default function PhonePePage() {
 
   return (
     <div className="min-h-screen bg-black">
+      <div className="mt-4 p-3 rounded-lg bg-yellow-900/40 text-yellow-300 text-center font-medium">
+        PDF page limit is <span className="font-bold">50</span>. If your statement has more than 50 pages, please upgrade to the <span className="font-bold">Pro version</span>.
+      </div>
       <PhonePeAnalysisView 
         setCurrentView={() => router.push('/')}
         selectedFile={selectedFile}
