@@ -97,10 +97,7 @@ export default function PhonePePage() {
   }, [analyzeStatement]);
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="mt-4 p-3 rounded-lg bg-yellow-900/40 text-yellow-300 text-center font-medium">
-        PDF page limit is <span className="font-bold">50</span>. If your statement has more than 50 pages, please upgrade to the <span className="font-bold">Pro version</span>.
-      </div>
+    <div className="min-h-screen bg-black flex flex-col items-center">
       <PhonePeAnalysisView 
         setCurrentView={() => router.push('/')}
         selectedFile={selectedFile}
@@ -111,6 +108,9 @@ export default function PhonePePage() {
         handleDrop={handleDrop}
         fileInputRef={fileInputRef}
       />
+      <div className="mt-6 p-3 rounded-lg bg-yellow-900/40 text-yellow-300 text-center font-medium w-fit mx-auto">
+        PDF page limit is <span className="font-bold">50</span>. If your statement has more than 50 pages, please upgrade to the <span className="font-bold">Pro version</span>.
+      </div>
     </div>
   )
 } 
