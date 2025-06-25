@@ -97,7 +97,7 @@ export default function PhonePePage() {
   }, [analyzeStatement]);
 
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center">
+    <div className="min-h-screen bg-black flex flex-col justify-center items-center">
       <PhonePeAnalysisView 
         setCurrentView={() => router.push('/')}
         selectedFile={selectedFile}
