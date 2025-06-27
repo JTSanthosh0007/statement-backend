@@ -61,13 +61,19 @@ export const CanaraAnalysisView: React.FC<{
   };
 
   return (
-    <div className="w-full max-w-xl bg-zinc-900/80 rounded-3xl p-8 border border-zinc-800/50 mt-12">
-      <h2 className="text-2xl font-bold text-[#0A9396] mb-6 text-center">Canara Bank Statement Analyzer</h2>
+    <div className="w-full max-w-xl bg-zinc-900/80 rounded-3xl p-0 border border-zinc-800/50 mt-12">
       {analysisState === 'upload' && (
-        <div>
+        <div className="flex flex-col items-center justify-center p-10">
+          <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center mb-4">
+            <svg className="w-8 h-8 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-3-3v6m9 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">Upload Statement</h3>
+          <p className="text-zinc-400 text-sm mb-6">Upload your bank statement to analyze your spending patterns</p>
           <label
             htmlFor="canara-upload"
-            className="block w-full border-2 border-dashed border-[#0A9396] rounded-xl p-8 text-center cursor-pointer bg-zinc-800/40 hover:bg-zinc-800/60 transition-all"
+            className="block w-full border-2 border-dashed border-zinc-700 rounded-2xl p-8 text-center cursor-pointer hover:border-zinc-600 transition-colors"
             onDragOver={handleDragOver}
             onDrop={handleDrop}
           >
@@ -82,7 +88,13 @@ export const CanaraAnalysisView: React.FC<{
             {selectedFile ? (
               <span className="text-[#0A9396] font-medium">{selectedFile.name}</span>
             ) : (
-              <span className="text-zinc-400">Drag & drop your PDF here, or <span className="underline">browse</span></span>
+              <>
+                <svg className="w-8 h-8 text-zinc-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 16v-8m0 0l-4 4m4-4l4 4" />
+                </svg>
+                <p className="text-zinc-300 mb-1">Drag and drop your statement here</p>
+                <p className="text-zinc-500 text-sm">or click to browse</p>
+              </>
             )}
           </label>
         </div>
@@ -203,7 +215,17 @@ export const CanaraAnalysisView: React.FC<{
                   <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                   <div className="h-64">
                     {chartData && chartData.labels && chartData.labels.length > 0 && (
-                      <Doughnut data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: 'white', font: { size: 12 }, padding: 20 } }, tooltip: { callbacks: { label: function(context) { return `${context.label}: ${context.parsed.toFixed(1)}%`; } } } } }} />
+                      <Doughnut 
+                        data={chartData} 
+                        options={{ 
+                          responsive: true, 
+                          maintainAspectRatio: false, 
+                          plugins: { 
+                            legend: { position: 'right', labels: { color: 'white', font: { size: 12 }, padding: 20 } }, 
+                            tooltip: { callbacks: { label: (context: any) => `${context.label}: ${typeof context.parsed === 'number' ? context.parsed.toFixed(1) : context.parsed}%` } } 
+                          } 
+                        }} 
+                      />
                     )}
                   </div>
                 </div>

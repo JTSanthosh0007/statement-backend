@@ -14,6 +14,7 @@ import os
 import tempfile
 from parsers.kotak_parser import parse_kotak_statement
 from parsers.phonepe_parser import parse_phonepe_statement
+from parsers.canara_parser import parse_canara_statement
 from starlette.middleware import Middleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -56,7 +57,8 @@ async def root():
             "/analyze": "Analyze financial statements",
             "/analyze-phonepe": "Analyze PhonePe statements",
             "/unlock-pdf": "Unlock password-protected PDF files",
-            "/analyze-kotak": "Analyze Kotak statements"
+            "/analyze-kotak": "Analyze Kotak statements",
+            "/api/analyze-canara": "Analyze Canara Bank statements"
         },
         "status": "online"
     }
@@ -350,6 +352,40 @@ async def analyze_kotak_statement(file: UploadFile = File(...)):
             "error": str(e)
         }
 
+@app.post("/api/analyze-canara")
+async def analyze_canara(file: UploadFile = File(...)):
+    if not file:
+        raise HTTPException(status_code=400, detail="No file provided")
+    try:
+        pdf_contents = await file.read()
+        doc = fitz.open(stream=pdf_contents, filetype="pdf")
+        text = "\n".join([page.get_text() for page in doc])
+        transactions = parse_canara_statement(text)
+        total_credit = sum(t['deposits'] for t in transactions)
+        total_debit = sum(t['withdrawals'] for t in transactions)
+        balance = transactions[-1]['balance'] if transactions else 0
+        response = {
+            'transactions': transactions,
+            'summary': {
+                'totalReceived': total_credit,
+                'totalSpent': total_debit,
+                'balance': balance,
+                'creditCount': len([t for t in transactions if t['deposits'] > 0]),
+                'debitCount': len([t for t in transactions if t['withdrawals'] > 0]),
+                'totalTransactions': len(transactions),
+                'highestAmount': max([t['deposits'] for t in transactions] + [0]),
+                'lowestAmount': min([t['withdrawals'] for t in transactions] + [0]),
+                'highestTransaction': max(transactions, key=lambda t: t['deposits'], default=None),
+                'lowestTransaction': min(transactions, key=lambda t: t['withdrawals'], default=None)
+            },
+            'categoryBreakdown': {},
+            'pageCount': doc.page_count,
+            'accounts': []
+        }
+        return JSONResponse(content=response)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to analyze Canara statement: {str(e)}")
+
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
     return JSONResponse(
@@ -358,4 +394,4 @@ async def http_exception_handler(request, exc):
     )
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    uvicorn.run(app, host="0.0.0.0", port=8000)
