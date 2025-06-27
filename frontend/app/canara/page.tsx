@@ -16,7 +16,7 @@ export default function CanaraBankPage() {
         setAnalysisState("analyzing");
         const formData = new FormData();
         formData.append("file", file);
-        const response = await fetch(`${BACKEND_URL}/api/analyze-canara`, {
+        const response = await fetch(`/api/analyze-canara`, {
           method: "POST",
           body: formData,
         });
