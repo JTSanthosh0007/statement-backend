@@ -4,16 +4,22 @@ from fastapi.responses import JSONResponse, StreamingResponse
 import uvicorn
 from statement_parser import StatementParser
 import io
-import fitz
+import fitz  # PyMuPDF
 import pdfplumber
 import pandas as pd
 import re
 import logging
 import time
+import os
+import tempfile
 from parsers.kotak_parser import parse_kotak_statement
 from parsers.phonepe_parser import parse_phonepe_statement
 
-app = FastAPI()
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+app = FastAPI(title="Statement Analyzer API", version="1.0.0")
 
 # Enable CORS with simpler configuration
 app.add_middleware(
@@ -115,14 +121,11 @@ async def analyze_phonepe_statement(
         if not file:
             raise HTTPException(status_code=400, detail="No file provided")
         content = await file.read()
-        import tempfile
-        import os
         with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp:
             tmp.write(content)
             tmp_path = tmp.name
         try:
             results = parse_phonepe_statement(tmp_path)
-            os.unlink(tmp_path)
             if not results or 'transactions' not in results:
                 logger.warning("No transactions extracted from PhonePe statement.")
                 return {
@@ -244,14 +247,11 @@ async def analyze_kotak_statement(file: UploadFile = File(...)):
         if not file:
             raise HTTPException(status_code=400, detail="No file provided")
         content = await file.read()
-        import tempfile
-        import os
         with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp:
             tmp.write(content)
             tmp_path = tmp.name
         try:
             results = parse_kotak_statement(tmp_path)
-            os.unlink(tmp_path)
             if not results or 'transactions' not in results:
                 logger.warning("No transactions extracted from Kotak statement.")
                 return {
