@@ -2,7 +2,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { CanaraAnalysisView } from "../components/CanaraAnalysisView";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://your-backend-url.onrender.com"; // Use env var if set
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://demo-bl6p.onrender.com"; // Use deployed backend URL
 
 export default function CanaraBankPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
