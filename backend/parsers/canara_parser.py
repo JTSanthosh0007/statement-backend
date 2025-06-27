@@ -5,27 +5,36 @@ def parse_canara_statement(text: str) -> List[Dict]:
     """
     Robustly parses Canara Bank statement text and returns a list of transactions.
     Handles multi-line particulars, Opening Balance, and both credit/debit.
+    Uses reverse split for columns to handle inconsistent spacing.
     """
     lines = text.splitlines()
     transactions = []
     current = None
     particulars_lines = []
-    # Regex for a transaction line: date at start, then particulars, then deposit, withdrawal, balance (flexible spacing)
-    txn_line = re.compile(r"^(\d{2}-\d{2}-\d{4})\s+(.*?)\s{2,}([\d,.]*)\s+([\d,.]*)\s+([\d,.]+)$")
-    # Regex for opening balance
+    date_pattern = re.compile(r"^(\d{2}-\d{2}-\d{4})")
     opening_balance_line = re.compile(r"Opening Balance", re.IGNORECASE)
 
-    for i, line in enumerate(lines):
+    for line in lines:
         line = line.rstrip()
-        match = txn_line.match(line)
-        if match:
+        date_match = date_pattern.match(line)
+        if date_match:
             # Save previous transaction if any
             if current:
                 current['particulars'] = '\n'.join(particulars_lines).strip()
                 transactions.append(current)
                 particulars_lines = []
-            date, particulars, deposits, withdrawals, balance = match.groups()
-            # Skip opening balance row
+            # Reverse split for last 3 columns (balance, withdrawals, deposits)
+            parts = re.split(r'\s{2,}|\t+', line)
+            # Remove empty strings
+            parts = [p for p in parts if p.strip()]
+            if len(parts) < 5:
+                continue  # Not a valid transaction line
+            date = parts[0]
+            # The last three are always deposits, withdrawals, balance (may be empty)
+            balance = parts[-1]
+            withdrawals = parts[-2]
+            deposits = parts[-3]
+            particulars = ' '.join(parts[1:-3])
             if opening_balance_line.search(particulars):
                 continue
             current = {
@@ -33,14 +42,13 @@ def parse_canara_statement(text: str) -> List[Dict]:
                 'particulars': particulars.strip(),
                 'deposits': float(deposits.replace(',', '')) if deposits else 0.0,
                 'withdrawals': float(withdrawals.replace(',', '')) if withdrawals else 0.0,
-                'balance': float(balance.replace(',', '')),
+                'balance': float(balance.replace(',', '')) if balance else 0.0,
             }
             particulars_lines = [particulars.strip()]
         else:
             # Multi-line particulars (not a new transaction)
-            if current is not None:
-                if line.strip():
-                    particulars_lines.append(line.strip())
+            if current is not None and line.strip():
+                particulars_lines.append(line.strip())
     # Save last transaction
     if current:
         current['particulars'] = '\n'.join(particulars_lines).strip()
