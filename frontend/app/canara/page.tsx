@@ -2,7 +2,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { CanaraAnalysisView } from "../components/CanaraAnalysisView";
 
-const BACKEND_URL = "https://your-backend-url.onrender.com"; // Replace with your backend URL
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://your-backend-url.onrender.com"; // Use env var if set
 
 export default function CanaraBankPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -93,6 +93,12 @@ export default function CanaraBankPage() {
         handleDrop={handleDrop}
         fileInputRef={fileInputRef}
       />
+      <div className="mt-6 p-3 rounded-lg bg-yellow-900/40 text-yellow-300 text-center font-medium w-fit mx-auto">
+        PDF page limit is{" "}
+        <span className="font-bold">50</span>. If your statement has more than 50
+        pages, please upgrade to the{" "}
+        <span className="font-bold">Pro version</span>.
+      </div>
     </div>
   );
 }
