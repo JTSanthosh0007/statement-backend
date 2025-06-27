@@ -14,12 +14,26 @@ import os
 import tempfile
 from parsers.kotak_parser import parse_kotak_statement
 from parsers.phonepe_parser import parse_phonepe_statement
+from starlette.middleware import Middleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Statement Analyzer API", version="1.0.0")
+
+# Increase max upload size (example: 100 MB)
+class LimitUploadSizeMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        max_body_size = 100 * 1024 * 1024  # 100 MB
+        if int(request.headers.get("content-length", 0)) > max_body_size:
+            from starlette.responses import Response
+            return Response("File too large", status_code=413)
+        return await call_next(request)
+
+app.add_middleware(LimitUploadSizeMiddleware)
 
 # Enable CORS with simpler configuration
 app.add_middleware(
