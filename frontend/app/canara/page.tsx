@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useRef } from "react";
 
+const BACKEND_URL = "https://your-backend-url.onrender.com"; // or your deployed backend
+
 export default function CanaraBankPage() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -40,7 +42,7 @@ export default function CanaraBankPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch("/api/analyze-canara", {
+      const res = await fetch(`${BACKEND_URL}/api/analyze-canara`, {
         method: "POST",
         body: formData,
       });
