@@ -69,6 +69,13 @@ export default function Home() {
       color: '#2563eb',
       route: '/pdf-unlocker',
       logo: 'PU'
+    },
+    {
+      name: 'Canara Bank',
+      description: 'Analyze your Canara Bank statements',
+      color: '#0A9396',
+      route: '/canara',
+      logo: 'CB'
     }
   ];
 
