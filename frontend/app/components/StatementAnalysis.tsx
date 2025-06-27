@@ -926,7 +926,7 @@ export const PhonePeAnalysisView: React.FC<{
   handleFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleDragOver: (event: React.DragEvent) => void;
   handleDrop: (event: React.DragEvent) => Promise<void>;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
 }> = ({
   setCurrentView,
   selectedFile,
@@ -1529,7 +1529,7 @@ export const KotakAnalysisView: React.FC<{
   handleFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleDragOver: (event: React.DragEvent) => void;
   handleDrop: (event: React.DragEvent) => Promise<void>;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
 }> = ({
   setCurrentView,
   selectedFile,
@@ -2327,11 +2327,16 @@ export default function StatementAnalysis({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [analysisState, setAnalysisState] = useState<'upload' | 'analyzing' | 'results'>('upload');
   const [analysisResults, setAnalysisResults] = useState<AnalysisResult | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   
   // Memoize handlers to prevent recreation on each render
   const toggleSearchModal = useCallback(() => {
     setIsSearchOpen(prev => !prev);
+  }, []);
+
+  // Set mounted state to prevent hydration issues
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
   // Memoize expensive computations

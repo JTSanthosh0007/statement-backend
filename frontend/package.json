@@ -23,7 +23,7 @@
     "autoprefixer": "^10.4.17",
     "axios": "^1.8.4",
     "bcryptjs": "^3.0.2",
-    "chart.js": "^4.4.9",
+    "chart.js": "^4.5.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.487.0",
     "modern-react-app": "file:",
