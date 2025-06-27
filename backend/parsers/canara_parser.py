@@ -1,4 +1,5 @@
 import re
+import logging
 from typing import List, Dict
 
 def parse_canara_statement(text: str) -> List[Dict]:
@@ -7,6 +8,10 @@ def parse_canara_statement(text: str) -> List[Dict]:
     Handles multi-line particulars, Opening Balance, and both credit/debit.
     Uses reverse split for columns to handle inconsistent spacing.
     """
+    # Log the raw extracted text for debugging
+    logging.basicConfig(filename='canara_parser_debug.log', level=logging.INFO, format='%(asctime)s %(message)s')
+    logging.info('Extracted PDF text:\n' + text)
+    
     lines = text.splitlines()
     transactions = []
     current = None
