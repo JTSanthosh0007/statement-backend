@@ -3,15 +3,15 @@ from typing import List, Dict
 
 def parse_canara_statement(text: str) -> List[Dict]:
     """
-    Parses Canara Bank statement text and returns a list of transactions.
+    Robustly parses Canara Bank statement text and returns a list of transactions.
     Handles multi-line particulars, Opening Balance, and both credit/debit.
     """
     lines = text.splitlines()
     transactions = []
     current = None
     particulars_lines = []
-    # Regex for a transaction line (date at start, then particulars, then deposit, withdrawal, balance)
-    txn_line = re.compile(r"^(\d{2}-\d{2}-\d{4})\s+(.+?)\s+([\d,.]*)\s+([\d,.]*)\s+([\d,.]+)$")
+    # Regex for a transaction line: date at start, then particulars, then deposit, withdrawal, balance (flexible spacing)
+    txn_line = re.compile(r"^(\d{2}-\d{2}-\d{4})\s+(.*?)\s{2,}([\d,.]*)\s+([\d,.]*)\s+([\d,.]+)$")
     # Regex for opening balance
     opening_balance_line = re.compile(r"Opening Balance", re.IGNORECASE)
 
