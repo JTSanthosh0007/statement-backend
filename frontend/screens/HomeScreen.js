@@ -31,6 +31,7 @@ export default function HomeScreen() {
         <AppCard bg="#7c3aed" initials="Pe" title="PhonePe" subtitle="Analyze your PhonePe statements" onPress={() => navigation.navigate('PhonePeStatement')} />
         <AppCard bg="#E53E3E" initials="KB" title="Kotak Mahindra Bank" subtitle="Analyze your Kotak Bank statements" onPress={() => navigation.navigate('KotakBankStatement')} />
         <AppCard bg="#2563eb" initials="PU" title="PDF Unlocker" subtitle="Unlock password-protected PDF statements" onPress={() => navigation.navigate('PDFUnlocker')} />
+        <AppCard bg="#0A9396" initials="CB" title="Canara Bank" subtitle="Analyze your Canara Bank statements" onPress={() => navigation.navigate('CanaraBankStatement')} />
 
         {/* Buttons */}
         <View style={styles.buttonRow}>
@@ -185,4 +186,4 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginLeft: 4,
   },
-}); 
+});

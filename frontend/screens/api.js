@@ -47,4 +47,9 @@ export async function analyzeKotak(fileUri) {
 // Unlock password-protected PDF
 export async function unlockPDF(fileUri, password) {
   return uploadFile('/unlock-pdf', fileUri, { password });
-} 
+}
+
+// Analyze Canara statement
+export async function analyzeCanara(fileUri) {
+  return uploadFile('/analyze-canara', fileUri);
+}

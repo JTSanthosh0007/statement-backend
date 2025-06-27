@@ -19,6 +19,7 @@ import AllBanksScreen from './screens/AllBanksScreen';
 import AllUPIAppsScreen from './screens/AllUPIAppsScreen';
 import TransactionSummaryScreen from './screens/TransactionSummaryScreen';
 import AnalyzeResultScreen from './screens/AnalyzeResultScreen';
+import CanaraBankStatementScreen from './screens/CanaraBankStatementScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -45,9 +46,10 @@ export default function App() {
             <Stack.Screen name="AllUPIApps" component={AllUPIAppsScreen} />
             <Stack.Screen name="TransactionSummary" component={TransactionSummaryScreen} />
             <Stack.Screen name="AnalyzeResult" component={AnalyzeResultScreen} />
+            <Stack.Screen name="CanaraBankStatement" component={CanaraBankStatementScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </AuthGate>
     </>
   );
-} 
+}
