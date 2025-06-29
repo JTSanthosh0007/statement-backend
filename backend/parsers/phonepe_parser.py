@@ -117,13 +117,15 @@ def guess_category(details: str) -> str:
         return "Food"
     if "paytm" in details:
         return "Wallet"
-    if "electricity" in details or "power" in details:
+    if "electricity" in details or "power" in details or "bescom" in details:
         return "Utilities"
-    if "petrol" in details or "fuel" in details:
+    if "petrol" in details or "fuel" in details or "indianoil" in details:
         return "Fuel"
     if "rent" in details:
         return "Rent"
     if "salary" in details or "credited by" in details:
         return "Salary"
-    # Add more rules as needed
+    if "phonepe" in details:
+        return "UPI Transfer"
+    # Add more rules based on your statement's real descriptions!
     return "Others" 
