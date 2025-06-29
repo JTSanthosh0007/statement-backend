@@ -178,7 +178,7 @@ async def analyze_phonepe_statement(
             # Build category breakdown (optional, can be extended)
             category_map = {}
             for t in transactions:
-                cat = t.get('type', 'Others')
+                cat = t.get('category', t.get('type', 'Others'))
                 if cat not in category_map:
                     category_map[cat] = {'amount': 0, 'count': 0}
                 category_map[cat]['amount'] += abs(t['amount']) if t['amount'] < 0 else 0

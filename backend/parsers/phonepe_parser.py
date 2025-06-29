@@ -107,4 +107,23 @@ def parse_phonepe_statement(pdf_path: str) -> Dict[str, Any]:
     return {
         'transactions': transactions,
         'pageCount': page_count
-    } 
+    }
+
+def guess_category(details: str) -> str:
+    details = details.lower()
+    if "amazon" in details:
+        return "Shopping"
+    if "swiggy" in details or "zomato" in details:
+        return "Food"
+    if "paytm" in details:
+        return "Wallet"
+    if "electricity" in details or "power" in details:
+        return "Utilities"
+    if "petrol" in details or "fuel" in details:
+        return "Fuel"
+    if "rent" in details:
+        return "Rent"
+    if "salary" in details or "credited by" in details:
+        return "Salary"
+    # Add more rules as needed
+    return "Others" 
