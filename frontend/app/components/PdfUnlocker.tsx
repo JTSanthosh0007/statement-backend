@@ -55,7 +55,8 @@ export default function PdfUnlocker() {
       }
 
       const blob = await response.blob()
-      downloadBlob(blob, file.name.replace('.pdf', '_unlocked.pdf'))
+      const unlockedName = file.name.replace(/\.pdf$/i, '') + '_unlocked.pdf'
+      downloadBlob(blob, unlockedName)
 
       setStatus({ type: 'success', message: 'PDF unlocked successfully! Downloading...' })
     } catch (error) {
