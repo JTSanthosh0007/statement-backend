@@ -3,17 +3,13 @@ import config from '../../config';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // Get the form data from the request
-    const formData = await request.formData();
-
-    // Forward the request to the actual backend
+    // Forward the raw request body and headers to the backend
     const backendUrl = `${config.backendUrl}/analyze-phonepe`;
-
-    console.log(`Forwarding PhonePe request to backend: ${backendUrl}`);
 
     const response = await fetch(backendUrl, {
       method: 'POST',
-      body: formData,
+      headers: Object.fromEntries(request.headers), // Forward all headers
+      body: request.body, // Forward the raw body stream
     });
 
     let data;
