@@ -60,6 +60,10 @@ export const CanaraAnalysisView: React.FC<{
       ],
     };
 
+    console.log("analysisResults", analysisResults);
+    console.log("categoryBreakdown", analysisResults?.categoryBreakdown);
+    console.log("transactions", analysisResults?.transactions);
+
     return (
       <div className="min-h-screen bg-black flex flex-col items-center">
         {/* Header */}
