@@ -4,8 +4,8 @@ import re
 from datetime import datetime
 from typing import Dict, List, Any
 import PyPDF2
-import io
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,9 +21,18 @@ def parse_phonepe_statement(pdf_path: str) -> Dict[str, Any]:
         - transactions: List of transaction details
         - pageCount: Number of pages
     """
+    # Security: Check file existence and type
+    if not os.path.isfile(pdf_path):
+        logger.error(f"File does not exist or is not a file: {pdf_path}")
+        return {'transactions': [], 'pageCount': 0}
+    if not pdf_path.lower().endswith('.pdf'):
+        logger.error(f"File is not a PDF: {pdf_path}")
+        return {'transactions': [], 'pageCount': 0}
     page_count = len(PyPDF2.PdfReader(pdf_path).pages)
-    transactions = []
-
+    transactions: List[Dict[str, Any]] = []
+    # Pre-compile regex patterns for performance
+    time_regex = re.compile(r'\d{1,2}:\d{2} (am|pm|AM|PM)')
+    amount_regex = re.compile(r'[^\d.]')
     # Try extracting tables with pdfplumber first
     with pdfplumber.open(pdf_path) as pdf:
         for page in pdf.pages:
@@ -32,17 +41,17 @@ def parse_phonepe_statement(pdf_path: str) -> Dict[str, Any]:
                 for row in table:
                     # Heuristic: Look for header row and skip
                     if (len(row) >= 4 and
-                        ("Date" in row[0] and "Transaction" in row[1] and "Type" in row[2] and "Amount" in row[3])):
+                        (row[0] and "Date" in row[0]) and (row[1] and "Transaction" in row[1]) and (row[2] and "Type" in row[2]) and (row[3] and "Amount" in row[3])):
                         continue
                     if len(row) >= 4:
                         date_str = row[0].strip() if row[0] else ''
                         time_str = ''
                         # Sometimes time is in the second column
-                        if re.match(r'\d{1,2}:\d{2} (am|pm|AM|PM)', row[1] or ''):
+                        if row[1] and isinstance(row[1], str) and time_regex.match(row[1]):
                             time_str = row[1].strip()
-                            details = row[2].strip() if len(row) > 2 else ''
-                            txn_type = row[3].strip() if len(row) > 3 else ''
-                            amount_str = row[4].strip() if len(row) > 4 else ''
+                            details = row[2].strip() if len(row) > 2 and row[2] else ''
+                            txn_type = row[3].strip() if len(row) > 3 and row[3] else ''
+                            amount_str = row[4].strip() if len(row) > 4 and row[4] else ''
                         else:
                             details = row[1].strip() if row[1] else ''
                             txn_type = row[2].strip() if row[2] else ''
@@ -57,7 +66,7 @@ def parse_phonepe_statement(pdf_path: str) -> Dict[str, Any]:
                             date_fmt = date_str
                             time_fmt = time_str
                         # Parse amount
-                        amount = float(re.sub(r'[^\d.]', '', amount_str.replace(',', ''))) if amount_str else 0.0
+                        amount = float(amount_regex.sub('', amount_str.replace(',', ''))) if amount_str else 0.0
                         if 'debit' in txn_type.lower():
                             amount = -abs(amount)
                         elif 'credit' in txn_type.lower():
@@ -71,12 +80,13 @@ def parse_phonepe_statement(pdf_path: str) -> Dict[str, Any]:
                         })
     # If no transactions found, fallback to text extraction with fitz
     if not transactions:
-        doc = fitz.open(pdf_path)
-        all_text = "\n".join([page.get_text("text") for page in doc])
-        doc.close()
+        with fitz.Document(pdf_path) as doc:
+            all_text = ""
+            for page in doc:
+                all_text += page.get_text()
         # Regex pattern for lines like: Feb 14, 2025 07:26 pm Paid to ... DEBIT ₹10,264
         txn_pattern = re.compile(
-            r'(?P<date>[A-Za-z]{3} \d{1,2}, \d{4})\s+(?P<time>\d{1,2}:\d{2} ?[apAP][mM])?\s*(?P<details>.+?)\s+(?P<type>DEBIT|CREDIT)\s*[₹INR ]+(?P<amount>[\d,]+)',
+            r'(?P<date>[A-Za-z]{3} \d{1,2}, \d{4})\s+(?P<time>\d{1,2}:\d{2} ?[apAP][mM])?\s*(?P<details>.+?)\s+(?P<type>DEBIT|CREDIT)\s*[\u20b9INR ]+(?P<amount>[\d,]+)',
             re.IGNORECASE
         )
         for match in txn_pattern.finditer(all_text):
@@ -111,7 +121,9 @@ def parse_phonepe_statement(pdf_path: str) -> Dict[str, Any]:
     }
 
 def categorize_phonepe_transaction(description, amount):
-    description = description.lower()
+    if not description:
+        return "Others"
+    description = str(description).strip().lower()
     # Comprehensive categories
     categories = {
         'Food & Dining': ['food', 'restaurant', 'cafe', 'coffee', 'swiggy', 'zomato', 'hotel', 'eatery', 'kitchen', 'dine', 'meal', 'lunch', 'dinner', 'breakfast'],
@@ -154,7 +166,7 @@ def categorize_phonepe_transaction(description, amount):
 
 def categorize_transactions(transactions):
     for transaction in transactions:
-        details = transaction.get('transaction_details', '')
+        details = str(transaction.get('transaction_details', '') or '')
         amount = transaction.get('amount', 0)
         transaction['category'] = categorize_phonepe_transaction(details, amount)
         logger.debug(f"[DEBUG] Categorized transaction: {transaction}")
