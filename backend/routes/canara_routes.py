@@ -24,6 +24,7 @@ def analyze_canara():
         import fitz
         doc = fitz.open(stream=pdf_contents, filetype="pdf")
         text = "\n".join([page.get_text() for page in doc])
+        print('Extracted text:', text[:1000])  # Debug: print first 1000 chars
         transactions = parse_canara_statement(text)
         # Calculate summary
         total_credit = sum(t['deposits'] for t in transactions)

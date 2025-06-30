@@ -97,6 +97,7 @@ def parse_canara_statement(text: str) -> List[Dict]:
         amount = current['deposits'] if current['deposits'] > 0 else -current['withdrawals']
         current['category'] = categorize_canara_transaction(current['particulars'], amount)
         transactions.append(current)
+    print('Parsed transactions:', transactions)  # Debug: print parsed transactions
     return transactions
 
 def get_category_breakdown(transactions):
