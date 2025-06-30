@@ -2,13 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../../supabase.js'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 export default function LoginPage() {
   const router = useRouter()
@@ -61,7 +56,7 @@ export default function LoginPage() {
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-left mb-10">
-            <button 
+            <button
               onClick={() => setForgotPasswordMode(false)}
               className="text-zinc-400 hover:text-white mb-4 flex items-center gap-2"
             >
@@ -69,13 +64,13 @@ export default function LoginPage() {
             </button>
             <h1 className="text-4xl font-bold mb-2">Forgot Password?</h1>
             <p className="text-zinc-400">
-              {resetEmailSent 
-                ? "Check your email for a password reset link." 
+              {resetEmailSent
+                ? "Check your email for a password reset link."
                 : "Enter your email to receive a password reset link."
               }
             </p>
           </div>
-          
+
           {!resetEmailSent ? (
             <form onSubmit={handleForgotPassword} className="space-y-6">
               <div className="relative">
@@ -131,7 +126,7 @@ export default function LoginPage() {
           <h1 className="text-4xl font-bold mb-2">Let's sign you in.</h1>
           <p className="text-zinc-400">Welcome back. You've been missed!</p>
         </div>
-        
+
         <form onSubmit={handleSignIn} className="space-y-6">
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={20} />

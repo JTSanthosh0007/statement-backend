@@ -2,12 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { supabase } from '../../../supabase.js'
 
 export default function AuthWrapper({
   children,
@@ -21,11 +16,11 @@ export default function AuthWrapper({
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession()
-      
+
       // Pages that don't require authentication
       const publicPages = ['/login', '/signup']
       const isPublicPage = publicPages.includes(pathname)
-      
+
       if (!session && !isPublicPage) {
         // User is not authenticated and trying to access a protected page
         router.push('/login')
@@ -33,7 +28,7 @@ export default function AuthWrapper({
         // User is authenticated but on login/signup page, redirect to main page
         router.push('/')
       }
-      
+
       setIsLoading(false)
     }
 

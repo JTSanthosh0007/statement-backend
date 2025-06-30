@@ -3,12 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import StatementAnalysis from './components/StatementAnalysis'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from '../supabase.js'
 
 export default function Home() {
   const router = useRouter()
@@ -79,7 +74,7 @@ export default function Home() {
     }
   ];
 
-  const filteredApps = apps.filter(app => 
+  const filteredApps = apps.filter(app =>
     app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     app.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -121,14 +116,14 @@ export default function Home() {
           <div className="space-y-3">
             <div className="grid grid-cols-1 gap-4">
               {apps.map((app) => (
-                <div 
+                <div
                   key={app.name}
                   onClick={() => router.push(app.route)}
                   className="group bg-zinc-900/80 p-4 rounded-2xl border border-zinc-800/50 hover:bg-zinc-800/80 transition-all duration-300 cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden">
-                      <div 
+                      <div
                         className="w-full h-full flex items-center justify-center"
                         style={{ backgroundColor: app.color }}
                       >
@@ -190,13 +185,13 @@ export default function Home() {
                 </div>
               ) : (
                 filteredApps.map((app) => (
-                  <div 
+                  <div
                     key={app.name}
                     onClick={() => handleAppClick(app.route)}
                     className="bg-zinc-900/80 p-4 rounded-xl border border-zinc-800/50 hover:bg-zinc-800/80 transition-all duration-300 cursor-pointer"
                   >
                     <div className="flex items-center gap-4">
-                      <div 
+                      <div
                         className="w-12 h-12 rounded-xl flex items-center justify-center"
                         style={{ backgroundColor: app.color }}
                       >
@@ -261,7 +256,7 @@ export default function Home() {
       {/* Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-[#1E1E1E] border-t border-zinc-800/50">
         <div className="flex justify-around p-4">
-          <button 
+          <button
             onClick={() => router.push('/')}
             className="text-white opacity-60 hover:opacity-100"
           >
@@ -269,7 +264,7 @@ export default function Home() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
           </button>
-          <button 
+          <button
             onClick={() => router.push('/search')}
             className="text-white opacity-60 hover:opacity-100"
           >
@@ -277,7 +272,7 @@ export default function Home() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </button>
-          <button 
+          <button
             onClick={() => router.push('/settings')}
             className="text-white opacity-60 hover:opacity-100"
           >

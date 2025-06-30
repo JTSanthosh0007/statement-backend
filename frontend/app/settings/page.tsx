@@ -2,12 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from '../../supabase.js'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -26,28 +21,28 @@ export default function SettingsPage() {
 
       {/* Settings Content */}
       <div className="p-4 space-y-4">
-        <button 
+        <button
           onClick={() => router.push('/settings/account')}
           className="w-full bg-zinc-900 rounded-xl p-4 text-left hover:bg-zinc-800/80 transition-all duration-300"
         >
           Account Settings
         </button>
 
-        <button 
+        <button
           onClick={() => router.push('/settings/notifications')}
           className="w-full bg-zinc-900 rounded-xl p-4 text-left hover:bg-zinc-800/80 transition-all duration-300"
         >
           Notifications
         </button>
 
-        <button 
+        <button
           onClick={() => router.push('/settings/privacy')}
           className="w-full bg-zinc-900 rounded-xl p-4 text-left hover:bg-zinc-800/80 transition-all duration-300"
         >
           Privacy
         </button>
 
-        <button 
+        <button
           onClick={() => router.push('/settings/help')}
           className="w-full bg-zinc-900 rounded-xl p-4 text-left hover:bg-zinc-800/80 transition-all duration-300"
         >
@@ -59,7 +54,7 @@ export default function SettingsPage() {
           <div className="border-t border-zinc-800"></div>
         </div>
 
-        <button 
+        <button
           onClick={handleLogout}
           className="w-full bg-zinc-900 rounded-xl p-4 text-center font-medium text-red-500 hover:bg-zinc-800/80 transition-all duration-300"
         >
@@ -70,7 +65,7 @@ export default function SettingsPage() {
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-[#1E1E1E] border-t border-zinc-800/50">
         <div className="flex justify-around p-4">
-          <button 
+          <button
             onClick={() => router.push('/')}
             className="text-zinc-400 hover:text-white"
           >
@@ -78,7 +73,7 @@ export default function SettingsPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
           </button>
-          <button 
+          <button
             onClick={() => router.push('/search')}
             className="text-zinc-400 hover:text-white"
           >
@@ -86,7 +81,7 @@ export default function SettingsPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </button>
-          <button 
+          <button
             className="text-white"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

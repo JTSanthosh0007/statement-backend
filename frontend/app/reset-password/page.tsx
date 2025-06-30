@@ -2,13 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@supabase/supabase-js'
 import { Lock, Eye, EyeOff } from 'lucide-react'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { supabase } from '../../supabase.js'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -93,7 +88,7 @@ export default function ResetPasswordPage() {
           <h1 className="text-4xl font-bold mb-2">Reset Password</h1>
           <p className="text-zinc-400">Enter your new password below.</p>
         </div>
-        
+
         <form onSubmit={handleResetPassword} className="space-y-6">
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={20} />
