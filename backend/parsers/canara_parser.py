@@ -98,3 +98,17 @@ def parse_canara_statement(text: str) -> List[Dict]:
         current['category'] = categorize_canara_transaction(current['particulars'], amount)
         transactions.append(current)
     return transactions
+
+def get_category_breakdown(transactions):
+    breakdown = {}
+    total = sum(abs(txn['deposits'] if txn['deposits'] > 0 else txn['withdrawals']) for txn in transactions)
+    for txn in transactions:
+        cat = txn.get('category', 'Others')
+        amount = abs(txn['deposits'] if txn['deposits'] > 0 else txn['withdrawals'])
+        if cat not in breakdown:
+            breakdown[cat] = {'amount': 0, 'count': 0}
+        breakdown[cat]['amount'] += amount
+        breakdown[cat]['count'] += 1
+    for cat in breakdown:
+        breakdown[cat]['percentage'] = (breakdown[cat]['amount'] / total * 100) if total else 0
+    return breakdown

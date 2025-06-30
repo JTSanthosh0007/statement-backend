@@ -1,4 +1,4 @@
-from parsers.canara_parser import parse_canara_statement
+from parsers.canara_parser import parse_canara_statement, get_category_breakdown
 from flask import Blueprint, request, jsonify
 import io
 
@@ -29,6 +29,7 @@ def analyze_canara():
         total_credit = sum(t['deposits'] for t in transactions)
         total_debit = sum(t['withdrawals'] for t in transactions)
         balance = transactions[-1]['balance'] if transactions else 0
+        category_breakdown = get_category_breakdown(transactions)
         response = {
             'transactions': transactions,
             'summary': {
@@ -43,7 +44,7 @@ def analyze_canara():
                 'highestTransaction': max(transactions, key=lambda t: t['deposits'], default=None),
                 'lowestTransaction': min(transactions, key=lambda t: t['withdrawals'], default=None)
             },
-            'categoryBreakdown': {},
+            'categoryBreakdown': category_breakdown,
             'pageCount': doc.page_count,
             'accounts': []
         }
