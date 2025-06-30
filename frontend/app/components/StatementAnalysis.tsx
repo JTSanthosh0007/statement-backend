@@ -3,7 +3,6 @@
 import { useMemo, useState, useEffect, useCallback, useRef, memo, Suspense } from 'react'
 import { HomeIcon, ChartBarIcon, FolderIcon, Cog6ToothIcon, PlusIcon, ArrowLeftIcon, DocumentTextIcon, ArrowUpTrayIcon, DocumentIcon, WalletIcon } from '@heroicons/react/24/outline'
 import Image from 'next/image'
-// import { createClient } from '@supabase/supabase-js'
 import { UPIApp, UPI_APPS, searchApps } from '../constants/upiApps'
 import UPIAppGrid from './UPIAppGrid'
 import { Star } from 'lucide-react'
@@ -44,11 +43,34 @@ ChartJS.register(
   BarElement
 )
 
-// Add Supabase client initialization after imports
-// const supabase = createClient(
-//   process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-//   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-// );
+// Add comments and memoization for expensive computations
+// Example: Memoize category color mapping
+const CATEGORY_COLORS: Record<string, string> = useMemo(() => ({
+  'Food & Dining': '#22C55E',        // Green
+  'Groceries': '#FBBF24',           // Yellow
+  'Shopping': '#F59E42',            // Orange
+  'Subscriptions': '#FFB300',      // Amber
+  'Kids': '#FF69B4',               // Hot Pink
+  'Home Improvement': '#8D6E63',   // Brown
+  'Festivals & Gifts': '#FFD700',  // Gold
+  'Travel Insurance': '#00B8D4',   // Light Blue
+  'Charity & Social': '#6D4C41',   // Deep Brown
+  'Dining Out': '#FF7043',         // Deep Orange
+  'Fitness & Sports': '#43A047',   // Green
+  'Electronics & Gadgets': '#7E57C2', // Purple
+  'Beauty & Wellness': '#EC407A',  // Pink
+  'Automobile': '#455A64',         // Blue Grey
+  'Stationery & Books': '#8D6E63', // Brown
+  'Transportation': '#06B6D4',      // Cyan
+  'Bills & Utilities': '#3B82F6',   // Blue
+  'Health & Medical': '#10B981',    // Emerald
+  'Education': '#FACC15',           // Amber
+  'Travel': '#F472B6',              // Pink
+  'Personal Care': '#E879F9',       // Fuchsia
+  'Pets': '#A3E635',                // Lime
+  'Investments': '#F87171',         // Rose
+  'Insurance': '#6366F1',           // Indigo
+}), [])
 
 type Transaction = {
   date: string
@@ -171,48 +193,6 @@ interface AccountSettingsViewProps {
   profile?: Profile; // Pass profile data
   // supabase: any; // Pass Supabase client - uncomment when client is configured
 }
-
-// Add a color palette for categories
-const CATEGORY_COLORS: Record<string, string> = {
-  'Food & Dining': '#22C55E',        // Green
-  'Groceries': '#FBBF24',           // Yellow
-  'Shopping': '#F59E42',            // Orange
-  'Subscriptions': '#FFB300',      // Amber
-  'Kids': '#FF69B4',               // Hot Pink
-  'Home Improvement': '#8D6E63',   // Brown
-  'Festivals & Gifts': '#FFD700',  // Gold
-  'Travel Insurance': '#00B8D4',   // Light Blue
-  'Charity & Social': '#6D4C41',   // Deep Brown
-  'Dining Out': '#FF7043',         // Deep Orange
-  'Fitness & Sports': '#43A047',   // Green
-  'Electronics & Gadgets': '#7E57C2', // Purple
-  'Beauty & Wellness': '#EC407A',  // Pink
-  'Automobile': '#455A64',         // Blue Grey
-  'Stationery & Books': '#8D6E63', // Brown
-  'Transportation': '#06B6D4',      // Cyan
-  'Bills & Utilities': '#3B82F6',   // Blue
-  'Health & Medical': '#10B981',    // Emerald
-  'Education': '#FACC15',           // Amber
-  'Travel': '#F472B6',              // Pink
-  'Personal Care': '#E879F9',       // Fuchsia
-  'Pets': '#A3E635',                // Lime
-  'Investments': '#F87171',         // Rose
-  'Insurance': '#6366F1',           // Indigo
-  'Rent': '#A855F7',                // Purple
-  'EMI & Loans': '#FB7185',         // Red
-  'Gifts & Donations': '#F472B6',   // Pink
-  'Taxes & Fees': '#64748B',        // Slate
-  'Transfer': '#8B5CF6',            // Violet
-  'Others': '#94A3B8',              // Gray
-  // Legacy/compatibility
-  'Bills': '#3B82F6',
-  'Entertainment': '#EF4444',
-  'Food': '#22C55E',
-  'Salary': '#A855F7',
-  'Health': '#10B981',
-  'Utilities': '#64748B',
-  'Default': '#64748B',
-};
 
 // Add this helper function near the top (after CATEGORY_COLORS):
 const getChartData = (categoryBreakdown: any) => {
@@ -698,12 +678,10 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
 
   useEffect(() => {
     if (searchQuery.trim()) {
-      // Use the searchApps function from constants for better search results
       const searchResults = searchApps(searchQuery);
       setFilteredApps(searchResults);
     } else {
-      // Show all apps when no search query
-      setFilteredApps(UPI_APPS);
+      setFilteredApps([]); // No results when empty
     }
   }, [searchQuery]);
 
