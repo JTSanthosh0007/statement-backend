@@ -104,10 +104,36 @@ def parse_phonepe_statement(pdf_path: str) -> Dict[str, Any]:
                 'type': txn_type,
                 'amount': amount
             })
+    transactions = categorize_transactions(transactions)
     return {
         'transactions': transactions,
         'pageCount': page_count
     }
+
+def categorize_transactions(transactions):
+    categories = {
+        'Food & Dining': ['swiggy', 'zomato', 'restaurant', 'food', 'dining', 'cafe', 'hotel', 'milk', 'tea', 'coffee'],
+        'Shopping': ['amazon', 'flipkart', 'myntra', 'retail', 'mart', 'shop', 'store', 'market', 'purchase'],
+        'Transport': ['uber', 'ola', 'petrol', 'fuel', 'metro', 'bus', 'train', 'transport', 'auto', 'taxi'],
+        'Bills & Utilities': ['airtel', 'jio', 'vodafone', 'electricity', 'water', 'gas', 'bill', 'dth', 'broadband'],
+        'Recharge': ['recharge', 'mobile recharge', 'phone recharge'],
+        'Entertainment': ['netflix', 'amazon prime', 'hotstar', 'movie', 'game', 'spotify', 'entertainment'],
+        'Health': ['medical', 'hospital', 'pharmacy', 'doctor', 'clinic', 'medicine', 'health'],
+        'Education': ['school', 'college', 'university', 'course', 'training', 'tuition', 'education'],
+        'Transfer': ['transfer', 'sent', 'received', 'upi', 'neft', 'imps', 'payment'],
+        'Finance': ['emi', 'loan', 'insurance', 'investment', 'mutual fund', 'finance', 'bank']
+    }
+    default_category = 'Others'
+    for transaction in transactions:
+        details = transaction.get('transaction_details', '').lower()
+        found_category = default_category
+        for category, keywords in categories.items():
+            if any(keyword in details for keyword in keywords):
+                found_category = category
+                break
+        transaction['category'] = found_category
+        logger.debug(f"[DEBUG] Categorized transaction: {transaction}")
+    return transactions
 
 def guess_category(details: str) -> str:
     details = details.lower()
