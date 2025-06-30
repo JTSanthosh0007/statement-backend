@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { supabase } from '../../../supabase.js'
+import { supabase } from '../../supabase.js'
 
 export default function AuthWrapper({
   children,
