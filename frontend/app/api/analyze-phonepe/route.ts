@@ -10,7 +10,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       method: 'POST',
       headers: Object.fromEntries(request.headers), // Forward all headers
       body: request.body, // Forward the raw body stream
-    });
+      duplex: 'half', // Required for Node.js fetch streaming
+    } as any);
 
     let data;
     try {
