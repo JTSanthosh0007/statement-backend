@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useCallback } from "react";
-import { CanaraAnalysisView } from "../components/CanaraAnalysisView";
+import { SBIAnalysisView } from "../components/SBIAnalysisView";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://demo-bl6p.onrender.com"; // Use deployed backend URL
 
@@ -83,7 +83,7 @@ export default function SBIBankPage() {
 
     return (
         <div className="min-h-screen bg-black flex flex-col justify-center items-center">
-            <CanaraAnalysisView
+            <SBIAnalysisView
                 setCurrentView={() => { }}
                 selectedFile={selectedFile}
                 analysisState={analysisState}
