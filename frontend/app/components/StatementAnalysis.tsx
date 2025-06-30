@@ -45,7 +45,7 @@ ChartJS.register(
 
 // Add comments and memoization for expensive computations
 // Example: Memoize category color mapping
-const CATEGORY_COLORS: Record<string, string> = useMemo(() => ({
+const CATEGORY_COLORS: Record<string, string> = {
   'Food & Dining': '#22C55E',        // Green
   'Groceries': '#FBBF24',           // Yellow
   'Shopping': '#F59E42',            // Orange
@@ -70,7 +70,8 @@ const CATEGORY_COLORS: Record<string, string> = useMemo(() => ({
   'Pets': '#A3E635',                // Lime
   'Investments': '#F87171',         // Rose
   'Insurance': '#6366F1',           // Indigo
-}), [])
+  'Default': '#64748B',             // Gray (add a Default for fallback)
+};
 
 type Transaction = {
   date: string
@@ -781,8 +782,8 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
                           </div>
                           <div className="text-right">
                             <div className={`text-sm px-2 py-1 rounded-full ${app.available
-                                ? 'bg-green-500/20 text-green-400'
-                                : 'bg-yellow-500/20 text-yellow-400'
+                              ? 'bg-green-500/20 text-green-400'
+                              : 'bg-yellow-500/20 text-yellow-400'
                               }`}>
                               {app.available ? 'Available' : 'Coming Soon'}
                             </div>
