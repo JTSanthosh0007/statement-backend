@@ -400,11 +400,7 @@ const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({ setCurrentVie
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 bg-zinc-800 rounded-full flex items-center justify-center">
               {/* User silhouette SVG */}
-              <svg viewBox="0 0 100 100" width="60" height="60">
-                <circle cx="50" cy="50" r="50" fill="#d1d5db" />
-                <circle cx="50" cy="38" r="18" fill="#fff" />
-                <ellipse cx="50" cy="72" rx="28" ry="18" fill="#fff" />
-              </svg>
+              <img src="https://sl.bing.net/eJ72rc66IWi" alt="User Avatar" className="w-20 h-20 rounded-full object-cover" />
             </div>
             <div>
               <button className="bg-white text-black px-4 py-2 rounded-lg text-sm font-medium">
@@ -494,11 +490,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ setCurrentView, setIsSearch
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center">
               {/* User silhouette SVG */}
-              <svg viewBox="0 0 100 100" width="36" height="36">
-                <circle cx="50" cy="50" r="50" fill="#d1d5db" />
-                <circle cx="50" cy="38" r="18" fill="#fff" />
-                <ellipse cx="50" cy="72" rx="28" ry="18" fill="#fff" />
-              </svg>
+              <img src="https://sl.bing.net/eJ72rc66IWi" alt="User Avatar" className="w-12 h-12 rounded-full object-cover" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-white">{profile?.full_name || 'User'}</h2>
@@ -768,16 +760,16 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
                 />
               </div>
             </div>
-
+        </div>
+        {searchQuery.trim() && (
           <div className="space-y-6">
             {Object.keys(groupedApps).map(category => {
               const apps = groupedApps[category];
               if (apps.length === 0) return null;
-
               return (
                 <div key={category}>
                   <h3 className="text-lg font-semibold text-white mb-3">{category}</h3>
-              <div className="grid grid-cols-1 gap-3">
+                  <div className="grid grid-cols-1 gap-3">
                     {apps.map(app => (
                       <div 
                         key={app.id} 
@@ -791,25 +783,24 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
                           } else if (app.id === 'paytm') {
                             window.location.href = '/paytm';
                           } else {
-                            // For other apps, show coming soon or navigate to general route
                             window.location.href = '/banks';
                           }
                           onClose();
                         }}
                       >
-                    <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-3">
                           <div className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center">
-                        <span className="text-lg font-medium text-white">
+                            <span className="text-lg font-medium text-white">
                               {app.shortName ? app.shortName.charAt(0) : app.name.charAt(0)}
-                        </span>
-          </div>
-                      <div className="flex-1">
-                        <h3 className="text-white font-medium">{app.name}</h3>
-                        <p className="text-sm text-gray-400">{app.description}</p>
+                            </span>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-white font-medium">{app.name}</h3>
+                            <p className="text-sm text-gray-400">{app.description}</p>
                             {app.bankCode && (
                               <p className="text-xs text-gray-500">Code: {app.bankCode}</p>
                             )}
-        </div>
+                          </div>
                           <div className="text-right">
                             <div className={`text-sm px-2 py-1 rounded-full ${
                               app.available 
@@ -821,48 +812,28 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
                             <div className="text-xs text-gray-400 mt-1 capitalize">
                               {app.category.replace('-', ' ')}
                             </div>
-              </div>
                           </div>
                         </div>
+                      </div>
                     ))}
-              </div>
+                  </div>
                 </div>
               );
             })}
-
-            {filteredApps.length === 0 && searchQuery && (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-gray-800 rounded-full mx-auto flex items-center justify-center mb-4">
-                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                          </div>
-                <p className="text-gray-400">
-                  No apps found matching "{searchQuery}"
-                </p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Try searching for: "SBI", "HDFC", "PhonePe", "Paytm", etc.
-                            </p>
-                          </div>
-            )}
-
-            {!searchQuery && (
+            {filteredApps.length === 0 && (
               <div className="text-center py-8">
                 <div className="w-16 h-16 bg-gray-800 rounded-full mx-auto flex items-center justify-center mb-4">
                   <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-          </div>
+                </div>
                 <p className="text-gray-400">
-                  Start typing to search UPI apps and banks
-                </p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Search for banks like SBI, HDFC, ICICI or apps like PhonePe, Paytm
+                  No apps found matching "{searchQuery}"
                 </p>
               </div>
             )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
