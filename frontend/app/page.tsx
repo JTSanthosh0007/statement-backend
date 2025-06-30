@@ -71,6 +71,13 @@ export default function Home() {
       color: '#2563eb',
       route: '/pdf-unlocker',
       logo: 'PU'
+    },
+    {
+      name: 'SBI',
+      description: 'Analyze your State Bank of India statements',
+      color: '#1A73E8',
+      route: '/sbi',
+      logo: 'SBI'
     }
   ];
 
