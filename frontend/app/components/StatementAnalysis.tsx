@@ -100,7 +100,7 @@ type AnalysisData = {
   }[]
 }
 
-export type View = 'home' | 'settings'  | 'phonepe-analysis' | 'more-upi-apps' | 'more-banks' | 'profile' | 'notifications' | 'report-issue' | 'signin' | 'banks' | 'upi-apps' | 'account-settings' | 'refer-and-and-earn' | 'favorites' | 'history';
+export type View = 'home' | 'settings' | 'phonepe-analysis' | 'more-upi-apps' | 'more-banks' | 'profile' | 'notifications' | 'report-issue' | 'signin' | 'banks' | 'upi-apps' | 'account-settings' | 'refer-and-and-earn' | 'favorites' | 'history';
 
 export type AnalysisState = 'upload' | 'analyzing' | 'results'
 
@@ -220,14 +220,14 @@ const HomeView: React.FC<HomeViewProps> = ({
   toggleFavorite,
   navigate,
 }) => {
-    return (
+  return (
     <div className="min-h-screen bg-black">
       {/* Available Apps Section */}
       <div className="px-4">
         <h2 className="text-base font-medium text-white mb-4">Available Apps</h2>
         <div className="space-y-3">
           {/* PhonePe */}
-          <div 
+          <div
             onClick={() => setCurrentView('phonepe-analysis')}
             className="bg-[#1C1C1E] rounded-2xl p-4 cursor-pointer hover:bg-zinc-800/80 transition-colors"
           >
@@ -245,7 +245,7 @@ const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
           {/* Kotak Mahindra Bank */}
-          <div 
+          <div
             onClick={() => setCurrentView('home')}
             className="bg-[#1C1C1E] rounded-2xl p-4 cursor-pointer hover:bg-zinc-800/80 transition-colors"
           >
@@ -259,26 +259,26 @@ const HomeView: React.FC<HomeViewProps> = ({
               <div>
                 <h3 className="text-sm font-medium text-white">Kotak Mahindra Bank</h3>
                 <p className="text-xs text-zinc-500">Analyze your Kotak Bank statements</p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* PDF Unlocker */}
-        <div 
-          onClick={() => navigate('/pdf-unlocker')}
-          className="bg-[#1C1C1E] rounded-2xl p-4 cursor-pointer hover:bg-zinc-800/80 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-white">PDF Unlocker</h3>
+          {/* PDF Unlocker */}
+          <div
+            onClick={() => navigate('/pdf-unlocker')}
+            className="bg-[#1C1C1E] rounded-2xl p-4 cursor-pointer hover:bg-zinc-800/80 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-white">PDF Unlocker</h3>
                 <p className="text-xs text-zinc-500">Unlock password-protected PDF statements</p>
+              </div>
             </div>
-          </div>
           </div>
         </div>
       </div>
@@ -455,76 +455,76 @@ const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({ setCurrentVie
 };
 
 const SettingsView: React.FC<SettingsViewProps> = ({ setCurrentView, setIsSearchOpen, profile, onLogout }) => {
-    const handlePrivacyClick = () => {
-      window.open('https://santhoshjt.netlify.app/', '_blank');
-    };
+  const handlePrivacyClick = () => {
+    window.open('https://santhoshjt.netlify.app/', '_blank');
+  };
 
-    const handleHelpSupportClick = () => {
-      window.open('https://santhoshjt.netlify.app/', '_blank');
-    };
+  const handleHelpSupportClick = () => {
+    window.open('https://santhoshjt.netlify.app/', '_blank');
+  };
 
-    return (
-      <div className="p-4">
-        <h1 className="text-2xl font-bold text-white mb-6">Settings</h1>
-        <div className="bg-gray-800 p-4 rounded-lg mb-4">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center">
-              {/* User silhouette SVG */}
-              <img src="https://sl.bing.net/eJ72rc66IWi" alt="User Avatar" className="w-12 h-12 rounded-full object-cover" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-white">{profile?.full_name || 'User'}</h2>
-              <p className="text-gray-400">{profile?.email || 'No email set'}</p>
-            </div>
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold text-white mb-6">Settings</h1>
+      <div className="bg-gray-800 p-4 rounded-lg mb-4">
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center">
+            {/* User silhouette SVG */}
+            <img src="https://sl.bing.net/eJ72rc66IWi" alt="User Avatar" className="w-12 h-12 rounded-full object-cover" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-white">{profile?.full_name || 'User'}</h2>
+            <p className="text-gray-400">{profile?.email || 'No email set'}</p>
           </div>
         </div>
-        <div className="space-y-2">
-          <button 
-            onClick={() => setCurrentView('account-settings' as View)}
-            className="w-full bg-gray-800 p-4 rounded-lg text-left text-white"
-          >
-            Account Settings
-          </button>
-          <button 
-            onClick={handlePrivacyClick}
-            className="w-full bg-gray-800 p-4 rounded-lg text-left text-white flex items-center justify-between"
-          >
-            <span>Privacy</span>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-              <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-            </svg>
-          </button>
-          <button 
-            onClick={() => setCurrentView('refer-and-and-earn' as View)}
-            className="w-full bg-gray-800 p-4 rounded-lg text-left text-white flex items-center justify-between"
-          >
-            <span>Refer & Earn</span>
-            <span className="text-sm text-gray-400 bg-gray-700 px-2 py-1 rounded">New</span>
-          </button>
-          <button 
-            onClick={handleHelpSupportClick}
-            className="w-full bg-gray-800 p-4 rounded-lg text-left text-white flex items-center justify-between"
-          >
-            <span>Help & Support</span>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-              <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-            </svg>
-          </button>
-          <button 
-            onClick={onLogout}
-            className="w-full bg-red-600 p-4 rounded-lg text-center text-white mt-4"
-          >
-            Log Out
-          </button>
-        </div>
       </div>
-    );
+      <div className="space-y-2">
+        <button
+          onClick={() => setCurrentView('account-settings' as View)}
+          className="w-full bg-gray-800 p-4 rounded-lg text-left text-white"
+        >
+          Account Settings
+        </button>
+        <button
+          onClick={handlePrivacyClick}
+          className="w-full bg-gray-800 p-4 rounded-lg text-left text-white flex items-center justify-between"
+        >
+          <span>Privacy</span>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+            <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+          </svg>
+        </button>
+        <button
+          onClick={() => setCurrentView('refer-and-and-earn' as View)}
+          className="w-full bg-gray-800 p-4 rounded-lg text-left text-white flex items-center justify-between"
+        >
+          <span>Refer & Earn</span>
+          <span className="text-sm text-gray-400 bg-gray-700 px-2 py-1 rounded">New</span>
+        </button>
+        <button
+          onClick={handleHelpSupportClick}
+          className="w-full bg-gray-800 p-4 rounded-lg text-left text-white flex items-center justify-between"
+        >
+          <span>Help & Support</span>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+            <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+          </svg>
+        </button>
+        <button
+          onClick={onLogout}
+          className="w-full bg-red-600 p-4 rounded-lg text-center text-white mt-4"
+        >
+          Log Out
+        </button>
+      </div>
+    </div>
+  );
 };
 
 const FavoritesView: React.FC<FavoritesViewProps & { favorites: Set<string>; toggleFavorite: (appName: string) => void }> = ({ setCurrentView, setIsSearchOpen, favorites, toggleFavorite }) => {
-    return (
+  return (
     <div className="p-4 pb-20 bg-black">
       <h1 className="text-xl font-medium mb-8 flex items-center">
         <span className="text-white font-semibold tracking-tight">Favorite Apps</span>
@@ -546,7 +546,7 @@ const FavoritesView: React.FC<FavoritesViewProps & { favorites: Set<string>; tog
                   logo: (
                     <div className="w-8 h-8 bg-[#5f259f] rounded-full flex items-center justify-center">
                       <span className="text-lg font-bold text-white">Pe</span>
-      </div>
+                    </div>
                   ),
                   description: 'Digital payments platform'
                 };
@@ -557,7 +557,7 @@ const FavoritesView: React.FC<FavoritesViewProps & { favorites: Set<string>; tog
                     <div className="flex flex-col items-center">
                       <span className="text-[#00B9F1] text-sm font-bold leading-none">pay</span>
                       <span className="text-[#00B9F1] text-[8px] font-bold leading-none mt-0.5">tm</span>
-    </div>
+                    </div>
                   ),
                   description: 'Digital payments and banking'
                 };
@@ -591,10 +591,10 @@ const FavoritesView: React.FC<FavoritesViewProps & { favorites: Set<string>; tog
                 };
             }
 
-  return (
+            return (
               <div key={appName} className="group cursor-pointer relative">
                 <div className="relative bg-zinc-900/80 p-5 rounded-3xl border border-zinc-800/50 backdrop-blur-sm overflow-hidden transition-all duration-300 hover:bg-zinc-800/80">
-          <button
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleFavorite(appName);
@@ -602,24 +602,24 @@ const FavoritesView: React.FC<FavoritesViewProps & { favorites: Set<string>; tog
                     className="absolute top-3 right-3 z-20 text-white hover:text-zinc-200 transition-colors duration-300"
                   >
                     <Star className="w-4 h-4 fill-white" />
-          </button>
+                  </button>
                   <div className="flex items-center gap-4">
                     <div className="relative">
                       <div className="w-12 h-12 bg-white rounded-2xl overflow-hidden flex items-center justify-center group-hover:scale-105 transition-all duration-300">
                         {appConfig.logo}
-        </div>
-      </div>
+                      </div>
+                    </div>
                     <div>
                       <h3 className="text-sm font-medium text-white mb-1">{appName}</h3>
                       <p className="text-xs text-zinc-500">{appConfig.description}</p>
                     </div>
-                    </div>
                   </div>
-                    </div>
+                </div>
+              </div>
             );
           })}
-          </div>
-        )}
+        </div>
+      )}
     </div>
   );
 };
@@ -640,14 +640,14 @@ const ProfileView = memo(({ onBack, userId }: { onBack: () => void; userId: stri
   );
 });
 
-const MoreUpiAppsView = memo(({ setCurrentView, toggleSearchModal }: { 
+const MoreUpiAppsView = memo(({ setCurrentView, toggleSearchModal }: {
   setCurrentView: (view: View) => void;
   toggleSearchModal: () => void;
 }) => {
   return (
     <div className="min-h-screen bg-black">
       <div className="p-4 flex items-center gap-3">
-        <button 
+        <button
           onClick={() => setCurrentView('home')}
           className="text-white hover:text-zinc-300 transition-colors"
         >
@@ -656,7 +656,7 @@ const MoreUpiAppsView = memo(({ setCurrentView, toggleSearchModal }: {
         <h1 className="text-lg font-medium text-white">More UPI Apps</h1>
       </div>
       <div className="p-4">
-        <button 
+        <button
           onClick={toggleSearchModal}
           className="w-full bg-zinc-900/80 p-4 rounded-xl text-white text-left"
         >
@@ -728,16 +728,16 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
               <ArrowLeftIcon className="w-6 h-6" />
             </button>
             <div className="flex-1">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search UPI apps and banks..."
                 className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  autoFocus
-                />
-              </div>
+                autoFocus
+              />
             </div>
+          </div>
         </div>
         {searchQuery.trim() && (
           <div className="space-y-6">
@@ -749,8 +749,8 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
                   <h3 className="text-lg font-semibold text-white mb-3">{category}</h3>
                   <div className="grid grid-cols-1 gap-3">
                     {apps.map(app => (
-                      <div 
-                        key={app.id} 
+                      <div
+                        key={app.id}
                         className="bg-gray-800 p-4 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer"
                         onClick={() => {
                           // Navigate to appropriate route based on app
@@ -780,11 +780,10 @@ const SearchModal = memo(({ isOpen, onClose, searchQuery, setSearchQuery, groupe
                             )}
                           </div>
                           <div className="text-right">
-                            <div className={`text-sm px-2 py-1 rounded-full ${
-                              app.available 
-                                ? 'bg-green-500/20 text-green-400' 
+                            <div className={`text-sm px-2 py-1 rounded-full ${app.available
+                                ? 'bg-green-500/20 text-green-400'
                                 : 'bg-yellow-500/20 text-yellow-400'
-                            }`}>
+                              }`}>
                               {app.available ? 'Available' : 'Coming Soon'}
                             </div>
                             <div className="text-xs text-gray-400 mt-1 capitalize">
@@ -875,7 +874,7 @@ const TransactionSummaryCard: React.FC<{ summary: any; pageCount: number }> = ({
   </div>
 );
 
-export const PhonePeAnalysisView: React.FC<{ 
+export const PhonePeAnalysisView: React.FC<{
   setCurrentView: (view: View) => void;
   selectedFile: File | null;
   analysisState: AnalysisState;
@@ -894,599 +893,603 @@ export const PhonePeAnalysisView: React.FC<{
   handleDrop,
   fileInputRef
 }) => {
-  const [selectedChartType, setSelectedChartType] = useState<'pie' | 'bar' | 'doughnut' | 'horizontalBar'>('pie');
-  const [mounted, setMounted] = useState(false);
+    const [selectedChartType, setSelectedChartType] = useState<'pie' | 'bar' | 'doughnut' | 'horizontalBar'>('pie');
+    const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+    useEffect(() => {
+      setMounted(true);
+    }, []);
 
-  const renderContent = () => {
-    switch (analysisState) {
-      case 'analyzing':
-        return (
-          <div className="flex flex-col items-center justify-center p-8">
-            <div className="w-16 h-16 border-4 border-zinc-600 border-t-white rounded-full animate-spin mb-4"></div>
-            <p className="text-white text-lg font-medium">Analyzing your statement...</p>
-            <p className="text-zinc-400 text-sm mt-2">This may take a few moments</p>
-          </div>
-        );
+    const renderContent = () => {
+      switch (analysisState) {
+        case 'analyzing':
+          return (
+            <div className="flex flex-col items-center justify-center p-8">
+              <div className="w-16 h-16 border-4 border-zinc-600 border-t-white rounded-full animate-spin mb-4"></div>
+              <p className="text-white text-lg font-medium">Analyzing your statement...</p>
+              <p className="text-zinc-400 text-sm mt-2">This may take a few moments</p>
+            </div>
+          );
 
-      case 'results':
-        if (!analysisResults) return null;
-        console.log('Rendering results with:', analysisResults);
-        return (
-          <div className="p-4 space-y-6">
-            {/* Account Analysis Section */}
-            {analysisResults.accounts && analysisResults.accounts.length > 0 && (
-              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-                <h3 className="text-lg font-medium text-white mb-4">Account Analysis</h3>
-                <AccountAnalysis accounts={analysisResults.accounts} />
-              </div>
-            )}
-
-            {/* Summary Cards */}
-            <TransactionSummaryCard summary={analysisResults.summary} pageCount={analysisResults.pageCount} />
-
-            {/* Transaction Details */}
-            {analysisResults.summary.highestTransaction && (
-              <div className="bg-zinc-800/50 rounded-2xl p-4 mb-4">
-                <h4 className="text-sm font-medium text-zinc-400 mb-2">Highest Transaction</h4>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-white font-medium">{analysisResults.summary.highestTransaction.description || 'N/A'}</p>
-                    <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.highestTransaction.date).toLocaleDateString()}</p>
+        case 'results':
+          if (!analysisResults) return null;
+          console.log('Rendering results with:', analysisResults);
+          return (
+            <div className="p-4 space-y-6">
+              {/* Account Analysis Section */}
+              {analysisResults.accounts && analysisResults.accounts.length > 0 && (
+                <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
+                  <h3 className="text-lg font-medium text-white mb-4">Account Analysis</h3>
+                  <AccountAnalysis accounts={analysisResults.accounts} />
                 </div>
-                  <p className="text-lg font-bold text-green-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
-                </div>
-              </div>
-            )}
-            
-            {analysisResults.summary.lowestTransaction && (
-              <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
-                <h4 className="text-sm font-medium text-zinc-400 mb-2">Lowest Transaction</h4>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-white font-medium">{analysisResults.summary.lowestTransaction.description || 'N/A'}</p>
-                    <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.lowestTransaction.date).toLocaleDateString()}</p>
+              )}
+
+              {/* Summary Cards */}
+              <TransactionSummaryCard summary={analysisResults.summary} pageCount={analysisResults.pageCount} />
+
+              {/* Transaction Details */}
+              {analysisResults.summary.highestTransaction && (
+                <div className="bg-zinc-800/50 rounded-2xl p-4 mb-4">
+                  <h4 className="text-sm font-medium text-zinc-400 mb-2">Highest Transaction</h4>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white font-medium">{analysisResults.summary.highestTransaction.description || 'N/A'}</p>
+                      <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.highestTransaction.date).toLocaleDateString()}</p>
                     </div>
-                  <p className="text-lg font-bold text-red-400">₹{Math.abs(analysisResults.summary.lowestAmount || 0).toLocaleString()}</p>
+                    <p className="text-lg font-bold text-green-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
                   </div>
                 </div>
-            )}
+              )}
 
-            {/* Charts */}
-            {mounted && analysisResults?.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0 && (
-              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-                <h3 className="text-lg font-medium text-white mb-4">Spending Analysis</h3>
-                <div className="flex space-x-2 mb-4">
-                  <button
-                    className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'pie' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
-                    onClick={() => setSelectedChartType('pie')}
-                  >
-                    Pie Chart
-                  </button>
-                  <button
-                    className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'bar' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
-                    onClick={() => setSelectedChartType('bar')}
-                  >
-                    Bar Chart
-                  </button>
-                  <button
-                    className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'doughnut' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
-                    onClick={() => setSelectedChartType('doughnut')}
-                  >
-                    Doughnut
-                  </button>
-                  <button
-                    className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'horizontalBar' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
-                    onClick={() => setSelectedChartType('horizontalBar')}
-                  >
-                    Horizontal Bar
-                  </button>
+              {analysisResults.summary.lowestTransaction && (
+                <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
+                  <h4 className="text-sm font-medium text-zinc-400 mb-2">Lowest Transaction</h4>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white font-medium">{analysisResults.summary.lowestTransaction.description || 'N/A'}</p>
+                      <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.lowestTransaction.date).toLocaleDateString()}</p>
+                    </div>
+                    <p className="text-lg font-bold text-red-400">₹{Math.abs(analysisResults.summary.lowestAmount || 0).toLocaleString()}</p>
+                  </div>
                 </div>
+              )}
 
-                {selectedChartType === 'pie' ? (
-                  <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
-                    <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
-                    <div className="h-64">
-                      {chartData && chartData.labels && chartData.labels.length > 0 && (
-                      <Chart
-                          data={chartData}
-                          options={{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                              legend: {
-                                position: 'right',
-                                labels: {
-                                  color: 'white',
-                                  font: { size: 16, weight: 'bold' },
-                                  padding: 30,
-                                  boxWidth: 30,
-                                  boxHeight: 20,
-                                  // Add maxWidth to allow wrapping if supported by your chart library
-                                  // maxWidth: 200,
+              {/* Charts */}
+              {mounted && analysisResults?.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0 && (
+                <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
+                  <h3 className="text-lg font-medium text-white mb-4">Spending Analysis</h3>
+                  <div className="flex space-x-2 mb-4">
+                    <button
+                      className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'pie' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
+                      onClick={() => setSelectedChartType('pie')}
+                    >
+                      Pie Chart
+                    </button>
+                    <button
+                      className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'bar' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
+                      onClick={() => setSelectedChartType('bar')}
+                    >
+                      Bar Chart
+                    </button>
+                    <button
+                      className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'doughnut' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
+                      onClick={() => setSelectedChartType('doughnut')}
+                    >
+                      Doughnut
+                    </button>
+                    <button
+                      className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'horizontalBar' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
+                      onClick={() => setSelectedChartType('horizontalBar')}
+                    >
+                      Horizontal Bar
+                    </button>
+                  </div>
+
+                  {selectedChartType === 'pie' ? (
+                    <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
+                      <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
+                      <div className="h-64">
+                        {chartData && chartData.labels && chartData.labels.length > 0 && (
+                          <Chart
+                            data={chartData}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              plugins: {
+                                legend: {
+                                  position: 'right',
+                                  labels: {
+                                    color: 'white',
+                                    font: { size: 16, weight: 'bold' },
+                                    padding: 30,
+                                    boxWidth: 30,
+                                    boxHeight: 20,
+                                    // Add maxWidth to allow wrapping if supported by your chart library
+                                    // maxWidth: 200,
+                                  },
                                 },
-                              },
-                              tooltip: {
-                                callbacks: {
-                                  label: function(context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
-                                    const label = context.label || '';
-                                    const value = context.parsed;
-                                    return `${label}: ₹${Number(value).toLocaleString()}`;
+                                tooltip: {
+                                  callbacks: {
+                                    label: function (context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
+                                      const label = context.label || '';
+                                      const value = context.parsed;
+                                      return `${label}: ₹${Number(value).toLocaleString()}`;
+                                    }
                                   }
                                 }
                               }
-                            }
-                          }}
-                        />
-                      )}
+                            }}
+                          />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ) : selectedChartType === 'doughnut' ? (
-                  <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
-                    <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
-                    <div className="h-64">
-                      {chartData && chartData.labels && chartData.labels.length > 0 && (
-                        <Doughnut
-                          data={chartData}
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: {
-                              position: 'right',
-                              labels: {
-                                color: 'white',
-                                font: {
-                                  size: 16
+                  ) : selectedChartType === 'doughnut' ? (
+                    <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
+                      <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
+                      <div className="h-64">
+                        {chartData && chartData.labels && chartData.labels.length > 0 && (
+                          <Doughnut
+                            data={chartData}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              plugins: {
+                                legend: {
+                                  position: 'right',
+                                  labels: {
+                                    color: 'white',
+                                    font: {
+                                      size: 16
+                                    },
+                                    padding: 30
+                                  }
                                 },
-                                padding: 30
-                              }
-                            },
-                            tooltip: {
-                              callbacks: {
-                                  label: function(context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
-                                  return `${context.label}: ${context.parsed.toFixed(1)}%`;
+                                tooltip: {
+                                  callbacks: {
+                                    label: function (context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
+                                      return `${context.label}: ${context.parsed.toFixed(1)}%`;
+                                    }
+                                  }
                                 }
                               }
-                            }
-                          }
-                        }}
-                      />
-                      )}
+                            }}
+                          />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
-                    <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
-                    <div className="h-64">
-                      {chartData && chartData.labels && chartData.labels.length > 0 && (
-                        <Bar
-                          data={chartData}
+                  ) : (
+                    <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
+                      <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
+                      <div className="h-64">
+                        {chartData && chartData.labels && chartData.labels.length > 0 && (
+                          <Bar
+                            data={chartData}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              plugins: {
+                                legend: {
+                                  display: false,
+                                  labels: { color: 'white' }
+                                }
+                              },
+                              scales: {
+                                y: {
+                                  beginAtZero: true,
+                                  ticks: { color: 'white' },
+                                  grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                                },
+                                x: {
+                                  ticks: { color: 'white' },
+                                  grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                                }
+                              }
+                            }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Line Chart */}
+                  {analysisResults.transactions && analysisResults.transactions.length > 0 && (
+                    <div className="bg-zinc-800/50 rounded-2xl p-4">
+                      <h4 className="text-sm font-medium text-zinc-400 mb-4">Monthly Trends</h4>
+                      <div className="h-64">
+                        <Line
+                          data={{
+                            labels: analysisResults.transactions.map(t => new Date(t.date).toLocaleDateString()),
+                            datasets: [{
+                              label: 'Transaction Amount',
+                              data: analysisResults.transactions.map(t => t.amount),
+                              borderColor: 'rgb(75, 192, 192)',
+                              tension: 0.1
+                            }]
+                          }}
                           options={{
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: {
                               legend: {
-                                display: false,
-                                labels: { color: 'white' }
+                                position: 'bottom',
+                                labels: {
+                                  color: 'white'
+                                }
                               }
                             },
                             scales: {
                               y: {
-                                beginAtZero: true,
-                                ticks: { color: 'white' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                                ticks: {
+                                  color: 'white'
+                                },
+                                grid: {
+                                  color: 'rgba(255, 255, 255, 0.1)'
+                                }
                               },
                               x: {
-                                ticks: { color: 'white' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                                ticks: {
+                                  color: 'white'
+                                },
+                                grid: {
+                                  color: 'rgba(255, 255, 255, 0.1)'
+                                }
                               }
                             }
                           }}
                         />
-                      )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
+              )}
 
-                {/* Line Chart */}
-                {analysisResults.transactions && analysisResults.transactions.length > 0 && (
-                <div className="bg-zinc-800/50 rounded-2xl p-4">
-                  <h4 className="text-sm font-medium text-zinc-400 mb-4">Monthly Trends</h4>
-                  <div className="h-64">
-                    <Line
-                      data={{
-                        labels: analysisResults.transactions.map(t => new Date(t.date).toLocaleDateString()),
-                        datasets: [{
-                          label: 'Transaction Amount',
-                          data: analysisResults.transactions.map(t => t.amount),
-                          borderColor: 'rgb(75, 192, 192)',
-                          tension: 0.1
-                        }]
-                      }}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                          legend: {
-                            position: 'bottom',
-                            labels: {
-                              color: 'white'
-                            }
-                          }
-                        },
-                        scales: {
-                          y: {
-                            ticks: {
-                              color: 'white'
-                            },
-                            grid: {
-                              color: 'rgba(255, 255, 255, 0.1)'
-                            }
-                          },
-                          x: {
-                            ticks: {
-                              color: 'white'
-                            },
-                            grid: {
-                              color: 'rgba(255, 255, 255, 0.1)'
-                            }
-                          }
-                        }
-                      }}
-                    />
+              {/* Category Breakdown Section (always show, below chart) */}
+              {analysisResults?.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0 ? (
+                <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50 mt-6">
+                  <h3 className="text-lg font-semibold text-white mb-6">Detailed Category Breakdown</h3>
+                  <div className="space-y-4">
+                    {Object.entries(analysisResults.categoryBreakdown)
+                      .sort(([, a], [, b]) => Math.abs(b.amount) - Math.abs(a.amount))
+                      .map(([category, cat], idx) => {
+                        const color = CATEGORY_COLORS[category] || CATEGORY_COLORS.Default;
+                        return (
+                          <div key={category} className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-2">
+                              <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: color }}></span>
+                              <span className="text-zinc-300">{category}</span>
+                            </div>
+                            <span className="text-zinc-400">₹{Math.abs(cat.amount).toLocaleString()}</span>
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
-                )}
-              </div>
-            )}
+              ) : (
+                <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50 mt-6 text-zinc-400 text-center">
+                  No categories found
+                </div>
+              )}
 
-            {/* Category Breakdown Section (always show, below chart) */}
-            {analysisResults?.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0 ? (
-              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50 mt-6">
-                <h3 className="text-lg font-semibold text-white mb-6">Detailed Category Breakdown</h3>
-              <div className="space-y-4">
-                  {Object.entries(analysisResults.categoryBreakdown)
-                    .sort(([, a], [, b]) => Math.abs(b.amount) - Math.abs(a.amount))
-                    .map(([category, cat], idx) => {
-                      const color = CATEGORY_COLORS[category] || CATEGORY_COLORS.Default;
+              {/* Recent Transactions */}
+              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
+                <h3 className="text-lg font-medium text-white mb-4">Recent Transactions</h3>
+                <div className="space-y-4">
+                  {analysisResults.transactions.slice(0, 5).map((transaction, index) => (
+                    <div key={index} className="flex justify-between items-center">
+                      <div>
+                        <p className="text-zinc-300">
+                          {typeof transaction.description === 'object' ? JSON.stringify(transaction.description) : transaction.description || ''}
+                        </p>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="text-xs text-zinc-400">
+                            {new Date(transaction.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                          </span>
+                          <span className="text-xs text-zinc-500">
+                            {typeof transaction.category === 'object' ? JSON.stringify(transaction.category) : (transaction.category || 'uncategorized').toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                      <span className={`font-medium ${transaction.amount >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        ₹{typeof transaction.amount === 'object' ? JSON.stringify(transaction.amount) : Math.abs(transaction.amount ?? 0).toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Banks Found Section -> UPI Statement Section */}
+              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
+                <div className="flex flex-col mb-4">
+                  <h3 className="text-lg font-medium text-white">UPI Statement</h3>
+                  {analysisResults.transactions.length > 0 && (
+                    <p className="text-sm text-zinc-400 mt-1">
+                      {new Date(Math.min(...analysisResults.transactions.map(t => new Date(t.date).getTime()))).toLocaleDateString()}
+                      {" to "}
+                      {new Date(Math.max(...analysisResults.transactions.map(t => new Date(t.date).getTime()))).toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 gap-4">
+                  {(() => {
+                    const bankConfigs = {
+                      'SBI': {
+                        color: '#2d5a27',
+                        shortName: 'SBI',
+                        fullName: 'State Bank of India'
+                      },
+                      'HDFC': {
+                        color: '#004c8f',
+                        shortName: 'HDFC',
+                        fullName: 'HDFC Bank'
+                      },
+                      'ICICI': {
+                        color: '#F58220',
+                        shortName: 'ICICI',
+                        fullName: 'ICICI Bank'
+                      },
+                      'AXIS': {
+                        color: '#97144d',
+                        shortName: 'AXIS',
+                        fullName: 'Axis Bank'
+                      },
+                      'KOTAK': {
+                        color: '#EF3E23',
+                        shortName: 'KOTAK',
+                        fullName: 'Kotak Mahindra Bank'
+                      },
+                      'YES BANK': {
+                        color: '#00204E',
+                        shortName: 'YES',
+                        fullName: 'Yes Bank'
+                      },
+                      'CANARA': {
+                        color: '#00573F',
+                        shortName: 'CAN',
+                        fullName: 'Canara Bank'
+                      },
+                      'PNB': {
+                        color: '#4B266D',
+                        shortName: 'PNB',
+                        fullName: 'Punjab National Bank'
+                      },
+                      'BOB': {
+                        color: '#004990',
+                        shortName: 'BOB',
+                        fullName: 'Bank of Baroda'
+                      },
+                      'UNION BANK': {
+                        color: '#1F4E79',
+                        shortName: 'UBI',
+                        fullName: 'Union Bank of India'
+                      }
+                    };
+
+                    const foundBanks = Array.from(new Set(analysisResults.transactions
+                      .map(t => {
+                        const description = (t.description || '').toUpperCase();
+                        return Object.keys(bankConfigs).find(bank => description.includes(bank));
+                      })
+                      .filter((bank): bank is keyof typeof bankConfigs => bank !== undefined)
+                    ));
+
+                    if (foundBanks.length === 0) {
                       return (
-                        <div key={category} className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-2">
-                            <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: color }}></span>
-                    <span className="text-zinc-300">{category}</span>
-                  </div>
-                          <span className="text-zinc-400">₹{Math.abs(cat.amount).toLocaleString()}</span>
-              </div>
+                        null // Return null instead of the message when no banks are found
                       );
-                    })}
-            </div>
-              </div>
-            ) : (
-              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50 mt-6 text-zinc-400 text-center">
-                No categories found
-              </div>
-            )}
-
-            {/* Recent Transactions */}
-            <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-              <h3 className="text-lg font-medium text-white mb-4">Recent Transactions</h3>
-              <div className="space-y-4">
-                {analysisResults.transactions.slice(0, 5).map((transaction, index) => (
-                  <div key={index} className="flex justify-between items-center">
-                    <div>
-                      <p className="text-zinc-300">{transaction.description || ''}</p>
-                      <div className="flex items-center justify-between mt-1">
-                        <span className="text-xs text-zinc-400">
-                          {new Date(transaction.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                        </span>
-                        <span className="text-xs text-zinc-500">
-                          {(transaction.category || 'uncategorized').toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-                    <span className={`font-medium ${transaction.amount >= 0 ? 'text-green-500' : 'text-red-500'}`}>₹{Math.abs(transaction.amount ?? 0).toLocaleString()}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Banks Found Section -> UPI Statement Section */}
-            <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-              <div className="flex flex-col mb-4">
-                <h3 className="text-lg font-medium text-white">UPI Statement</h3>
-                {analysisResults.transactions.length > 0 && (
-                  <p className="text-sm text-zinc-400 mt-1">
-                    {new Date(Math.min(...analysisResults.transactions.map(t => new Date(t.date).getTime()))).toLocaleDateString()} 
-                    {" to "} 
-                    {new Date(Math.max(...analysisResults.transactions.map(t => new Date(t.date).getTime()))).toLocaleDateString()}
-                  </p>
-                )}
-              </div>
-              <div className="grid grid-cols-1 gap-4">
-                {(() => {
-                  const bankConfigs = {
-                    'SBI': {
-                      color: '#2d5a27',
-                      shortName: 'SBI',
-                      fullName: 'State Bank of India'
-                    },
-                    'HDFC': {
-                      color: '#004c8f',
-                      shortName: 'HDFC',
-                      fullName: 'HDFC Bank'
-                    },
-                    'ICICI': {
-                      color: '#F58220',
-                      shortName: 'ICICI',
-                      fullName: 'ICICI Bank'
-                    },
-                    'AXIS': {
-                      color: '#97144d',
-                      shortName: 'AXIS',
-                      fullName: 'Axis Bank'
-                    },
-                    'KOTAK': {
-                      color: '#EF3E23',
-                      shortName: 'KOTAK',
-                      fullName: 'Kotak Mahindra Bank'
-                    },
-                    'YES BANK': {
-                      color: '#00204E',
-                      shortName: 'YES',
-                      fullName: 'Yes Bank'
-                    },
-                    'CANARA': {
-                      color: '#00573F',
-                      shortName: 'CAN',
-                      fullName: 'Canara Bank'
-                    },
-                    'PNB': {
-                      color: '#4B266D',
-                      shortName: 'PNB',
-                      fullName: 'Punjab National Bank'
-                    },
-                    'BOB': {
-                      color: '#004990',
-                      shortName: 'BOB',
-                      fullName: 'Bank of Baroda'
-                    },
-                    'UNION BANK': {
-                      color: '#1F4E79',
-                      shortName: 'UBI',
-                      fullName: 'Union Bank of India'
                     }
-                  };
 
-                  const foundBanks = Array.from(new Set(analysisResults.transactions
-                    .map(t => {
-                      const description = (t.description || '').toUpperCase();
-                      return Object.keys(bankConfigs).find(bank => description.includes(bank));
-                    })
-                    .filter((bank): bank is keyof typeof bankConfigs => bank !== undefined)
-                  ));
+                    // If banks are found, we don't display them based on user request.
+                    return null; // Or an empty fragment <> </>
 
-                  if (foundBanks.length === 0) {
-                    return (
-                      null // Return null instead of the message when no banks are found
-                    );
-                  }
-
-                  // If banks are found, we don't display them based on user request.
-                  return null; // Or an empty fragment <> </>
-
-                })()}
-              </div>
-            </div>
-
-            {/* Important Notes Section */}
-            <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-zinc-800 flex-shrink-0 flex items-center justify-center mt-0.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-zinc-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
+                  })()}
                 </div>
-                <div>
-                  <h3 className="text-lg font-medium text-white mb-3">Note:</h3>
-                  <ul className="space-y-2 text-sm text-zinc-400">
-                    <li className="flex items-start gap-2">
-                      <span className="text-zinc-500">•</span>
-                      <span>Self transfer payments are not included in the total money paid and money received calculations</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-zinc-500">•</span>
-                      <span>Payments that you might have hidden on payment history page will not be included in this statement</span>
-                    </li>
-                  </ul>
+              </div>
+
+              {/* Important Notes Section */}
+              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-zinc-800 flex-shrink-0 flex items-center justify-center mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-zinc-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-white mb-3">Note:</h3>
+                    <ul className="space-y-2 text-sm text-zinc-400">
+                      <li className="flex items-start gap-2">
+                        <span className="text-zinc-500">•</span>
+                        <span>Self transfer payments are not included in the total money paid and money received calculations</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-zinc-500">•</span>
+                        <span>Payments that you might have hidden on payment history page will not be included in this statement</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        );
+          );
 
-      default:
-        return (
-          <div className="p-4">
-            <div className="bg-zinc-900/80 rounded-3xl p-8 border border-zinc-800/50">
-              <div className="text-center">
-                <div className="w-16 h-16 mx-auto mb-4 bg-zinc-800 rounded-full flex items-center justify-center">
-                  <DocumentTextIcon className="w-8 h-8 text-zinc-400" />
-                </div>
-                <h3 className="text-lg font-medium text-white mb-2">Upload Statement</h3>
-                <p className="text-zinc-400 text-sm mb-6">Upload your bank statement to analyze your spending patterns</p>
-                
-                <div
-                  className="border-2 border-dashed border-zinc-700 rounded-2xl p-8 text-center cursor-pointer hover:border-zinc-600 transition-colors"
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop}
-                  onClick={() => document.getElementById('fileInput')?.click()}
-                >
-                  <input
-                    type="file"
-                    id="fileInput"
-                    className="hidden"
-                    accept=".pdf"
-                    onChange={handleFileSelect}
-                  />
-                  <ArrowUpTrayIcon className="w-8 h-8 text-zinc-400 mx-auto mb-4" />
-                  <p className="text-zinc-300 mb-1">Drag and drop your statement here</p>
-                  <p className="text-zinc-500 text-sm">or click to browse</p>
+        default:
+          return (
+            <div className="p-4">
+              <div className="bg-zinc-900/80 rounded-3xl p-8 border border-zinc-800/50">
+                <div className="text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-zinc-800 rounded-full flex items-center justify-center">
+                    <DocumentTextIcon className="w-8 h-8 text-zinc-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-white mb-2">Upload Statement</h3>
+                  <p className="text-zinc-400 text-sm mb-6">Upload your bank statement to analyze your spending patterns</p>
+
+                  <div
+                    className="border-2 border-dashed border-zinc-700 rounded-2xl p-8 text-center cursor-pointer hover:border-zinc-600 transition-colors"
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                    onClick={() => document.getElementById('fileInput')?.click()}
+                  >
+                    <input
+                      type="file"
+                      id="fileInput"
+                      className="hidden"
+                      accept=".pdf"
+                      onChange={handleFileSelect}
+                    />
+                    <ArrowUpTrayIcon className="w-8 h-8 text-zinc-400 mx-auto mb-4" />
+                    <p className="text-zinc-300 mb-1">Drag and drop your statement here</p>
+                    <p className="text-zinc-500 text-sm">or click to browse</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        );
-    }
-  };
-
-  const monthlyData = useMemo(() => {
-    if (!analysisResults?.transactions) return { labels: [], datasets: [] };
-
-    const monthlyTotals: { [key: string]: number } = {};
-
-    analysisResults.transactions.forEach(transaction => {
-      const date = new Date(transaction.date);
-      const monthYear = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
-
-      if (!monthlyTotals[monthYear]) {
-        monthlyTotals[monthYear] = 0;
+          );
       }
-      // Summing both credit and debit for net change
-      monthlyTotals[monthYear] += transaction.amount;
-    });
-
-    const sortedMonths = Object.keys(monthlyTotals).sort((a, b) => {
-      const [monthA, yearA] = a.split(' ');
-      const [monthB, yearB] = b.split(' ');
-      const dateA = new Date(`${monthA} 1, ${yearA}`);
-      const dateB = new Date(`${monthB} 1, ${yearB}`);
-      return dateA.getTime() - dateB.getTime();
-    });
-
-    const labels = sortedMonths;
-    const data = sortedMonths.map(month => monthlyTotals[month]);
-
-    return {
-      labels: labels,
-      datasets: [{
-        label: 'Net Amount',
-        data: data,
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1,
-        pointBackgroundColor: 'white',
-        pointBorderColor: 'rgb(75, 192, 192)',
-        pointHoverBackgroundColor: 'rgb(75, 192, 192)',
-        pointHoverBorderColor: 'white',
-      }]
     };
-  }, [analysisResults?.transactions]);
 
-  // 1. Sort categories by amount spent (descending) for chart and legend
-  const sortedCategories = useMemo(() => {
-    if (!analysisResults?.categoryBreakdown) return [];
-    return Object.entries(analysisResults.categoryBreakdown)
-      .sort(([, a], [, b]) => Math.abs(b.amount) - Math.abs(a.amount));
-  }, [analysisResults?.categoryBreakdown]);
+    const monthlyData = useMemo(() => {
+      if (!analysisResults?.transactions) return { labels: [], datasets: [] };
 
-  // 2. Build chart data using sorted categories
-  const chartLabels = sortedCategories.map(([cat]) => cat);
-  const chartAmounts = sortedCategories.map(([, v]) => Math.abs(v.amount));
-  const chartPercents = sortedCategories.map(([, v]) => v.percentage);
-  const chartColors = chartLabels.map((cat) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.Default);
-  const chartData = {
-    labels: chartLabels,
-    datasets: [
-      {
-        label: 'Amount Spent',
-        data: chartAmounts,
-        backgroundColor: chartColors,
-        borderColor: chartColors,
-        borderWidth: 1,
-      },
-    ],
-  };
+      const monthlyTotals: { [key: string]: number } = {};
 
-  const pieOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'right',
-        labels: {
-          color: 'white',
-          font: { size: 16, weight: 'bold' },
-          padding: 30,
-          boxWidth: 30,
-          boxHeight: 20,
-          // Add maxWidth to allow wrapping if supported by your chart library
-          // maxWidth: 200,
+      analysisResults.transactions.forEach(transaction => {
+        const date = new Date(transaction.date);
+        const monthYear = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+
+        if (!monthlyTotals[monthYear]) {
+          monthlyTotals[monthYear] = 0;
         }
-      },
-      tooltip: {
-        callbacks: {
-          label: function(context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
-            const label = context.label || '';
-            const value = context.parsed;
-            return `${label}: ₹${Number(value).toLocaleString()}`;
+        // Summing both credit and debit for net change
+        monthlyTotals[monthYear] += transaction.amount;
+      });
+
+      const sortedMonths = Object.keys(monthlyTotals).sort((a, b) => {
+        const [monthA, yearA] = a.split(' ');
+        const [monthB, yearB] = b.split(' ');
+        const dateA = new Date(`${monthA} 1, ${yearA}`);
+        const dateB = new Date(`${monthB} 1, ${yearB}`);
+        return dateA.getTime() - dateB.getTime();
+      });
+
+      const labels = sortedMonths;
+      const data = sortedMonths.map(month => monthlyTotals[month]);
+
+      return {
+        labels: labels,
+        datasets: [{
+          label: 'Net Amount',
+          data: data,
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1,
+          pointBackgroundColor: 'white',
+          pointBorderColor: 'rgb(75, 192, 192)',
+          pointHoverBackgroundColor: 'rgb(75, 192, 192)',
+          pointHoverBorderColor: 'white',
+        }]
+      };
+    }, [analysisResults?.transactions]);
+
+    // 1. Sort categories by amount spent (descending) for chart and legend
+    const sortedCategories = useMemo(() => {
+      if (!analysisResults?.categoryBreakdown) return [];
+      return Object.entries(analysisResults.categoryBreakdown)
+        .sort(([, a], [, b]) => Math.abs(b.amount) - Math.abs(a.amount));
+    }, [analysisResults?.categoryBreakdown]);
+
+    // 2. Build chart data using sorted categories
+    const chartLabels = sortedCategories.map(([cat]) => cat);
+    const chartAmounts = sortedCategories.map(([, v]) => Math.abs(v.amount));
+    const chartPercents = sortedCategories.map(([, v]) => v.percentage);
+    const chartColors = chartLabels.map((cat) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.Default);
+    const chartData = {
+      labels: chartLabels,
+      datasets: [
+        {
+          label: 'Amount Spent',
+          data: chartAmounts,
+          backgroundColor: chartColors,
+          borderColor: chartColors,
+          borderWidth: 1,
+        },
+      ],
+    };
+
+    const pieOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            color: 'white',
+            font: { size: 16, weight: 'bold' },
+            padding: 30,
+            boxWidth: 30,
+            boxHeight: 20,
+            // Add maxWidth to allow wrapping if supported by your chart library
+            // maxWidth: 200,
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
+              const label = context.label || '';
+              const value = context.parsed;
+              return `${label}: ₹${Number(value).toLocaleString()}`;
+            }
           }
         }
       }
-    }
-  };
-  const barOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: {
-          label: function(context: any) {
-            const label = context.label || '';
-            const value = context.parsed;
-            return `${label}: ₹${Number(value).toLocaleString()}`;
+    };
+    const barOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function (context: any) {
+              const label = context.label || '';
+              const value = context.parsed;
+              return `${label}: ₹${Number(value).toLocaleString()}`;
+            }
           }
         }
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: { color: 'white' },
-        grid: { color: 'rgba(255, 255, 255, 0.1)' }
       },
-      x: {
-        ticks: { color: 'white' },
-        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: 'white' },
+          grid: { color: 'rgba(255, 255, 255, 0.1)' }
+        },
+        x: {
+          ticks: { color: 'white' },
+          grid: { color: 'rgba(255, 255, 255, 0.1)' }
+        }
       }
-    }
-  };
+    };
 
-  return (
-    <div className="min-h-screen bg-black">
-      {/* Header */}
-      <div className="p-4 flex items-center gap-3">
-        <button 
-          onClick={() => setCurrentView('home')}
-          className="text-white hover:text-zinc-300 transition-colors"
-        >
-          <ArrowLeftIcon className="w-6 h-6" />
-        </button>
-        <h1 className="text-lg font-medium text-white">PhonePe Statement Analysis</h1>
+    return (
+      <div className="min-h-screen bg-black">
+        {/* Header */}
+        <div className="p-4 flex items-center gap-3">
+          <button
+            onClick={() => setCurrentView('home')}
+            className="text-white hover:text-zinc-300 transition-colors"
+          >
+            <ArrowLeftIcon className="w-6 h-6" />
+          </button>
+          <h1 className="text-lg font-medium text-white">PhonePe Statement Analysis</h1>
+        </div>
+
+        {/* Content */}
+        <Suspense fallback={<LoadingSpinner />}>
+          {renderContent()}
+        </Suspense>
       </div>
+    );
+  };
 
-      {/* Content */}
-      <Suspense fallback={<LoadingSpinner />}>
-        {renderContent()}
-      </Suspense>
-    </div>
-  );
-};
-
-export const KotakAnalysisView: React.FC<{ 
+export const KotakAnalysisView: React.FC<{
   setCurrentView: (view: View) => void;
   selectedFile: File | null;
   analysisState: AnalysisState;
@@ -1505,383 +1508,387 @@ export const KotakAnalysisView: React.FC<{
   handleDrop,
   fileInputRef
 }) => {
-  const [selectedChartType, setSelectedChartType] = useState<'pie' | 'bar' | 'doughnut' | 'horizontalBar'>('pie');
-  const [mounted, setMounted] = useState(false);
+    const [selectedChartType, setSelectedChartType] = useState<'pie' | 'bar' | 'doughnut' | 'horizontalBar'>('pie');
+    const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+    useEffect(() => {
+      setMounted(true);
+    }, []);
 
-  // Chart data generation for KotakAnalysisView
-  const sortedCategories = useMemo(() => {
-    if (!analysisResults?.categoryBreakdown) return [];
-    return Object.entries(analysisResults.categoryBreakdown)
-      .sort(([, a], [, b]) => Math.abs(b.amount) - Math.abs(a.amount));
-  }, [analysisResults?.categoryBreakdown]);
+    // Chart data generation for KotakAnalysisView
+    const sortedCategories = useMemo(() => {
+      if (!analysisResults?.categoryBreakdown) return [];
+      return Object.entries(analysisResults.categoryBreakdown)
+        .sort(([, a], [, b]) => Math.abs(b.amount) - Math.abs(a.amount));
+    }, [analysisResults?.categoryBreakdown]);
 
-  const chartLabels = sortedCategories.map(([cat]) => cat);
-  const chartAmounts = sortedCategories.map(([, v]) => Math.abs(v.amount));
-  const chartColors = chartLabels.map((cat) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.Default);
-  const chartData = {
-    labels: chartLabels,
-    datasets: [
-      {
-        label: 'Amount Spent',
-        data: chartAmounts,
-        backgroundColor: chartColors,
-        borderColor: chartColors,
-        borderWidth: 1,
-      },
-    ],
-  };
+    const chartLabels = sortedCategories.map(([cat]) => cat);
+    const chartAmounts = sortedCategories.map(([, v]) => Math.abs(v.amount));
+    const chartColors = chartLabels.map((cat) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.Default);
+    const chartData = {
+      labels: chartLabels,
+      datasets: [
+        {
+          label: 'Amount Spent',
+          data: chartAmounts,
+          backgroundColor: chartColors,
+          borderColor: chartColors,
+          borderWidth: 1,
+        },
+      ],
+    };
 
-  const renderContent = () => {
-    switch (analysisState) {
-      case 'analyzing':
-        return (
-          <div className="flex flex-col items-center justify-center p-8">
-            <div className="w-16 h-16 border-4 border-zinc-600 border-t-white rounded-full animate-spin mb-4"></div>
-            <p className="text-white text-lg font-medium">Analyzing your statement...</p>
-            <p className="text-zinc-400 text-sm mt-2">This may take a few moments</p>
-          </div>
-        );
-      case 'results':
-        if (!analysisResults) return null;
-        return (
-          <div className="p-4 space-y-6">
-            {/* Summary Card */}
-            <TransactionSummaryCard summary={analysisResults.summary} pageCount={analysisResults.pageCount} />
+    const renderContent = () => {
+      switch (analysisState) {
+        case 'analyzing':
+          return (
+            <div className="flex flex-col items-center justify-center p-8">
+              <div className="w-16 h-16 border-4 border-zinc-600 border-t-white rounded-full animate-spin mb-4"></div>
+              <p className="text-white text-lg font-medium">Analyzing your statement...</p>
+              <p className="text-zinc-400 text-sm mt-2">This may take a few moments</p>
+            </div>
+          );
+        case 'results':
+          if (!analysisResults) return null;
+          return (
+            <div className="p-4 space-y-6">
+              {/* Summary Card */}
+              <TransactionSummaryCard summary={analysisResults.summary} pageCount={analysisResults.pageCount} />
 
-            {/* Transaction Details */}
-            {analysisResults.summary.highestTransaction && (
-              <div className="bg-zinc-800/50 rounded-2xl p-4 mb-4">
-                <h4 className="text-sm font-medium text-zinc-400 mb-2">Highest Transaction</h4>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-white font-medium">{analysisResults.summary.highestTransaction.description || 'N/A'}</p>
-                    <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.highestTransaction.date).toLocaleDateString()}</p>
-                </div>
-                  <p className="text-lg font-bold text-green-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
-                </div>
-              </div>
-            )}
-            
-            {analysisResults.summary.lowestTransaction && (
-              <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
-                <h4 className="text-sm font-medium text-zinc-400 mb-2">Lowest Transaction</h4>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-white font-medium">{analysisResults.summary.lowestTransaction.description || 'N/A'}</p>
-                    <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.lowestTransaction.date).toLocaleDateString()}</p>
+              {/* Transaction Details */}
+              {analysisResults.summary.highestTransaction && (
+                <div className="bg-zinc-800/50 rounded-2xl p-4 mb-4">
+                  <h4 className="text-sm font-medium text-zinc-400 mb-2">Highest Transaction</h4>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white font-medium">{analysisResults.summary.highestTransaction.description || 'N/A'}</p>
+                      <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.highestTransaction.date).toLocaleDateString()}</p>
+                    </div>
+                    <p className="text-lg font-bold text-green-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
                   </div>
-                  <p className="text-lg font-bold text-red-400">₹{Math.abs(analysisResults.summary.lowestAmount || 0).toLocaleString()}</p>
                 </div>
-                </div>
-            )}
+              )}
 
-            {/* Charts */}
-            {mounted && analysisResults?.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0 && (
-              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-                <h3 className="text-lg font-medium text-white mb-4">Spending Analysis</h3>
-                <div className="flex space-x-2 mb-4">
-                  <button
-                    className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'pie' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
-                    onClick={() => setSelectedChartType('pie')}
-                  >
-                    Pie Chart
-                  </button>
-                  <button
-                    className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'bar' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
-                    onClick={() => setSelectedChartType('bar')}
-                  >
-                    Bar Chart
-                  </button>
-                  <button
-                    className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'doughnut' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
-                    onClick={() => setSelectedChartType('doughnut')}
-                  >
-                    Doughnut
-                  </button>
-                  <button
-                    className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'horizontalBar' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
-                    onClick={() => setSelectedChartType('horizontalBar')}
-                  >
-                    Horizontal Bar
-                  </button>
+              {analysisResults.summary.lowestTransaction && (
+                <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
+                  <h4 className="text-sm font-medium text-zinc-400 mb-2">Lowest Transaction</h4>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white font-medium">{analysisResults.summary.lowestTransaction.description || 'N/A'}</p>
+                      <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.lowestTransaction.date).toLocaleDateString()}</p>
+                    </div>
+                    <p className="text-lg font-bold text-red-400">₹{Math.abs(analysisResults.summary.lowestAmount || 0).toLocaleString()}</p>
+                  </div>
                 </div>
+              )}
 
-                {selectedChartType === 'pie' ? (
-                  <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
-                    <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
-                    <div className="h-64">
-                      {chartData && chartData.labels && chartData.labels.length > 0 && (
-                      <Chart
-                          data={chartData}
+              {/* Charts */}
+              {mounted && analysisResults?.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0 && (
+                <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
+                  <h3 className="text-lg font-medium text-white mb-4">Spending Analysis</h3>
+                  <div className="flex space-x-2 mb-4">
+                    <button
+                      className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'pie' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
+                      onClick={() => setSelectedChartType('pie')}
+                    >
+                      Pie Chart
+                    </button>
+                    <button
+                      className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'bar' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
+                      onClick={() => setSelectedChartType('bar')}
+                    >
+                      Bar Chart
+                    </button>
+                    <button
+                      className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'doughnut' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
+                      onClick={() => setSelectedChartType('doughnut')}
+                    >
+                      Doughnut
+                    </button>
+                    <button
+                      className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'horizontalBar' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
+                      onClick={() => setSelectedChartType('horizontalBar')}
+                    >
+                      Horizontal Bar
+                    </button>
+                  </div>
+
+                  {selectedChartType === 'pie' ? (
+                    <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
+                      <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
+                      <div className="h-64">
+                        {chartData && chartData.labels && chartData.labels.length > 0 && (
+                          <Chart
+                            data={chartData}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              plugins: {
+                                legend: {
+                                  position: 'right',
+                                  labels: {
+                                    color: 'white',
+                                    font: { size: 16, weight: 'bold' },
+                                    padding: 30,
+                                    boxWidth: 30,
+                                    boxHeight: 20,
+                                    // Add maxWidth to allow wrapping if supported by your chart library
+                                    // maxWidth: 200,
+                                  },
+                                },
+                                tooltip: {
+                                  callbacks: {
+                                    label: function (context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
+                                      const label = context.label || '';
+                                      const value = context.parsed;
+                                      return `${label}: ₹${Number(value).toLocaleString()}`;
+                                    }
+                                  }
+                                }
+                              }
+                            }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ) : selectedChartType === 'doughnut' ? (
+                    <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
+                      <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
+                      <div className="h-64">
+                        {chartData && chartData.labels && chartData.labels.length > 0 && (
+                          <Doughnut
+                            data={chartData}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              plugins: {
+                                legend: {
+                                  position: 'right',
+                                  labels: {
+                                    color: 'white',
+                                    font: {
+                                      size: 16
+                                    },
+                                    padding: 30
+                                  }
+                                },
+                                tooltip: {
+                                  callbacks: {
+                                    label: function (context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
+                                      return `${context.label}: ${context.parsed.toFixed(1)}%`;
+                                    }
+                                  }
+                                }
+                              }
+                            }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
+                      <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
+                      <div className="h-64">
+                        {chartData && chartData.labels && chartData.labels.length > 0 && (
+                          <Bar
+                            data={chartData}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              plugins: {
+                                legend: {
+                                  display: false,
+                                  labels: { color: 'white' }
+                                }
+                              },
+                              scales: {
+                                y: {
+                                  beginAtZero: true,
+                                  ticks: { color: 'white' },
+                                  grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                                },
+                                x: {
+                                  ticks: { color: 'white' },
+                                  grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                                }
+                              }
+                            }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Line Chart */}
+                  {analysisResults.transactions && analysisResults.transactions.length > 0 && (
+                    <div className="bg-zinc-800/50 rounded-2xl p-4">
+                      <h4 className="text-sm font-medium text-zinc-400 mb-4">Monthly Trends</h4>
+                      <div className="h-64">
+                        <Line
+                          data={{
+                            labels: analysisResults.transactions.map(t => new Date(t.date).toLocaleDateString()),
+                            datasets: [{
+                              label: 'Transaction Amount',
+                              data: analysisResults.transactions.map(t => t.amount),
+                              borderColor: 'rgb(75, 192, 192)',
+                              tension: 0.1
+                            }]
+                          }}
                           options={{
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: {
                               legend: {
-                                position: 'right',
+                                position: 'bottom',
                                 labels: {
-                                  color: 'white',
-                                  font: { size: 16, weight: 'bold' },
-                                  padding: 30,
-                                  boxWidth: 30,
-                                  boxHeight: 20,
-                                  // Add maxWidth to allow wrapping if supported by your chart library
-                                  // maxWidth: 200,
-                                },
-                              },
-                              tooltip: {
-                                callbacks: {
-                                  label: function(context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
-                                    const label = context.label || '';
-                                    const value = context.parsed;
-                                    return `${label}: ₹${Number(value).toLocaleString()}`;
-                                  }
+                                  color: 'white'
                                 }
-                              }
-                            }
-                          }}
-                        />
-                      )}
-                    </div>
-                  </div>
-                ) : selectedChartType === 'doughnut' ? (
-                  <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
-                    <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
-                    <div className="h-64">
-                      {chartData && chartData.labels && chartData.labels.length > 0 && (
-                        <Doughnut
-                          data={chartData}
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: {
-                              position: 'right',
-                              labels: {
-                                color: 'white',
-                                font: {
-                                  size: 16
-                                },
-                                padding: 30
-                              }
-                            },
-                            tooltip: {
-                              callbacks: {
-                                  label: function(context: TooltipItem<'pie'> | TooltipItem<'doughnut'>) {
-                                  return `${context.label}: ${context.parsed.toFixed(1)}%`;
-                                }
-                              }
-                            }
-                          }
-                        }}
-                      />
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
-                    <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
-                    <div className="h-64">
-                      {chartData && chartData.labels && chartData.labels.length > 0 && (
-                      <Bar
-                          data={chartData}
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: {
-                              display: false,
-                                labels: { color: 'white' }
                               }
                             },
                             scales: {
                               y: {
-                                beginAtZero: true,
-                                ticks: { color: 'white' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                                ticks: {
+                                  color: 'white'
+                                },
+                                grid: {
+                                  color: 'rgba(255, 255, 255, 0.1)'
+                                }
                               },
                               x: {
-                                ticks: { color: 'white' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                                ticks: {
+                                  color: 'white'
+                                },
+                                grid: {
+                                  color: 'rgba(255, 255, 255, 0.1)'
+                                }
                               }
                             }
                           }}
                         />
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Line Chart */}
-                {analysisResults.transactions && analysisResults.transactions.length > 0 && (
-                  <div className="bg-zinc-800/50 rounded-2xl p-4">
-                    <h4 className="text-sm font-medium text-zinc-400 mb-4">Monthly Trends</h4>
-                    <div className="h-64">
-                      <Line
-                        data={{
-                          labels: analysisResults.transactions.map(t => new Date(t.date).toLocaleDateString()),
-                          datasets: [{
-                            label: 'Transaction Amount',
-                            data: analysisResults.transactions.map(t => t.amount),
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1
-                          }]
-                        }}
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: {
-                              position: 'bottom',
-                              labels: {
-                                color: 'white'
-                              }
-                            }
-                          },
-                          scales: {
-                            y: {
-                              ticks: {
-                                color: 'white'
-                              },
-                              grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                              }
-                            },
-                            x: {
-                              ticks: {
-                                color: 'white'
-                              },
-                              grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                              }
-                            }
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Category Breakdown */}
-            <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-              <h3 className="text-lg font-medium text-white mb-4">Spending by Category</h3>
-              <div className="space-y-4">
-                {Object.entries(analysisResults.categoryBreakdown).map(([category, { amount, percentage, count }]) => (
-                  <div key={category} className="flex justify-between items-center">
-                    <span className="text-zinc-300">{category}</span>
-                    <span className="text-zinc-400">₹{Math.abs(amount).toLocaleString()}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Recent Transactions */}
-            <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-              <h3 className="text-lg font-medium text-white mb-4">Recent Transactions</h3>
-              <div className="space-y-4">
-                {analysisResults.transactions.slice(0, 5).map((transaction, index) => (
-                  <div key={index} className="flex justify-between items-center">
-                    <div>
-                      <p className="text-zinc-300">{transaction.description || ''}</p>
-                      <div className="flex items-center justify-between mt-1">
-                        <span className="text-xs text-zinc-400">
-                          {new Date(transaction.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                        </span>
-                        <span className="text-xs text-zinc-500">
-                          {(transaction.category || 'uncategorized').toUpperCase()}
-                        </span>
                       </div>
                     </div>
-                    <span className={`font-medium ${transaction.amount >= 0 ? 'text-green-500' : 'text-red-500'}`}>₹{Math.abs(transaction.amount ?? 0).toLocaleString()}</span>
+                  )}
+                </div>
+              )}
+
+              {/* Category Breakdown */}
+              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
+                <h3 className="text-lg font-medium text-white mb-4">Spending by Category</h3>
+                <div className="space-y-4">
+                  {Object.entries(analysisResults.categoryBreakdown).map(([category, { amount, percentage, count }]) => (
+                    <div key={category} className="flex justify-between items-center">
+                      <span className="text-zinc-300">{category}</span>
+                      <span className="text-zinc-400">₹{Math.abs(amount).toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Recent Transactions */}
+              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
+                <h3 className="text-lg font-medium text-white mb-4">Recent Transactions</h3>
+                <div className="space-y-4">
+                  {analysisResults.transactions.slice(0, 5).map((transaction, index) => (
+                    <div key={index} className="flex justify-between items-center">
+                      <div>
+                        <p className="text-zinc-300">
+                          {typeof transaction.description === 'object' ? JSON.stringify(transaction.description) : transaction.description || ''}
+                        </p>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="text-xs text-zinc-400">
+                            {new Date(transaction.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                          </span>
+                          <span className="text-xs text-zinc-500">
+                            {typeof transaction.category === 'object' ? JSON.stringify(transaction.category) : (transaction.category || 'uncategorized').toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                      <span className={`font-medium ${transaction.amount >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        ₹{typeof transaction.amount === 'object' ? JSON.stringify(transaction.amount) : Math.abs(transaction.amount ?? 0).toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Important Notes Section */}
+              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-zinc-800 flex-shrink-0 flex items-center justify-center mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-zinc-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
                   </div>
-                ))}
+                  <div>
+                    <h3 className="text-lg font-medium text-white mb-3">Note:</h3>
+                    <ul className="space-y-2 text-sm text-zinc-400">
+                      <li className="flex items-start gap-2">
+                        <span className="text-zinc-500">•</span>
+                        <span>Self transfer payments are not included in the total money paid and money received calculations</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-zinc-500">•</span>
+                        <span>Payments that you might have hidden on payment history page will not be included in this statement</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
+          );
+        default:
+          return (
+            <div className="p-4">
+              <div className="bg-zinc-900/80 rounded-3xl p-8 border border-zinc-800/50">
+                <div className="text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-zinc-800 rounded-full flex items-center justify-center">
+                    <DocumentTextIcon className="w-8 h-8 text-zinc-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-white mb-2">Upload Statement</h3>
+                  <p className="text-zinc-400 text-sm mb-6">Upload your Kotak bank statement to analyze your spending patterns</p>
+                  <div
+                    className="border-2 border-dashed border-zinc-700 rounded-2xl p-8 text-center cursor-pointer hover:border-zinc-600 transition-colors"
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                    onClick={() => document.getElementById('fileInput')?.click()}
+                  >
+                    <input
+                      type="file"
+                      id="fileInput"
+                      className="hidden"
+                      accept=".pdf"
+                      onChange={handleFileSelect}
+                    />
+                    <ArrowUpTrayIcon className="w-8 h-8 text-zinc-400 mx-auto mb-4" />
+                    <p className="text-zinc-300 mb-1">Drag and drop your statement here</p>
+                    <p className="text-zinc-500 text-sm">or click to browse</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+      }
+    };
 
-            {/* Important Notes Section */}
-            <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-zinc-800 flex-shrink-0 flex items-center justify-center mt-0.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-zinc-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-white mb-3">Note:</h3>
-                  <ul className="space-y-2 text-sm text-zinc-400">
-                    <li className="flex items-start gap-2">
-                      <span className="text-zinc-500">•</span>
-                      <span>Self transfer payments are not included in the total money paid and money received calculations</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-zinc-500">•</span>
-                      <span>Payments that you might have hidden on payment history page will not be included in this statement</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      default:
-        return (
-          <div className="p-4">
-            <div className="bg-zinc-900/80 rounded-3xl p-8 border border-zinc-800/50">
-              <div className="text-center">
-                <div className="w-16 h-16 mx-auto mb-4 bg-zinc-800 rounded-full flex items-center justify-center">
-                  <DocumentTextIcon className="w-8 h-8 text-zinc-400" />
-                </div>
-                <h3 className="text-lg font-medium text-white mb-2">Upload Statement</h3>
-                <p className="text-zinc-400 text-sm mb-6">Upload your Kotak bank statement to analyze your spending patterns</p>
-                <div
-                  className="border-2 border-dashed border-zinc-700 rounded-2xl p-8 text-center cursor-pointer hover:border-zinc-600 transition-colors"
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop}
-                  onClick={() => document.getElementById('fileInput')?.click()}
-                >
-                  <input
-                    type="file"
-                    id="fileInput"
-                    className="hidden"
-                    accept=".pdf"
-                    onChange={handleFileSelect}
-                  />
-                  <ArrowUpTrayIcon className="w-8 h-8 text-zinc-400 mx-auto mb-4" />
-                  <p className="text-zinc-300 mb-1">Drag and drop your statement here</p>
-                  <p className="text-zinc-500 text-sm">or click to browse</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-black">
-      {/* Header */}
-      <div className="p-4 flex items-center gap-3">
-        <button 
-          onClick={() => setCurrentView('home')}
-          className="text-white hover:text-zinc-300 transition-colors"
-        >
-          <ArrowLeftIcon className="w-6 h-6" />
-        </button>
-        <h1 className="text-lg font-medium text-white">Kotak Bank Statement Analysis</h1>
+    return (
+      <div className="min-h-screen bg-black">
+        {/* Header */}
+        <div className="p-4 flex items-center gap-3">
+          <button
+            onClick={() => setCurrentView('home')}
+            className="text-white hover:text-zinc-300 transition-colors"
+          >
+            <ArrowLeftIcon className="w-6 h-6" />
+          </button>
+          <h1 className="text-lg font-medium text-white">Kotak Bank Statement Analysis</h1>
+        </div>
+        {renderContent()}
       </div>
-      {renderContent()}
-    </div>
-  );
-};
+    );
+  };
 
 // Add UPIAppsView component
-const UPIAppsView: React.FC<{ 
+const UPIAppsView: React.FC<{
   setCurrentView: (view: View) => void;
   favorites: Set<string>;
   toggleFavorite: (appName: string) => void;
@@ -1964,7 +1971,7 @@ const UPIAppsView: React.FC<{
     <div className="min-h-screen bg-black">
       {/* Header */}
       <div className="p-4 flex items-center gap-3">
-        <button 
+        <button
           onClick={() => setCurrentView('home')}
           className="text-white hover:text-zinc-300 transition-colors"
         >
@@ -1977,20 +1984,20 @@ const UPIAppsView: React.FC<{
       <div className="p-4">
         <div className="grid grid-cols-1 gap-4">
           {upiApps.map((app) => (
-            <div 
+            <div
               key={app.name}
               className="group bg-zinc-900/80 p-4 rounded-2xl border border-zinc-800/50 hover:bg-zinc-800/80 transition-all duration-300"
             >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden"
-                     style={{ backgroundColor: app.bgColor }}>
+                  style={{ backgroundColor: app.bgColor }}>
                   {app.isSpecialLogo ? (
                     <div className="flex flex-col items-center">
                       <span className={`text-[${app.color}] text-sm font-bold leading-none`}>pay</span>
                       <span className={`text-[${app.color}] text-[7px] font-bold leading-none mt-0.5`}>tm</span>
                     </div>
                   ) : (
-                    <div 
+                    <div
                       className="w-full h-full flex items-center justify-center"
                       style={{ backgroundColor: app.color }}
                     >
@@ -2021,7 +2028,7 @@ const UPIAppsView: React.FC<{
 };
 
 // Add BanksView component
-const BanksView: React.FC<{ 
+const BanksView: React.FC<{
   setCurrentView: (view: View) => void;
   favorites: Set<string>;
   toggleFavorite: (appName: string) => void;
@@ -2103,7 +2110,7 @@ const BanksView: React.FC<{
     <div className="min-h-screen bg-black">
       {/* Header */}
       <div className="p-4 flex items-center gap-3">
-        <button 
+        <button
           onClick={() => setCurrentView('home')}
           className="text-white hover:text-zinc-300 transition-colors"
         >
@@ -2116,13 +2123,13 @@ const BanksView: React.FC<{
       <div className="p-4">
         <div className="grid grid-cols-1 gap-4">
           {banks.map((bank) => (
-            <div 
+            <div
               key={bank.shortName}
               className="group bg-zinc-900/80 p-4 rounded-2xl border border-zinc-800/50 hover:bg-zinc-800/80 transition-all duration-300"
             >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center overflow-hidden">
-                  <div 
+                  <div
                     className="w-full h-full flex items-center justify-center"
                     style={{ backgroundColor: bank.color }}
                   >
@@ -2179,7 +2186,7 @@ const ReferAndEarnView: React.FC<{ setCurrentView: (view: View) => void }> = ({ 
     <div className="min-h-screen bg-black">
       {/* Header */}
       <div className="p-4 flex items-center gap-3">
-        <button 
+        <button
           onClick={() => setCurrentView('settings')}
           className="text-white hover:text-zinc-300 transition-colors"
         >
@@ -2203,13 +2210,13 @@ const ReferAndEarnView: React.FC<{ setCurrentView: (view: View) => void }> = ({ 
           <p className="text-zinc-400 text-center text-sm mb-6">
             Share the app with your friends and help them manage their finances better!
           </p>
-          
+
           {/* Referral Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm text-zinc-400 mb-1">Friend's Email</label>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 value={friendEmail}
                 onChange={(e) => setFriendEmail(e.target.value)}
                 placeholder="Enter your friend's email"
@@ -2217,7 +2224,7 @@ const ReferAndEarnView: React.FC<{ setCurrentView: (view: View) => void }> = ({ 
                 required
               />
             </div>
-            <button 
+            <button
               type="submit"
               disabled={isSending}
               className={`w-full bg-blue-600 text-white font-medium p-4 rounded-xl hover:bg-blue-700 transition-colors ${isSending ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -2277,12 +2284,12 @@ const ReferAndEarnView: React.FC<{ setCurrentView: (view: View) => void }> = ({ 
   );
 };
 
-export default function StatementAnalysis({ 
+export default function StatementAnalysis({
   data = { transactions: [], totalReceived: 0, totalSpent: 0, categoryBreakdown: {} },
   favorites = new Set<string>(),
-  toggleFavorite = (appName: string) => {},
-  navigate = (path: string) => {}
-}: { 
+  toggleFavorite = (appName: string) => { },
+  navigate = (path: string) => { }
+}: {
   data?: AnalysisData;
   favorites?: Set<string>;
   toggleFavorite?: (appName: string) => void;
@@ -2297,7 +2304,7 @@ export default function StatementAnalysis({
   const [analysisState, setAnalysisState] = useState<'upload' | 'analyzing' | 'results'>('upload');
   const [analysisResults, setAnalysisResults] = useState<AnalysisResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  
+
   // Memoize handlers to prevent recreation on each render
   const toggleSearchModal = useCallback(() => {
     setIsSearchOpen(prev => !prev);
@@ -2336,7 +2343,7 @@ export default function StatementAnalysis({
   const handleDrop = async (event: React.DragEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    
+
     const file = event.dataTransfer.files?.[0];
     console.log('File dropped:', file?.name);
     if (file && file.type === 'application/pdf') {
@@ -2353,7 +2360,7 @@ export default function StatementAnalysis({
     try {
       setAnalysisState('analyzing');
       console.log('Starting analysis for file:', file?.name);
-      
+
       const formData = new FormData();
       formData.append('file', file);
 
@@ -2387,7 +2394,7 @@ export default function StatementAnalysis({
       setAnalysisState('results');
       console.log('Analysis Results Transactions:', results.transactions);
       // The view change should happen here after successful analysis
-       setCurrentView('phonepe-analysis');
+      setCurrentView('phonepe-analysis');
 
     } catch (error: any) {
       console.error('Error analyzing statement:', error);
@@ -2406,11 +2413,11 @@ export default function StatementAnalysis({
           {(() => {
             switch (currentView) {
               case 'home':
-                return <HomeView 
-                  setCurrentView={setCurrentView} 
-                  setIsSearchOpen={setIsSearchOpen} 
-                  favorites={favorites} 
-                  toggleFavorite={toggleFavorite} 
+                return <HomeView
+                  setCurrentView={setCurrentView}
+                  setIsSearchOpen={setIsSearchOpen}
+                  favorites={favorites}
+                  toggleFavorite={toggleFavorite}
                   navigate={navigate}
                 />;
               case 'phonepe-analysis':
@@ -2434,7 +2441,7 @@ export default function StatementAnalysis({
                 return <AccountSettingsView
                   setCurrentView={setCurrentView}
                   profile={profile} // Pass profile data
-                  // supabase={supabase} // Pass Supabase client - uncomment when configured
+                // supabase={supabase} // Pass Supabase client - uncomment when configured
                 />;
               case 'refer-and-and-earn':
                 return <ReferAndEarnView setCurrentView={setCurrentView} />;
@@ -2443,25 +2450,25 @@ export default function StatementAnalysis({
               case 'upi-apps':
                 return <UPIAppsView setCurrentView={setCurrentView} favorites={favorites} toggleFavorite={toggleFavorite} />;
               default:
-                return <HomeView 
-                  setCurrentView={setCurrentView} 
-                  setIsSearchOpen={setIsSearchOpen} 
-                  favorites={favorites} 
-                  toggleFavorite={toggleFavorite} 
+                return <HomeView
+                  setCurrentView={setCurrentView}
+                  setIsSearchOpen={setIsSearchOpen}
+                  favorites={favorites}
+                  toggleFavorite={toggleFavorite}
                   navigate={navigate}
                 />;
             }
           })()}
         </>
       )}
-        {/* Search Modal */}
+      {/* Search Modal */}
       <SearchModal
         isOpen={isSearchOpen}
-          onClose={() => setIsSearchOpen(false)}
+        onClose={() => setIsSearchOpen(false)}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-          groupedResults={{}}
-        />
+        groupedResults={{}}
+      />
     </div>
   );
 }
