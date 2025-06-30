@@ -2,6 +2,23 @@
 
 import React, { useState } from 'react'
 
+function downloadBlob(blob: Blob, filename: string) {
+  var reader = new FileReader();
+  reader.onload = function() {
+    var base64Data = (reader.result as string).split(',')[1];
+    if ((window as any).AndroidDownloader) {
+      (window as any).AndroidDownloader.downloadBlob(base64Data, filename);
+    } else {
+      // fallback for browser
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+    }
+  };
+  reader.readAsDataURL(blob);
+}
+
 export default function PdfUnlocker() {
   const [file, setFile] = useState<File | null>(null)
   const [password, setPassword] = useState('')
@@ -38,14 +55,7 @@ export default function PdfUnlocker() {
       }
 
       const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = file.name.replace('.pdf', '_unlocked.pdf')
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
+      downloadBlob(blob, file.name.replace('.pdf', '_unlocked.pdf'))
 
       setStatus({ type: 'success', message: 'PDF unlocked successfully! Downloading...' })
     } catch (error) {

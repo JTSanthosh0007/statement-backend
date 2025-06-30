@@ -110,28 +110,48 @@ def parse_phonepe_statement(pdf_path: str) -> Dict[str, Any]:
         'pageCount': page_count
     }
 
-def categorize_transactions(transactions):
+def categorize_phonepe_transaction(details, amount):
+    details = details.lower()
+    # Kotak-style rules
+    if 'salary' in details:
+        return 'income'
+    if 'swiggy' in details or 'zomato' in details or 'restaurant' in details:
+        return 'food'
+    if 'upi' in details or 'imps' in details or 'neft' in details:
+        return 'transfer'
+    if 'atm' in details or 'cash withdrawal' in details:
+        return 'transfer'
+    if 'pos ' in details or 'pos/' in details:
+        return 'shopping'
+    if 'emi' in details or 'loan' in details:
+        return 'finance'
     categories = {
-        'Food & Dining': ['swiggy', 'zomato', 'restaurant', 'food', 'dining', 'cafe', 'hotel', 'milk', 'tea', 'coffee'],
-        'Shopping': ['amazon', 'flipkart', 'myntra', 'retail', 'mart', 'shop', 'store', 'market', 'purchase'],
-        'Transport': ['uber', 'ola', 'petrol', 'fuel', 'metro', 'bus', 'train', 'transport', 'auto', 'taxi'],
-        'Bills & Utilities': ['airtel', 'jio', 'vodafone', 'electricity', 'water', 'gas', 'bill', 'dth', 'broadband'],
-        'Recharge': ['recharge', 'mobile recharge', 'phone recharge'],
-        'Entertainment': ['netflix', 'amazon prime', 'hotstar', 'movie', 'game', 'spotify', 'entertainment'],
-        'Health': ['medical', 'hospital', 'pharmacy', 'doctor', 'clinic', 'medicine', 'health'],
-        'Education': ['school', 'college', 'university', 'course', 'training', 'tuition', 'education'],
-        'Transfer': ['transfer', 'sent', 'received', 'upi', 'neft', 'imps', 'payment'],
-        'Finance': ['emi', 'loan', 'insurance', 'investment', 'mutual fund', 'finance', 'bank']
+        'food': ['restaurant', 'food', 'swiggy', 'zomato', 'dining', 'cafe', 'hotel'],
+        'shopping': ['amazon', 'flipkart', 'myntra', 'retail', 'store', 'shop', 'mall'],
+        'travel': ['uber', 'ola', 'metro', 'petrol', 'fuel', 'travel', 'irctc', 'railway'],
+        'bills': ['electricity', 'water', 'gas', 'mobile', 'phone', 'internet', 'dth', 'recharge'],
+        'entertainment': ['movie', 'netflix', 'prime', 'hotstar', 'subscription'],
+        'finance': ['emi', 'loan', 'interest', 'insurance', 'premium', 'investment'],
+        'health': ['hospital', 'doctor', 'medical', 'pharmacy', 'medicine'],
+        'education': ['school', 'college', 'tuition', 'course', 'fee'],
+        'income': ['salary', 'interest earned', 'dividend', 'refund', 'cashback'],
+        'transfer': ['transfer', 'sent', 'received', 'payment', 'deposit', 'withdraw']
     }
-    default_category = 'Others'
+    for category, keywords in categories.items():
+        if any(keyword in details for keyword in keywords):
+            return category
+    if amount and amount > 10000:
+        if amount > 0:
+            return 'income'
+        else:
+            return 'finance'
+    return 'miscellaneous expenses'
+
+def categorize_transactions(transactions):
     for transaction in transactions:
-        details = transaction.get('transaction_details', '').lower()
-        found_category = default_category
-        for category, keywords in categories.items():
-            if any(keyword in details for keyword in keywords):
-                found_category = category
-                break
-        transaction['category'] = found_category
+        details = transaction.get('transaction_details', '')
+        amount = transaction.get('amount', 0)
+        transaction['category'] = categorize_phonepe_transaction(details, amount)
         logger.debug(f"[DEBUG] Categorized transaction: {transaction}")
     return transactions
 

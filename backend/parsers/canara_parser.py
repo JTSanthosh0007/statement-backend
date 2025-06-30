@@ -2,6 +2,43 @@ import re
 import logging
 from typing import List, Dict
 
+def categorize_canara_transaction(description, amount):
+    description = description.lower()
+    # Kotak-style rules
+    if 'salary' in description:
+        return 'income'
+    if 'swiggy' in description or 'zomato' in description or 'restaurant' in description:
+        return 'food'
+    if 'upi' in description or 'imps' in description or 'neft' in description:
+        return 'transfer'
+    if 'atm' in description or 'cash withdrawal' in description:
+        return 'transfer'
+    if 'pos ' in description or 'pos/' in description:
+        return 'shopping'
+    if 'emi' in description or 'loan' in description:
+        return 'finance'
+    categories = {
+        'food': ['restaurant', 'food', 'swiggy', 'zomato', 'dining', 'cafe', 'hotel'],
+        'shopping': ['amazon', 'flipkart', 'myntra', 'retail', 'store', 'shop', 'mall'],
+        'travel': ['uber', 'ola', 'metro', 'petrol', 'fuel', 'travel', 'irctc', 'railway'],
+        'bills': ['electricity', 'water', 'gas', 'mobile', 'phone', 'internet', 'dth', 'recharge'],
+        'entertainment': ['movie', 'netflix', 'prime', 'hotstar', 'subscription'],
+        'finance': ['emi', 'loan', 'interest', 'insurance', 'premium', 'investment'],
+        'health': ['hospital', 'doctor', 'medical', 'pharmacy', 'medicine'],
+        'education': ['school', 'college', 'tuition', 'course', 'fee'],
+        'income': ['salary', 'interest earned', 'dividend', 'refund', 'cashback'],
+        'transfer': ['transfer', 'sent', 'received', 'payment', 'deposit', 'withdraw']
+    }
+    for category, keywords in categories.items():
+        if any(keyword in description for keyword in keywords):
+            return category
+    if amount and amount > 10000:
+        if amount > 0:
+            return 'income'
+        else:
+            return 'finance'
+    return 'miscellaneous expenses'
+
 def parse_canara_statement(text: str) -> List[Dict]:
     """
     Robustly parses Canara Bank statement text and returns a list of transactions.
@@ -26,6 +63,9 @@ def parse_canara_statement(text: str) -> List[Dict]:
             # Save previous transaction if any
             if current:
                 current['particulars'] = '\n'.join(particulars_lines).strip()
+                # Assign category using robust logic
+                amount = current['deposits'] if current['deposits'] > 0 else -current['withdrawals']
+                current['category'] = categorize_canara_transaction(current['particulars'], amount)
                 transactions.append(current)
                 particulars_lines = []
             # Reverse split for last 3 columns (balance, withdrawals, deposits)
@@ -57,5 +97,7 @@ def parse_canara_statement(text: str) -> List[Dict]:
     # Save last transaction
     if current:
         current['particulars'] = '\n'.join(particulars_lines).strip()
+        amount = current['deposits'] if current['deposits'] > 0 else -current['withdrawals']
+        current['category'] = categorize_canara_transaction(current['particulars'], amount)
         transactions.append(current)
     return transactions

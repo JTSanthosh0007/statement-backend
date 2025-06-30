@@ -13,7 +13,7 @@ import time
 import os
 import tempfile
 from parsers.kotak_parser import parse_kotak_statement
-from parsers.phonepe_parser import parse_phonepe_statement
+from parsers.phonepe_parser import parse_phonepe_statement, categorize_transactions
 from parsers.canara_parser import parse_canara_statement
 from starlette.middleware import Middleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
@@ -151,6 +151,7 @@ async def analyze_phonepe_statement(
                     "pageCount": 0
                 }
             transactions = results.get('transactions', [])
+            transactions = categorize_transactions(transactions)
             # Calculate summary
             total_spent = sum(t['amount'] for t in transactions if t['amount'] < 0)
             total_received = sum(t['amount'] for t in transactions if t['amount'] > 0)

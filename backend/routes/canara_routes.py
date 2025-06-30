@@ -14,6 +14,13 @@ def analyze_canara():
     try:
         pdf_contents = file.read()
         file_stream = io.BytesIO(pdf_contents)
+        # Add debug: check if tables are being extracted
+        import pdfplumber
+        with pdfplumber.open(file_stream) as pdf:
+            for i, page in enumerate(pdf.pages):
+                tables = page.extract_tables()
+                print(f"[DEBUG] Page {i+1} Extracted tables: {tables}")
+        # Continue with fitz extraction as before
         import fitz
         doc = fitz.open(stream=pdf_contents, filetype="pdf")
         text = "\n".join([page.get_text() for page in doc])
