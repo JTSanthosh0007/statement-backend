@@ -399,7 +399,12 @@ const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({ setCurrentVie
         <div className="bg-zinc-900/80 rounded-2xl p-6 mb-4 border border-zinc-800/50">
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 bg-zinc-800 rounded-full flex items-center justify-center">
-              <span className="text-2xl text-white">{profile?.full_name?.charAt(0) || 'U'}</span>
+              {/* User silhouette SVG */}
+              <svg viewBox="0 0 100 100" width="60" height="60">
+                <circle cx="50" cy="50" r="50" fill="#d1d5db" />
+                <circle cx="50" cy="38" r="18" fill="#fff" />
+                <ellipse cx="50" cy="72" rx="28" ry="18" fill="#fff" />
+              </svg>
             </div>
             <div>
               <button className="bg-white text-black px-4 py-2 rounded-lg text-sm font-medium">
@@ -488,9 +493,12 @@ const SettingsView: React.FC<SettingsViewProps> = ({ setCurrentView, setIsSearch
         <div className="bg-gray-800 p-4 rounded-lg mb-4">
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center">
-              <span className="text-xl text-white">
-                {profile?.full_name?.charAt(0) || 'U'}
-              </span>
+              {/* User silhouette SVG */}
+              <svg viewBox="0 0 100 100" width="36" height="36">
+                <circle cx="50" cy="50" r="50" fill="#d1d5db" />
+                <circle cx="50" cy="38" r="18" fill="#fff" />
+                <ellipse cx="50" cy="72" rx="28" ry="18" fill="#fff" />
+              </svg>
             </div>
             <div>
               <h2 className="text-lg font-semibold text-white">{profile?.full_name || 'User'}</h2>

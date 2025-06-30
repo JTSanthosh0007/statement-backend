@@ -110,43 +110,47 @@ def parse_phonepe_statement(pdf_path: str) -> Dict[str, Any]:
         'pageCount': page_count
     }
 
-def categorize_phonepe_transaction(details, amount):
-    details = details.lower()
-    print("[DEBUG] Transaction details for categorization:", details)  # Debug print
-    # Kotak-style rules
-    if 'salary' in details:
-        return 'income'
-    if 'swiggy' in details or 'zomato' in details or 'restaurant' in details:
-        return 'food'
-    if 'upi' in details or 'imps' in details or 'neft' in details:
-        return 'transfer'
-    if 'atm' in details or 'cash withdrawal' in details:
-        return 'transfer'
-    if 'pos ' in details or 'pos/' in details:
-        return 'shopping'
-    if 'emi' in details or 'loan' in details:
-        return 'finance'
+def categorize_phonepe_transaction(description, amount):
+    description = description.lower()
+    # Comprehensive categories
     categories = {
-        'food': ['restaurant', 'food', 'swiggy', 'zomato', 'dining', 'cafe', 'hotel'],
-        'shopping': ['amazon', 'flipkart', 'myntra', 'retail', 'store', 'shop', 'mall'],
-        'travel': ['uber', 'ola', 'metro', 'petrol', 'fuel', 'travel', 'irctc', 'railway'],
-        'bills': ['electricity', 'water', 'gas', 'mobile', 'phone', 'internet', 'dth', 'recharge'],
-        'entertainment': ['movie', 'netflix', 'prime', 'hotstar', 'subscription'],
-        'finance': ['emi', 'loan', 'interest', 'insurance', 'premium', 'investment'],
-        'health': ['hospital', 'doctor', 'medical', 'pharmacy', 'medicine'],
-        'education': ['school', 'college', 'tuition', 'course', 'fee'],
-        'income': ['salary', 'interest earned', 'dividend', 'refund', 'cashback'],
-        'transfer': ['transfer', 'sent', 'received', 'payment', 'deposit', 'withdraw']
+        'Food & Dining': ['food', 'restaurant', 'cafe', 'coffee', 'swiggy', 'zomato', 'hotel', 'eatery', 'kitchen', 'dine', 'meal', 'lunch', 'dinner', 'breakfast'],
+        'Shopping': ['amazon', 'flipkart', 'myntra', 'shop', 'store', 'retail', 'purchase', 'buy', 'mart', 'mall', 'bazaar', 'market'],
+        'Transportation': ['uber', 'ola', 'metro', 'bus', 'train', 'flight', 'airline', 'travel', 'taxi', 'cab', 'auto', 'rickshaw', 'petrol', 'diesel', 'fuel'],
+        'Entertainment': ['movie', 'theatre', 'netflix', 'prime', 'hotstar', 'disney', 'show', 'concert', 'event', 'ticket', 'game', 'gaming', 'play'],
+        'Bills & Utilities': ['electricity', 'water', 'gas', 'internet', 'mobile', 'phone', 'bill', 'recharge', 'dth', 'broadband', 'wifi', 'utility', 'service'],
+        'Health & Medical': ['hospital', 'clinic', 'pharmacy', 'medical', 'doctor', 'health', 'medicine', 'drug', 'healthcare', 'dental', 'lab', 'test'],
+        'Education': ['school', 'college', 'university', 'course', 'training', 'class', 'tuition', 'education', 'learning', 'study', 'book', 'stationery'],
+        'Travel': ['hotel', 'booking', 'trip', 'travel', 'tour', 'vacation', 'holiday', 'resort', 'stay', 'accommodation'],
+        'Personal Care': ['salon', 'spa', 'beauty', 'gym', 'fitness', 'parlour', 'cosmetics', 'grooming', 'wellness'],
+        'Investments': ['investment', 'mutual fund', 'stock', 'share', 'equity', 'demat', 'trading', 'portfolio', 'dividend', 'interest'],
+        'Insurance': ['insurance', 'policy', 'premium', 'coverage', 'claim', 'life', 'health', 'vehicle'],
+        'Rent': ['rent', 'lease', 'housing', 'accommodation', 'property'],
+        'EMI & Loans': ['emi', 'loan', 'credit', 'finance', 'installment', 'repayment'],
+        'Gifts & Donations': ['gift', 'donation', 'charity', 'contribute', 'present', 'offering'],
+        'Taxes & Fees': ['tax', 'gst', 'fee', 'charge', 'penalty', 'fine'],
+        'Transfer': ['transfer', 'sent', 'received', 'upi', 'phonepe', 'gpay', 'paytm', 'payment', 'pay', 'wallet'],
     }
-    for category, keywords in categories.items():
-        if any(keyword in details for keyword in keywords):
+    # PhonePe specific merchants and categories
+    phonepe_categories = {
+        'Food & Dining': ['swiggy', 'zomato', 'dominos', 'pizza', 'food', 'restaurant', 'cafe', 'dhaba', 'kitchen'],
+        'Shopping': ['amazon', 'flipkart', 'myntra', 'ajio', 'meesho', 'tatacliq', 'nykaa', 'bigbasket', 'grofers', 'blinkit', 'zepto'],
+        'Transportation': ['uber', 'ola', 'rapido', 'yulu', 'metro', 'irctc', 'makemytrip', 'redbus', 'goibibo'],
+        'Entertainment': ['bookmyshow', 'netflix', 'primevideo', 'hotstar', 'disney', 'sony', 'zee5', 'jiocinema'],
+        'Bills & Utilities': ['jio', 'airtel', 'vodafone', 'vi', 'bsnl', 'tata power', 'adani', 'bescom', 'tangedco', 'mahadiscom', 'recharge'],
+    }
+    # First check for PhonePe specific merchants
+    for category, keywords in phonepe_categories.items():
+        if any(keyword in description for keyword in keywords):
             return category
-    if amount and amount > 10000:
-        if amount > 0:
-            return 'income'
-        else:
-            return 'finance'
-    return 'Uncategorized'  # Always return a non-empty string
+    # Then check general categories
+    for category, keywords in categories.items():
+        if any(keyword in description for keyword in keywords):
+            return category
+    # Default category
+    if 'received' in description or 'refund' in description or 'cashback' in description:
+        return 'Income'
+    return 'Others'
 
 def categorize_transactions(transactions):
     for transaction in transactions:
