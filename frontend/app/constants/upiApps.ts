@@ -17,7 +17,7 @@ export const UPI_APPS: UPIApp[] = [
     shortName: 'SBI',
     description: 'India\'s largest public sector bank',
     category: 'public',
-    available: false,
+    available: true,
     bankCode: 'SBI'
   },
   {
@@ -406,11 +406,11 @@ export const UPI_APPS: UPIApp[] = [
 
 export const getAppsByCategory = (category?: UPIApp['category']) => {
   let apps = UPI_APPS;
-  
+
   if (category) {
     return apps.filter(app => app.category === category);
   }
-  
+
   return apps;
 };
 
@@ -419,15 +419,15 @@ export const findAppById = (id: string) => {
 };
 
 export const findAppByName = (name: string): UPIApp | undefined => {
-  return UPI_APPS.find(app => 
-    app.name.toLowerCase() === name.toLowerCase() || 
+  return UPI_APPS.find(app =>
+    app.name.toLowerCase() === name.toLowerCase() ||
     app.shortName?.toLowerCase() === name.toLowerCase()
   );
 };
 
 export const searchApps = (query: string): UPIApp[] => {
   const searchTerms = query.toLowerCase().trim().split(/\s+/);
-  
+
   return UPI_APPS.filter(app => {
     const searchableText = [
       app.name.toLowerCase(),
@@ -468,14 +468,14 @@ export const searchApps = (query: string): UPIApp[] => {
 // Helper function to get search suggestions
 export const getSearchSuggestions = (query: string): string[] => {
   if (!query.trim()) return [];
-  
+
   const results = searchApps(query);
   const suggestions: string[] = [];
-  
+
   results.forEach(app => {
     suggestions.push(app.name);
     if (app.shortName) suggestions.push(app.shortName);
-    
+
     // Add bank-specific suggestions
     if (['public', 'private', 'small-finance', 'regional-rural'].includes(app.category)) {
       suggestions.push(`${app.name} UPI`);
@@ -483,7 +483,7 @@ export const getSearchSuggestions = (query: string): string[] => {
       if (app.bankCode) suggestions.push(app.bankCode);
     }
   });
-  
+
   // Remove duplicates and sort
   return [...new Set(suggestions)]
     .sort((a, b) => a.length - b.length)
