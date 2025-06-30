@@ -1154,12 +1154,28 @@ export const PhonePeAnalysisView: React.FC<{
                       .map(([category, cat], idx) => {
                         const color = CATEGORY_COLORS[category] || CATEGORY_COLORS.Default;
                         return (
-                          <div key={category} className="flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-2">
-                              <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: color }}></span>
-                              <span className="text-zinc-300">{category}</span>
+                          <div key={category} className="mb-4">
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center gap-2">
+                                <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: color }}></span>
+                                <span className="font-medium text-white">{category}</span>
+                              </div>
+                              <span className="font-semibold text-white">₹{Math.abs(cat.amount).toLocaleString()}</span>
                             </div>
-                            <span className="text-zinc-400">₹{Math.abs(cat.amount).toLocaleString()}</span>
+                            <div className="flex items-center justify-between text-xs text-zinc-400 mb-1">
+                              <span>{cat.count} txns</span>
+                              <span>{cat.percentage?.toFixed(1) ?? 0}%</span>
+                            </div>
+                            <div className="w-full h-2 bg-zinc-800 rounded-full">
+                              <div
+                                className="h-2 rounded-full"
+                                style={{
+                                  width: `${cat.percentage ?? 0}%`,
+                                  backgroundColor: color,
+                                  transition: 'width 0.5s'
+                                }}
+                              />
+                            </div>
                           </div>
                         );
                       })}
