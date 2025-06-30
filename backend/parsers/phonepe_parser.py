@@ -112,6 +112,7 @@ def parse_phonepe_statement(pdf_path: str) -> Dict[str, Any]:
 
 def categorize_phonepe_transaction(details, amount):
     details = details.lower()
+    print("[DEBUG] Transaction details for categorization:", details)  # Debug print
     # Kotak-style rules
     if 'salary' in details:
         return 'income'
@@ -145,7 +146,7 @@ def categorize_phonepe_transaction(details, amount):
             return 'income'
         else:
             return 'finance'
-    return 'miscellaneous expenses'
+    return 'Uncategorized'  # Always return a non-empty string
 
 def categorize_transactions(transactions):
     for transaction in transactions:

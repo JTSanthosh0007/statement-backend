@@ -63,19 +63,16 @@ def parse_canara_statement(text: str) -> List[Dict]:
             # Save previous transaction if any
             if current:
                 current['particulars'] = '\n'.join(particulars_lines).strip()
-                # Assign category using robust logic
                 amount = current['deposits'] if current['deposits'] > 0 else -current['withdrawals']
                 current['category'] = categorize_canara_transaction(current['particulars'], amount)
                 transactions.append(current)
                 particulars_lines = []
             # Reverse split for last 3 columns (balance, withdrawals, deposits)
             parts = re.split(r'\s{2,}|\t+', line)
-            # Remove empty strings
             parts = [p for p in parts if p.strip()]
             if len(parts) < 5:
                 continue  # Not a valid transaction line
             date = parts[0]
-            # The last three are always deposits, withdrawals, balance (may be empty)
             balance = parts[-1]
             withdrawals = parts[-2]
             deposits = parts[-3]

@@ -176,18 +176,18 @@ async def analyze_phonepe_statement(
                 lowest_amount = 0
                 highest_transaction = None
                 lowest_transaction = None
-            # Build category breakdown (optional, can be extended)
+            # Build category breakdown (include all categories, both positive and negative amounts)
             category_map = {}
+            total_amount = sum(abs(t['amount']) for t in transactions)
             for t in transactions:
                 cat = t.get('category', t.get('type', 'Others'))
                 if cat not in category_map:
                     category_map[cat] = {'amount': 0, 'count': 0}
-                category_map[cat]['amount'] += abs(t['amount']) if t['amount'] < 0 else 0
-                if t['amount'] < 0:
-                    category_map[cat]['count'] += 1
+                category_map[cat]['amount'] += abs(t['amount'])
+                category_map[cat]['count'] += 1
             for cat in category_map:
                 amt = category_map[cat]['amount']
-                category_map[cat]['percentage'] = (amt / abs(total_spent) * 100) if total_spent else 0
+                category_map[cat]['percentage'] = (amt / total_amount * 100) if total_amount else 0
             page_count = results.get('pageCount', 0)
             return {
                 "transactions": transactions,

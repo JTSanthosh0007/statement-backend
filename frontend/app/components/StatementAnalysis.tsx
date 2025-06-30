@@ -1041,11 +1041,15 @@ export const PhonePeAnalysisView: React.FC<{
                             maintainAspectRatio: false,
                             plugins: {
                               legend: {
-                                position: 'right' as const,
+                                position: 'right',
                                 labels: {
                                   color: 'white',
-                                  font: { size: 12 },
-                                  padding: 20,
+                                  font: { size: 16, weight: 'bold' },
+                                  padding: 30,
+                                  boxWidth: 30,
+                                  boxHeight: 20,
+                                  // Add maxWidth to allow wrapping if supported by your chart library
+                                  // maxWidth: 200,
                                 },
                               },
                               tooltip: {
@@ -1079,9 +1083,9 @@ export const PhonePeAnalysisView: React.FC<{
                               labels: {
                                 color: 'white',
                                 font: {
-                                  size: 12
+                                  size: 16
                                 },
-                                padding: 20
+                                padding: 30
                               }
                             },
                             tooltip: {
@@ -1454,12 +1458,16 @@ export const PhonePeAnalysisView: React.FC<{
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'right' as const,
+        position: 'right',
         labels: {
           color: 'white',
-          font: { size: 12 },
-          padding: 20,
-        },
+          font: { size: 16, weight: 'bold' },
+          padding: 30,
+          boxWidth: 30,
+          boxHeight: 20,
+          // Add maxWidth to allow wrapping if supported by your chart library
+          // maxWidth: 200,
+        }
       },
       tooltip: {
         callbacks: {
@@ -1657,11 +1665,15 @@ export const KotakAnalysisView: React.FC<{
                             maintainAspectRatio: false,
                             plugins: {
                               legend: {
-                                position: 'right' as const,
+                                position: 'right',
                                 labels: {
                                   color: 'white',
-                                  font: { size: 12 },
-                                  padding: 20,
+                                  font: { size: 16, weight: 'bold' },
+                                  padding: 30,
+                                  boxWidth: 30,
+                                  boxHeight: 20,
+                                  // Add maxWidth to allow wrapping if supported by your chart library
+                                  // maxWidth: 200,
                                 },
                               },
                               tooltip: {
@@ -1695,9 +1707,9 @@ export const KotakAnalysisView: React.FC<{
                               labels: {
                                 color: 'white',
                                 font: {
-                                  size: 12
+                                  size: 16
                                 },
-                                padding: 20
+                                padding: 30
                               }
                             },
                             tooltip: {
