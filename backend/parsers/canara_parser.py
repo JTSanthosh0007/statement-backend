@@ -46,6 +46,7 @@ def parse_canara_statement(text: str) -> List[Dict]:
     - Particulars and amounts may be on subsequent lines
     - Skips 'Opening Balance' lines
     - Correctly parses amounts even if on a separate line
+    - Handles up to two consecutive lines with numbers for amount and balance
     """
     logging.basicConfig(filename='canara_parser_debug.log', level=logging.INFO, format='%(asctime)s %(message)s')
     logging.info('Extracted PDF text:\n' + text)
@@ -55,11 +56,12 @@ def parse_canara_statement(text: str) -> List[Dict]:
     current = None
     particulars_lines = []
     date_pattern = re.compile(r"^(\d{2}-\d{2}-\d{4})")
-    amount_line_pattern = re.compile(r"^(?P<deposits>[\d,]+\.\d{2})?\s*(?P<withdrawals>[\d,]+\.\d{2})?\s*(?P<balance>[\d,]+\.\d{2})$")
+    number_pattern = re.compile(r"^[\d,]+\.\d{2}$")
     opening_balance_line = re.compile(r"Opening Balance", re.IGNORECASE)
 
-    for idx, line in enumerate(lines):
-        line = line.strip()
+    idx = 0
+    while idx < len(lines):
+        line = lines[idx].strip()
         date_match = date_pattern.match(line)
         if date_match:
             # Save previous transaction if any
@@ -76,6 +78,7 @@ def parse_canara_statement(text: str) -> List[Dict]:
             if opening_balance_line.search(particulars):
                 current = None
                 particulars_lines = []
+                idx += 1
                 continue
             current = {
                 'date': date,
@@ -88,24 +91,55 @@ def parse_canara_statement(text: str) -> List[Dict]:
                 particulars_lines = [particulars]
             else:
                 particulars_lines = []
-        elif current:
-            # Check if this line is an amount line (deposits, withdrawals, balance)
-            amt_match = amount_line_pattern.match(line.replace(',', '').replace('  ', ' '))
-            if amt_match:
-                try:
-                    deposits = amt_match.group('deposits')
-                    withdrawals = amt_match.group('withdrawals')
-                    balance = amt_match.group('balance')
-                    current['deposits'] = float(deposits.replace(',', '')) if deposits else 0.0
-                    current['withdrawals'] = float(withdrawals.replace(',', '')) if withdrawals else 0.0
-                    current['balance'] = float(balance.replace(',', '')) if balance else 0.0
-                except Exception as e:
-                    logging.error(f"Error parsing amounts on line {idx+1}: {line} | Error: {e}")
-            elif opening_balance_line.search(line):
-                continue
-            else:
-                # Multi-line particulars
-                particulars_lines.append(line)
+            idx += 1
+            # Collect particulars until we hit a number line or next date
+            while idx < len(lines):
+                next_line = lines[idx].strip()
+                if date_pattern.match(next_line):
+                    break
+                if number_pattern.match(next_line):
+                    # This is likely an amount or balance line
+                    # Check if the next line is also a number (for balance)
+                    amount_val = float(next_line.replace(',', ''))
+                    deposits = withdrawals = 0.0
+                    balance = 0.0
+                    lookahead = idx + 1
+                    if lookahead < len(lines) and number_pattern.match(lines[lookahead].strip()):
+                        # Two consecutive number lines: first is amount, second is balance
+                        balance_val = float(lines[lookahead].strip().replace(',', ''))
+                        # Heuristic: if particulars contain 'CR' or 'credit', treat as deposit
+                        if 'CR' in '\n'.join(particulars_lines).upper() or 'DEPOSIT' in '\n'.join(particulars_lines).upper():
+                            deposits = amount_val
+                        else:
+                            withdrawals = amount_val
+                        balance = balance_val
+                        idx += 1  # Skip the balance line
+                        logging.info(f"Extracted: deposits={deposits}, withdrawals={withdrawals}, balance={balance}")
+                    else:
+                        # Only one number line: could be balance or amount
+                        # Heuristic: if particulars contain 'CR' or 'credit', treat as deposit
+                        if 'CR' in '\n'.join(particulars_lines).upper() or 'DEPOSIT' in '\n'.join(particulars_lines).upper():
+                            deposits = amount_val
+                        elif 'DR' in '\n'.join(particulars_lines).upper() or 'WITHDRAWAL' in '\n'.join(particulars_lines).upper():
+                            withdrawals = amount_val
+                        else:
+                            # If we can't tell, treat as balance
+                            balance = amount_val
+                        logging.info(f"Extracted (single line): deposits={deposits}, withdrawals={withdrawals}, balance={balance}")
+                    current['deposits'] = deposits
+                    current['withdrawals'] = withdrawals
+                    current['balance'] = balance
+                    idx += 1
+                    continue
+                elif opening_balance_line.search(next_line):
+                    idx += 1
+                    continue
+                else:
+                    particulars_lines.append(next_line)
+                    idx += 1
+            continue  # Go to next line (date or end)
+        else:
+            idx += 1
     # Save last transaction
     if current:
         current['particulars'] = '\n'.join(particulars_lines).strip()
