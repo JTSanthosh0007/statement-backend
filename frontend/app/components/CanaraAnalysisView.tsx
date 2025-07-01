@@ -19,6 +19,41 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Bills': '#3B82F6', 'Entertainment': '#EF4444', 'Food': '#22C55E', 'Salary': '#A855F7', 'Health': '#10B981', 'Utilities': '#64748B', 'Default': '#64748B',
 };
 
+// Add a shared TransactionSummaryCard component (copied from StatementAnalysis.tsx)
+const TransactionSummaryCard: React.FC<{ summary: any; pageCount: number }> = ({ summary, pageCount }) => (
+  <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
+    <h3 className="text-lg font-medium text-white mb-4">Transaction Summary</h3>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div className="bg-zinc-800/50 p-4 rounded-xl">
+        <p className="text-sm text-zinc-400">Total Received (CR)</p>
+        <p className="text-xl font-medium text-green-400">₹{(summary?.totalReceived ?? 0).toLocaleString()}</p>
+      </div>
+      <div className="bg-zinc-800/50 p-4 rounded-xl">
+        <p className="text-sm text-zinc-400">Total Spent (DR)</p>
+        <p className="text-xl font-medium text-red-400">₹{Math.abs(summary?.totalSpent ?? 0).toLocaleString()}</p>
+      </div>
+      <div className="bg-zinc-800/50 p-4 rounded-xl">
+        <p className="text-sm text-zinc-400">Total Amount</p>
+        <p className="text-xl font-medium text-white">₹{((summary?.totalReceived ?? 0) + Math.abs(summary?.totalSpent ?? 0)).toLocaleString()}</p>
+      </div>
+    </div>
+    <div className="flex justify-between items-center mt-1">
+      <p className="text-xs text-zinc-500">Total {summary?.totalTransactions} transactions</p>
+      <p className="text-xs text-zinc-500">{pageCount} pages</p>
+    </div>
+    <div className="grid grid-cols-2 gap-2 mt-4">
+      <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
+        <span className="text-xs text-zinc-400">Total Credit Transactions</span>
+        <span className="text-lg font-bold text-green-400">{summary?.creditCount ?? 0}</span>
+      </div>
+      <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
+        <span className="text-xs text-zinc-400">Total Debit Transactions</span>
+        <span className="text-lg font-bold text-red-400">{summary?.debitCount ?? 0}</span>
+      </div>
+    </div>
+  </div>
+);
+
 export const CanaraAnalysisView: React.FC<{
   setCurrentView: (view: View) => void;
   selectedFile: File | null;
@@ -126,45 +161,9 @@ export const CanaraAnalysisView: React.FC<{
           )}
           {analysisState === 'results' && analysisResults && (
             <div className="p-4 space-y-6">
-              {/* Account Analysis Section */}
-              {analysisResults.accounts && analysisResults.accounts.length > 0 && (
-                <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-                  <h3 className="text-lg font-medium text-white mb-4">Account Analysis</h3>
-                  <AccountAnalysis accounts={analysisResults.accounts} />
-                </div>
-              )}
-              {/* Summary Cards */}
-              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-                <h3 className="text-lg font-medium text-white mb-4">Transaction Summary</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <div className="bg-zinc-800/50 p-4 rounded-xl">
-                    <p className="text-sm text-zinc-400">Total Received (CR)</p>
-                    <p className="text-xl font-medium text-green-400">₹{(analysisResults.summary?.totalReceived ?? 0).toLocaleString()}</p>
-                  </div>
-                  <div className="bg-zinc-800/50 p-4 rounded-xl">
-                    <p className="text-sm text-zinc-400">Total Spent (DR)</p>
-                    <p className="text-xl font-medium text-red-400">₹{Math.abs(analysisResults.summary?.totalSpent ?? 0).toLocaleString()}</p>
-                  </div>
-                  <div className="bg-zinc-800/50 p-4 rounded-xl">
-                    <p className="text-sm text-zinc-400">Total Amount</p>
-                    <p className="text-xl font-medium text-white">₹{((analysisResults.summary?.totalReceived ?? 0) + Math.abs(analysisResults.summary?.totalSpent ?? 0)).toLocaleString()}</p>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center mt-1">
-                  <p className="text-xs text-zinc-500">Total {analysisResults.summary?.totalTransactions} transactions</p>
-                  <p className="text-xs text-zinc-500">{analysisResults.pageCount} pages</p>
-                </div>
-                <div className="grid grid-cols-2 gap-2 mt-4">
-                  <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
-                    <span className="text-xs text-zinc-400">Total Credit Transactions</span>
-                    <span className="text-lg font-bold text-green-400">{analysisResults.summary?.creditCount ?? 0}</span>
-                  </div>
-                  <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
-                    <span className="text-xs text-zinc-400">Total Debit Transactions</span>
-                    <span className="text-lg font-bold text-red-400">{analysisResults.summary?.debitCount ?? 0}</span>
-                  </div>
-                </div>
-              </div>
+              {/* Summary Card */}
+              <TransactionSummaryCard summary={analysisResults.summary} pageCount={analysisResults.pageCount} />
+
               {/* Highest/Lowest Transaction */}
               {analysisResults.summary?.highestTransaction && (
                 <div className="bg-zinc-800/50 rounded-2xl p-4 mb-4">
@@ -190,6 +189,7 @@ export const CanaraAnalysisView: React.FC<{
                   </div>
                 </div>
               )}
+
               {/* Charts */}
               {mounted && analysisResults.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0 && (
                 <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
@@ -198,32 +198,28 @@ export const CanaraAnalysisView: React.FC<{
                     <button
                       className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'pie' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
                       onClick={() => setSelectedChartType('pie')}
-                    >Pie Chart</button>
+                    >
+                      Pie Chart
+                    </button>
                     <button
                       className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'bar' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
                       onClick={() => setSelectedChartType('bar')}
-                    >Bar Chart</button>
+                    >
+                      Bar Chart
+                    </button>
                     <button
                       className={`px-4 py-2 rounded-lg text-sm font-medium ${selectedChartType === 'doughnut' ? 'bg-blue-600 text-white' : 'bg-zinc-800/50 text-zinc-400'}`}
                       onClick={() => setSelectedChartType('doughnut')}
-                    >Doughnut</button>
+                    >
+                      Doughnut
+                    </button>
                   </div>
                   {selectedChartType === 'pie' && (
                     <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
                       <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                       <div className="h-64">
                         {chartData && chartData.labels && chartData.labels.length > 0 && (
-                          <Chart data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: 'white', font: { size: 12 }, padding: 20 } }, tooltip: { callbacks: { label: function (context) { const label = context.label || ''; const value = context.parsed; return `${label}: ₹${Number(value).toLocaleString()}`; } } } } }} />
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  {selectedChartType === 'bar' && (
-                    <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
-                      <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
-                      <div className="h-64">
-                        {chartData && chartData.labels && chartData.labels.length > 0 && (
-                          <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false, labels: { color: 'white' } } }, scales: { y: { beginAtZero: true, ticks: { color: 'white' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }, x: { ticks: { color: 'white' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } } } }} />
+                          <Chart data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: 'white', font: { size: 16, weight: 'bold' }, padding: 30, boxWidth: 30, boxHeight: 20 } }, tooltip: { callbacks: { label: function (context) { const label = context.label || ''; const value = context.parsed; return `${label}: ₹${Number(value).toLocaleString()}`; } } } } }} />
                         )}
                       </div>
                     </div>
@@ -233,81 +229,23 @@ export const CanaraAnalysisView: React.FC<{
                       <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                       <div className="h-64">
                         {chartData && chartData.labels && chartData.labels.length > 0 && (
-                          <Doughnut
-                            data={chartData}
-                            options={{
-                              responsive: true,
-                              maintainAspectRatio: false,
-                              plugins: {
-                                legend: { position: 'right', labels: { color: 'white', font: { size: 12 }, padding: 20 } },
-                                tooltip: { callbacks: { label: (context: any) => `${context.label}: ${typeof context.parsed === 'number' ? context.parsed.toFixed(1) : context.parsed}%` } }
-                              }
-                            }}
-                          />
+                          <Doughnut data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: 'white', font: { size: 16 }, padding: 30 } }, tooltip: { callbacks: { label: function (context) { return `${context.label}: ${context.parsed.toFixed(1)}%`; } } } } }} />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {selectedChartType === 'bar' && (
+                    <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
+                      <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
+                      <div className="h-64">
+                        {chartData && chartData.labels && chartData.labels.length > 0 && (
+                          <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (context) { const label = context.label || ''; const value = context.parsed.y; return `${label}: ₹${Number(value).toLocaleString()}`; } } } } }} />
                         )}
                       </div>
                     </div>
                   )}
                 </div>
               )}
-              {/* Category Breakdown Section */}
-              {analysisResults.categoryBreakdown && Object.keys(analysisResults.categoryBreakdown).length > 0 ? (
-                <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50 mt-6">
-                  <h3 className="text-lg font-semibold text-white mb-6">Detailed Category Breakdown</h3>
-                  <div className="space-y-4">
-                    {Object.entries(analysisResults.categoryBreakdown)
-                      .sort(([, a], [, b]) => Math.abs(b.amount) - Math.abs(a.amount))
-                      .map(([category, cat], idx) => {
-                        const color = CATEGORY_COLORS[category] || CATEGORY_COLORS.Default;
-                        return (
-                          <div key={category} className="flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-2 min-w-[120px]">
-                              <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: color }}></span>
-                              <span className="text-zinc-300 font-medium">{category}</span>
-                            </div>
-                            <div className="flex-1 mx-2">
-                              <div className="w-full h-2 rounded bg-zinc-800/50">
-                                <div
-                                  className="h-2 rounded"
-                                  style={{ width: `${cat.percentage.toFixed(1)}%`, backgroundColor: color }}
-                                ></div>
-                              </div>
-                            </div>
-                            <span className="text-zinc-400 min-w-[80px] text-right">₹{Math.abs(cat.amount).toLocaleString()}</span>
-                            <span className="text-zinc-400 min-w-[60px] text-right">{cat.percentage.toFixed(1)}%</span>
-                            <span className="text-zinc-400 min-w-[60px] text-right">{cat.count} txns</span>
-                          </div>
-                        );
-                      })}
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50 mt-6 text-zinc-400 text-center">
-                  No categories found
-                </div>
-              )}
-              {/* Recent Transactions */}
-              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-                <h3 className="text-lg font-medium text-white mb-4">Recent Transactions</h3>
-                <div className="space-y-4">
-                  {analysisResults.transactions?.slice(0, 5).map((transaction, index) => (
-                    <div key={index} className="flex justify-between items-center">
-                      <div>
-                        <p className="text-zinc-300">{transaction.description || ''}</p>
-                        <div className="flex items-center justify-between mt-1">
-                          <span className="text-xs text-zinc-400">
-                            {new Date(transaction.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                          </span>
-                          <span className="text-xs text-zinc-500">
-                            {(transaction.category || 'uncategorized').toUpperCase()}
-                          </span>
-                        </div>
-                      </div>
-                      <span className={`font-medium ${transaction.amount >= 0 ? 'text-green-500' : 'text-red-500'}`}>₹{Math.abs(transaction.amount ?? 0).toLocaleString()}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           )}
         </div>
