@@ -41,23 +41,25 @@ def categorize_canara_transaction(description, amount):
 
 def parse_canara_statement(text: str) -> List[Dict]:
     """
-    Robustly parses Canara Bank statement text and returns a list of transactions.
-    Handles multi-line particulars, Opening Balance, and both credit/debit.
-    Uses reverse split for columns to handle inconsistent spacing.
-    Now with improved robustness and debug logging for skipped lines.
+    Parses Canara Bank statement text where:
+    - Each transaction starts with a date (dd-mm-yyyy), which may be on its own line
+    - Particulars and amounts may be on subsequent lines
+    - Skips 'Opening Balance' lines
+    - Correctly parses amounts even if on a separate line
     """
     logging.basicConfig(filename='canara_parser_debug.log', level=logging.INFO, format='%(asctime)s %(message)s')
     logging.info('Extracted PDF text:\n' + text)
-    
+
     lines = text.splitlines()
     transactions = []
     current = None
     particulars_lines = []
     date_pattern = re.compile(r"^(\d{2}-\d{2}-\d{4})")
+    amount_line_pattern = re.compile(r"^(?P<deposits>[\d,]+\.\d{2})?\s*(?P<withdrawals>[\d,]+\.\d{2})?\s*(?P<balance>[\d,]+\.\d{2})$")
     opening_balance_line = re.compile(r"Opening Balance", re.IGNORECASE)
 
     for idx, line in enumerate(lines):
-        line = line.rstrip()
+        line = line.strip()
         date_match = date_pattern.match(line)
         if date_match:
             # Save previous transaction if any
@@ -66,45 +68,51 @@ def parse_canara_statement(text: str) -> List[Dict]:
                 amount = current['deposits'] if current['deposits'] > 0 else -current['withdrawals']
                 current['category'] = categorize_canara_transaction(current['particulars'], amount)
                 transactions.append(current)
+                logging.info(f"Parsed transaction: {current}")
                 particulars_lines = []
-            # Try to split columns more flexibly
-            parts = re.split(r'\s{2,}|\t+', line)
-            parts = [p for p in parts if p.strip()]
-            if len(parts) < 5:
-                # Try splitting by single spaces if not enough columns
-                parts = [p for p in line.split(' ') if p.strip()]
-            if len(parts) < 5:
-                logging.warning(f"Skipped line {idx+1} (not enough columns): {line}")
-                continue  # Not a valid transaction line
-            date = parts[0]
-            balance = parts[-1]
-            withdrawals = parts[-2]
-            deposits = parts[-3]
-            particulars = ' '.join(parts[1:-3])
+            # Start new transaction with just the date
+            date = date_match.group(1)
+            particulars = line[len(date):].strip()
             if opening_balance_line.search(particulars):
+                current = None
+                particulars_lines = []
                 continue
-            try:
-                current = {
-                    'date': date,
-                    'particulars': particulars.strip(),
-                    'deposits': float(deposits.replace(',', '')) if deposits else 0.0,
-                    'withdrawals': float(withdrawals.replace(',', '')) if withdrawals else 0.0,
-                    'balance': float(balance.replace(',', '')) if balance else 0.0,
-                }
-            except Exception as e:
-                logging.error(f"Error parsing line {idx+1}: {line} | Error: {e}")
+            current = {
+                'date': date,
+                'particulars': '',
+                'deposits': 0.0,
+                'withdrawals': 0.0,
+                'balance': 0.0,
+            }
+            if particulars:
+                particulars_lines = [particulars]
+            else:
+                particulars_lines = []
+        elif current:
+            # Check if this line is an amount line (deposits, withdrawals, balance)
+            amt_match = amount_line_pattern.match(line.replace(',', '').replace('  ', ' '))
+            if amt_match:
+                try:
+                    deposits = amt_match.group('deposits')
+                    withdrawals = amt_match.group('withdrawals')
+                    balance = amt_match.group('balance')
+                    current['deposits'] = float(deposits.replace(',', '')) if deposits else 0.0
+                    current['withdrawals'] = float(withdrawals.replace(',', '')) if withdrawals else 0.0
+                    current['balance'] = float(balance.replace(',', '')) if balance else 0.0
+                except Exception as e:
+                    logging.error(f"Error parsing amounts on line {idx+1}: {line} | Error: {e}")
+            elif opening_balance_line.search(line):
                 continue
-            particulars_lines = [particulars.strip()]
-        else:
-            # Multi-line particulars (not a new transaction)
-            if current is not None and line.strip():
-                particulars_lines.append(line.strip())
+            else:
+                # Multi-line particulars
+                particulars_lines.append(line)
     # Save last transaction
     if current:
         current['particulars'] = '\n'.join(particulars_lines).strip()
         amount = current['deposits'] if current['deposits'] > 0 else -current['withdrawals']
         current['category'] = categorize_canara_transaction(current['particulars'], amount)
         transactions.append(current)
+        logging.info(f"Parsed transaction: {current}")
     logging.info(f'Parsed {len(transactions)} transactions: {transactions}')
     return transactions
 
