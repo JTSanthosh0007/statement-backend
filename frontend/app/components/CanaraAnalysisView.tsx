@@ -101,6 +101,10 @@ export const CanaraAnalysisView: React.FC<{
 
     return (
       <div className="min-h-screen bg-black flex flex-col items-center">
+        {/* Canara Bank Logo */}
+        <div className="flex justify-center mb-2">
+          <img src="/canara-bank-logo.png" alt="Canara Bank Logo" className="h-10" />
+        </div>
         {/* Header */}
         <div className="w-full max-w-xl flex items-center gap-3 p-4">
           <button
@@ -117,8 +121,8 @@ export const CanaraAnalysisView: React.FC<{
         <div className="w-full max-w-xl">
           {analysisState === 'upload' && (
             <div className="flex flex-col items-center justify-center p-8 bg-zinc-900/80 rounded-3xl border border-zinc-800/50">
-              <div className="w-16 h-16 bg-[#0072BC]/20 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-[#0072BC]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-[#009DDC]/20 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-[#009DDC]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-3-3v6m9 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -126,7 +130,7 @@ export const CanaraAnalysisView: React.FC<{
               <p className="text-[#0072BC] text-sm mb-6 font-semibold">Upload your Canara bank statement to analyze your spending patterns</p>
               <label
                 htmlFor="canara-upload"
-                className="block w-full border-2 border-dashed border-yellow-400 rounded-2xl p-8 text-center cursor-pointer hover:border-yellow-300 transition-colors"
+                className="block w-full border-2 border-dashed border-[#FFD600] rounded-2xl p-8 text-center cursor-pointer hover:border-yellow-300 transition-colors"
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
               >
@@ -142,11 +146,11 @@ export const CanaraAnalysisView: React.FC<{
                   <span className="text-[#0072BC] font-medium">{selectedFile.name}</span>
                 ) : (
                   <>
-                    <svg className="w-8 h-8 text-[#0072BC] mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-8 h-8 text-[#009DDC] mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 16v-8m0 0l-4 4m4-4l4 4" />
                     </svg>
-                    <p className="text-yellow-400 mb-1 font-semibold">Select the PDF file</p>
-                    <p className="text-blue-300 text-sm">or click to browse</p>
+                    <p className="text-[#FFD600] mb-1 font-semibold">Select the PDF file</p>
+                    <p className="text-[#009DDC] text-sm">or click to browse</p>
                   </>
                 )}
               </label>
