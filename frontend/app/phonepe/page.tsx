@@ -7,7 +7,7 @@ import { AnalysisState, AnalysisResult, View } from '../components/StatementAnal
 
 export default function PhonePePage() {
   const router = useRouter()
-  
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [analysisState, setAnalysisState] = useState<AnalysisState>('upload');
   const [analysisResults, setAnalysisResults] = useState<AnalysisResult | null>(null);
@@ -17,7 +17,7 @@ export default function PhonePePage() {
     try {
       setAnalysisState('analyzing');
       console.log('Starting analysis for file:', file?.name);
-      
+
       const formData = new FormData();
       formData.append('file', file);
 
@@ -82,7 +82,7 @@ export default function PhonePePage() {
   const handleDrop = useCallback(async (event: React.DragEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    
+
     const file = event.dataTransfer.files?.[0];
     console.log('File dropped:', file?.name);
     if (file && file.type === 'application/pdf') {
@@ -98,7 +98,7 @@ export default function PhonePePage() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col justify-center items-center">
-      <PhonePeAnalysisView 
+      <PhonePeAnalysisView
         setCurrentView={() => router.push('/')}
         selectedFile={selectedFile}
         analysisState={analysisState}
@@ -108,9 +108,6 @@ export default function PhonePePage() {
         handleDrop={handleDrop}
         fileInputRef={fileInputRef}
       />
-      <div className="mt-6 p-3 rounded-lg bg-yellow-900/40 text-yellow-300 text-center font-medium w-fit mx-auto">
-        PDF page limit is <span className="font-bold">50</span>. If your statement has more than 50 pages, please upgrade to the <span className="font-bold">Pro version</span>.
-      </div>
     </div>
   )
 } 
