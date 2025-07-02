@@ -41,9 +41,10 @@ export const UPI_APPS: UPIApp[] = [
   {
     id: 'canara',
     name: 'Canara Bank',
+    shortName: 'CANARA',
     description: 'Major public sector bank',
     category: 'public',
-    available: false,
+    available: true,
     bankCode: 'CNRB'
   },
 
