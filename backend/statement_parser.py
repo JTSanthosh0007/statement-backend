@@ -89,6 +89,7 @@ class StatementParser:
         ]
         amount_pattern = r'(?:₹|Rs|INR)?\s*(\d+(?:,\d+)*(?:\.\d{2})?)'
 
+        print("[DEBUG] PhonePe PDF lines:")
         for line in lines:
             line = line.strip()
             if not line:
@@ -98,6 +99,7 @@ class StatementParser:
             if any(header in line.lower() for header in ['statement', 'page', 'transaction id', 'opening balance', 'closing balance']):
                 continue
             
+            print(f"[DEBUG] Parsing line: {line}")
             date_match = None
             for pattern in date_patterns:
                 match = re.search(pattern, line)
@@ -120,14 +122,17 @@ class StatementParser:
                     except ValueError:
                         date = pd.Timestamp.now()
                     
-                    all_transactions.append({
+                    transaction = {
                         'date': date,
                         'description': line,
                         'amount': amount,
                         'category': self._categorize_transaction(line)
-                    })
+                    }
+                    print(f"[DEBUG] Extracted transaction: {transaction}")
+                    all_transactions.append(transaction)
         
         if not all_transactions:
+            print("[DEBUG] No transactions extracted from PhonePe statement.")
             logger.warning("No transactions extracted from PhonePe statement.")
             return pd.DataFrame()
 
