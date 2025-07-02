@@ -29,15 +29,7 @@ export default function SearchPage() {
   }
 
   const handleAppClick = (app: any) => {
-    if (app.id === 'phonepe') {
-      router.push('/phonepe')
-    } else if (app.id === 'kotak') {
-      router.push('/kotak')
-    } else if (app.id === 'paytm') {
-      router.push('/paytm')
-    } else {
-      router.push('/banks')
-    }
+    router.push('/' + app.id)
   }
 
   return (
