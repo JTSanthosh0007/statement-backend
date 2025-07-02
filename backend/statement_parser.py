@@ -89,7 +89,6 @@ class StatementParser:
         ]
         amount_pattern = r'(?:₹|Rs|INR)?\s*(\d+(?:,\d+)*(?:\.\d{2})?)'
 
-        print("[DEBUG] PhonePe PDF lines:")
         for line in lines:
             line = line.strip()
             if not line:
@@ -99,7 +98,6 @@ class StatementParser:
             if any(header in line.lower() for header in ['statement', 'page', 'transaction id', 'opening balance', 'closing balance']):
                 continue
             
-            print(f"[DEBUG] Parsing line: {line}")
             date_match = None
             for pattern in date_patterns:
                 match = re.search(pattern, line)
@@ -122,17 +120,14 @@ class StatementParser:
                     except ValueError:
                         date = pd.Timestamp.now()
                     
-                    transaction = {
+                    all_transactions.append({
                         'date': date,
                         'description': line,
                         'amount': amount,
                         'category': self._categorize_transaction(line)
-                    }
-                    print(f"[DEBUG] Extracted transaction: {transaction}")
-                    all_transactions.append(transaction)
+                    })
         
         if not all_transactions:
-            print("[DEBUG] No transactions extracted from PhonePe statement.")
             logger.warning("No transactions extracted from PhonePe statement.")
             return pd.DataFrame()
 
@@ -409,6 +404,46 @@ def main():
         debit_count = len(df[df['amount'] < 0])
         logger.info("Summary statistics calculated.")
         
+        # Calculate highest and lowest transaction
+        if not df.empty:
+            # Exclude zero-amount transactions
+            nonzero_df = df[df['amount'] != 0]
+            if not nonzero_df.empty:
+                # Highest (by absolute value)
+                highest_idx = nonzero_df['amount'].abs().idxmax()
+                highest_row = nonzero_df.loc[highest_idx]
+                summary_highest = {
+                    'date': str(highest_row['date']),
+                    'amount': float(highest_row['amount']),
+                    'description': str(highest_row['description'])
+                }
+                highest_amount = float(highest_row['amount'])
+                # Lowest (by absolute value, but not the same as highest)
+                # If only one transaction, lowest = highest
+                if len(nonzero_df) > 1:
+                    # Remove the highest row and find the next lowest
+                    rest_df = nonzero_df.drop(highest_idx)
+                    lowest_idx = rest_df['amount'].abs().idxmin()
+                    lowest_row = rest_df.loc[lowest_idx]
+                else:
+                    lowest_row = highest_row
+                summary_lowest = {
+                    'date': str(lowest_row['date']),
+                    'amount': float(lowest_row['amount']),
+                    'description': str(lowest_row['description'])
+                }
+                lowest_amount = float(lowest_row['amount'])
+            else:
+                summary_highest = None
+                highest_amount = 0
+                summary_lowest = None
+                lowest_amount = 0
+        else:
+            summary_highest = None
+            highest_amount = 0
+            summary_lowest = None
+            lowest_amount = 0
+        
         logger.info("Calculating category breakdown...")
         # Calculate category breakdown
         category_breakdown = {}
@@ -451,7 +486,11 @@ def main():
                 'balance': total_received + total_spent,
                 'creditCount': credit_count,
                 'debitCount': debit_count,
-                'totalTransactions': len(df)
+                'totalTransactions': len(df),
+                'highestAmount': highest_amount,
+                'lowestAmount': lowest_amount,
+                'highestTransaction': summary_highest,
+                'lowestTransaction': summary_lowest
             },
             'categoryBreakdown': category_breakdown,
             'chartData': chart_data,
