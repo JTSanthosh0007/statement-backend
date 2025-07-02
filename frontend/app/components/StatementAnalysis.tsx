@@ -1353,13 +1353,18 @@ export const PhonePeAnalysisView: React.FC<{
                       onChange={handleFileSelect}
                     />
                     <ArrowUpTrayIcon className="w-8 h-8 text-purple-400 mx-auto mb-3" />
-                    <p className="text-zinc-200 mb-1 font-medium">Drop your PhonePe statement PDF here</p>
-                    <p className="text-zinc-400 text-sm">or <span className="underline text-purple-300">click to browse</span></p>
+                    <button
+                      type="button"
+                      className="mt-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                      onClick={() => document.getElementById('fileInput')?.click()}
+                    >
+                      Select the PDF file
+                    </button>
                   </div>
                   <div className="mt-5 text-xs text-zinc-400">
                     <p>Only <span className="text-purple-300 font-semibold">PDF</span> files are supported.</p>
                     <p className="mt-1">Your data is processed securely and never stored.</p>
-                    <a href="/sample-phonepe-statement.pdf" target="_blank" rel="noopener noreferrer" className="block mt-2 text-purple-300 underline">View sample statement</a>
+                    {/* Removed: <a href="/sample-phonepe-statement.pdf" target="_blank" rel="noopener noreferrer" className="block mt-2 text-purple-300 underline">View sample statement</a> */}
                   </div>
                 </div>
               </div>
@@ -1883,13 +1888,18 @@ export const KotakAnalysisView: React.FC<{
                       onChange={handleFileSelect}
                     />
                     <ArrowUpTrayIcon className="w-8 h-8 text-purple-400 mx-auto mb-3" />
-                    <p className="text-zinc-200 mb-1 font-medium">Drop your PhonePe statement PDF here</p>
-                    <p className="text-zinc-400 text-sm">or <span className="underline text-purple-300">click to browse</span></p>
+                    <button
+                      type="button"
+                      className="mt-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                      onClick={() => document.getElementById('fileInput')?.click()}
+                    >
+                      Select the PDF file
+                    </button>
                   </div>
                   <div className="mt-5 text-xs text-zinc-400">
                     <p>Only <span className="text-purple-300 font-semibold">PDF</span> files are supported.</p>
                     <p className="mt-1">Your data is processed securely and never stored.</p>
-                    <a href="/sample-phonepe-statement.pdf" target="_blank" rel="noopener noreferrer" className="block mt-2 text-purple-300 underline">View sample statement</a>
+                    {/* Removed: <a href="/sample-phonepe-statement.pdf" target="_blank" rel="noopener noreferrer" className="block mt-2 text-purple-300 underline">View sample statement</a> */}
                   </div>
                 </div>
               </div>
