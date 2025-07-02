@@ -106,14 +106,43 @@ class StatementParser:
                 df = df[df['amount'].abs() > 0]
                 df = df.drop_duplicates(subset=['date', 'amount', 'description'])
                 df = df.sort_values('date')
-                return df
+
+                # Find highest and lowest transaction (by absolute value, excluding 0)
+                if not df.empty:
+                    # Highest (largest credit or debit by absolute value)
+                    highest_row = df.loc[df['amount'].abs().idxmax()]
+                    lowest_row = df.loc[df['amount'].abs().idxmin()]
+
+                    summary = {
+                        'highestAmount': float(highest_row['amount']),
+                        'highestTransaction': {
+                            'date': str(highest_row['date']),
+                            'amount': float(highest_row['amount']),
+                            'description': str(highest_row['description'])
+                        },
+                        'lowestAmount': float(lowest_row['amount']),
+                        'lowestTransaction': {
+                            'date': str(lowest_row['date']),
+                            'amount': float(lowest_row['amount']),
+                            'description': str(lowest_row['description'])
+                        }
+                    }
+                else:
+                    summary = {
+                        'highestAmount': 0,
+                        'highestTransaction': None,
+                        'lowestAmount': 0,
+                        'lowestTransaction': None
+                    }
+
+                return df, summary
             else:
                 logger.warning("No transactions found after parsing all pages.")
-                return pd.DataFrame(columns=['date', 'amount', 'description', 'category'])
+                return pd.DataFrame(columns=['date', 'amount', 'description', 'category']), {}
 
         except Exception as e:
             logger.error(f"PDF parsing error: {str(e)}\n{traceback.format_exc()}")
-            return pd.DataFrame(columns=['date', 'amount', 'description', 'category'])
+            return pd.DataFrame(columns=['date', 'amount', 'description', 'category']), {}
 
     def _parse_date(self, date_str):
         """Parse date string into datetime object"""
@@ -481,7 +510,7 @@ def main():
 
     try:
         statement_parser = StatementParser(args.file_path)
-        df = statement_parser.parse()
+        df, summary = statement_parser.parse()
         
         # Convert DataFrame to dictionary format
         transactions = []
@@ -506,7 +535,8 @@ def main():
             'transactions': transactions,
             'totalReceived': total_received,
             'totalSpent': total_spent,
-            'categoryBreakdown': category_breakdown
+            'categoryBreakdown': category_breakdown,
+            'summary': summary
         }
 
         # Print JSON output

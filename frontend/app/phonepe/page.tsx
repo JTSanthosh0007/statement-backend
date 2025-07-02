@@ -1,28 +1,28 @@
-'use client'
+'use client';
 
 import { useRouter } from 'next/navigation'
-import { PhonePeAnalysisView } from '../components/StatementAnalysis'
-import { useState, useRef, useCallback, useEffect } from 'react'
-import { AnalysisState, AnalysisResult, View } from '../components/StatementAnalysis'
+import { useState, useRef, useCallback } from 'react'
+import { AnalysisState, AnalysisResult, View, PhonePeAnalysisView } from '../components/StatementAnalysis'
 
-export default function PhonePePage() {
+export default function PhonepePage() {
   const router = useRouter()
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [analysisState, setAnalysisState] = useState<AnalysisState>('upload');
-  const [analysisResults, setAnalysisResults] = useState<AnalysisResult | null>(null);
+  const [analysisResults, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const analyzeStatement = useCallback(async (file: File) => {
     try {
       setAnalysisState('analyzing');
-      console.log('Starting analysis for file:', file?.name);
+      console.log('Starting analysis for Phonepe file:', file?.name);
 
       const formData = new FormData();
       formData.append('file', file);
 
-      console.log('Making POST request to /api/analyze-phonepe.');
-      const response = await fetch('/api/analyze-phonepe', {
+      console.log('Making POST request to /api/analyze-phonepe-statement.');
+      const response = await fetch('/api/analyze-phonepe-statement', {
         method: 'POST',
         body: formData,
       });
@@ -32,9 +32,14 @@ export default function PhonePePage() {
       console.log('API Response Data:', data);
 
       if (!response.ok) {
-        const errorMessage = data.details || data.error || 'Analysis failed';
-        console.error('API returned an error:', errorMessage);
-        throw new Error(errorMessage);
+        let errorMessage = data.details || data.error || 'Analysis failed';
+        if (errorMessage.includes('This does not appear to be a Kotak Bank statement')) {
+          errorMessage = '';
+        }
+        setError(errorMessage);
+        setAnalysisState('upload');
+        setAnalysisResult(null);
+        return;
       }
 
       const results: AnalysisResult = {
@@ -42,32 +47,30 @@ export default function PhonePePage() {
         pageCount: data.pageCount || 0
       };
       console.log('Setting analysis results:', results);
-      setAnalysisResults(results);
+      setAnalysisResult(results);
       setAnalysisState('results');
       console.log('Analysis Results Transactions:', results.transactions);
 
     } catch (error: any) {
-      console.error('Error analyzing statement:', error);
-      const errorMessage = error.message.includes('No transactions found')
-        ? 'No transactions could be found in this PDF. Please make sure this is a valid PhonePe statement and try again.'
-        : 'Failed to analyze statement. Please make sure this is a valid PDF statement and try again.';
-      alert(errorMessage);
+      console.error('Error analyzing Phonepe statement:', error);
+      setError('Failed to analyze statement. Please try again.');
       setAnalysisState('upload');
-      setAnalysisResults(null);
+      setAnalysisResult(null);
     }
   }, []);
 
   const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    console.log('File selected:', file?.name);
+    console.log('Phonepe File selected:', file?.name);
     if (file && file.type === 'application/pdf') {
       setSelectedFile(file);
+      setError(null);
       await analyzeStatement(file);
     } else {
-      alert('Please select a valid PDF file');
+      setError('Please select a valid PDF file');
       setSelectedFile(null);
       setAnalysisState('upload');
-      setAnalysisResults(null);
+      setAnalysisResult(null);
     }
     if (event.target) {
       event.target.value = '';
@@ -84,20 +87,21 @@ export default function PhonePePage() {
     event.stopPropagation();
 
     const file = event.dataTransfer.files?.[0];
-    console.log('File dropped:', file?.name);
+    console.log('Phonepe File dropped:', file?.name);
     if (file && file.type === 'application/pdf') {
       setSelectedFile(file);
+      setError(null);
       await analyzeStatement(file);
     } else {
-      alert('Please drop a valid PDF file');
+      setError('Please drop a valid PDF file');
       setSelectedFile(null);
       setAnalysisState('upload');
-      setAnalysisResults(null);
+      setAnalysisResult(null);
     }
   }, [analyzeStatement]);
 
   return (
-    <div className="min-h-screen bg-black flex flex-col justify-center items-center">
+    <div className="min-h-screen bg-black">
       <PhonePeAnalysisView
         setCurrentView={() => router.push('/')}
         selectedFile={selectedFile}
@@ -108,6 +112,11 @@ export default function PhonePePage() {
         handleDrop={handleDrop}
         fileInputRef={fileInputRef}
       />
+      {error && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg">
+          {error}
+        </div>
+      )}
     </div>
   )
 } 

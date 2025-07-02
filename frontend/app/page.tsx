@@ -113,11 +113,6 @@ export default function Home() {
       </header>
 
       <div className="p-4">
-        {/* Upload Statement UI */}
-        <div className="mb-8">
-          <h2 className="text-base font-medium text-white mb-2">Upload Statement</h2>
-          <StatementUpload onAnalysisComplete={() => { }} />
-        </div>
         {/* Ad Space */}
         <div className="bg-[#1C1C1E] rounded-2xl p-4 mb-6 min-h-[160px] flex items-center justify-center">
           {/* Google Ads will be placed here */}
