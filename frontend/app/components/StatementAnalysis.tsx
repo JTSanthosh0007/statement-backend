@@ -1857,22 +1857,9 @@ export const KotakAnalysisView: React.FC<{
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-2">Upload PhonePe Statement</h3>
                   <p className="text-zinc-300 text-base mb-6">Select the PDF file</p>
-                  <div
-                    className="border-2 border-dashed border-[#5f259f]/60 rounded-2xl p-8 text-center cursor-pointer hover:border-[#5f259f] bg-zinc-800/60 transition-colors"
-                    onClick={() => document.getElementById('fileInput')?.click()}
-                  >
-                    <input
-                      type="file"
-                      id="fileInput"
-                      className="hidden"
-                      accept=".pdf"
-                      onChange={handleFileSelect}
-                    />
-                    <button
-                      type="button"
-                      className="mt-2 px-6 py-3 bg-[#5f259f] text-white rounded-lg font-semibold hover:bg-[#4b1c7d] transition-colors"
-                      onClick={() => document.getElementById('fileInput')?.click()}
-                    >
+                  <div className="border-2 border-dashed border-[#5f259f]/60 rounded-2xl p-8 text-center cursor-pointer hover:border-[#5f259f] bg-zinc-800/60 transition-colors" onClick={() => document.getElementById('fileInput')?.click()}>
+                    <input type="file" id="fileInput" className="hidden" accept=".pdf" onChange={handleFileSelect} />
+                    <button type="button" className="mt-2 px-6 py-3 bg-[#5f259f] text-white rounded-lg font-semibold hover:bg-[#4b1c7d] transition-colors" onClick={() => document.getElementById('fileInput')?.click()}>
                       Select the PDF file
                     </button>
                   </div>
@@ -1880,6 +1867,7 @@ export const KotakAnalysisView: React.FC<{
                     <p>Only <span className="text-[#5f259f] font-semibold">PDF</span> files are supported.</p>
                     <p className="mt-1">Your data is processed securely and never stored.</p>
                   </div>
+                  <div className="mt-6 p-3 bg-yellow-900/60 text-yellow-300 rounded-lg font-bold">[DEBUG] PhonePe upload UI rendered</div>
                 </div>
               </div>
             </div>
