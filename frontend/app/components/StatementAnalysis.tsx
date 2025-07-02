@@ -929,30 +929,42 @@ export const PhonePeAnalysisView: React.FC<{
               <TransactionSummaryCard summary={analysisResults.summary} pageCount={analysisResults.pageCount} />
 
               {/* Transaction Details */}
-              {analysisResults.summary.highestTransaction && (
-                <div className="bg-zinc-800/50 rounded-2xl p-4 mb-4">
-                  <h4 className="text-sm font-medium text-zinc-400 mb-2">Highest Transaction</h4>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-white font-medium">{analysisResults.summary.highestTransaction.description || 'N/A'}</p>
-                      <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.highestTransaction.date).toLocaleDateString()}</p>
+              {analysisResults.summary.highestTransaction &&
+                analysisResults.summary.highestTransaction.description &&
+                (analysisResults.summary.highestAmount ?? 0) > 0 && (
+                  <div className="bg-zinc-800/50 rounded-2xl p-4 mb-4">
+                    <h4 className="text-sm font-medium text-zinc-400 mb-2">Highest Transaction</h4>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-white font-medium">{analysisResults.summary.highestTransaction.description}</p>
+                        <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.highestTransaction.date).toLocaleDateString()}</p>
+                      </div>
+                      <p className="text-lg font-bold text-green-400">₹{(analysisResults.summary.highestAmount ?? 0).toLocaleString()}</p>
                     </div>
-                    <p className="text-lg font-bold text-green-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
                   </div>
-                </div>
+                )}
+              {/* Optionally, show a message if no valid highest transaction */}
+              {(!analysisResults.summary.highestTransaction || !analysisResults.summary.highestTransaction.description || !((analysisResults.summary.highestAmount ?? 0) > 0)) && (
+                <div className="bg-zinc-800/50 rounded-2xl p-4 mb-4 text-zinc-400 text-center">No valid highest transaction found.</div>
               )}
 
-              {analysisResults.summary.lowestTransaction && (
-                <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
-                  <h4 className="text-sm font-medium text-zinc-400 mb-2">Lowest Transaction</h4>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-white font-medium">{analysisResults.summary.lowestTransaction.description || 'N/A'}</p>
-                      <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.lowestTransaction.date).toLocaleDateString()}</p>
+              {analysisResults.summary.lowestTransaction &&
+                analysisResults.summary.lowestTransaction.description &&
+                (analysisResults.summary.lowestAmount ?? 0) > 0 && (
+                  <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
+                    <h4 className="text-sm font-medium text-zinc-400 mb-2">Lowest Transaction</h4>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-white font-medium">{analysisResults.summary.lowestTransaction.description}</p>
+                        <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.lowestTransaction.date).toLocaleDateString()}</p>
+                      </div>
+                      <p className="text-lg font-bold text-red-400">₹{Math.abs(analysisResults.summary.lowestAmount ?? 0).toLocaleString()}</p>
                     </div>
-                    <p className="text-lg font-bold text-red-400">₹{Math.abs(analysisResults.summary.lowestAmount || 0).toLocaleString()}</p>
                   </div>
-                </div>
+                )}
+              {/* Optionally, show a message if no valid lowest transaction */}
+              {(!analysisResults.summary.lowestTransaction || !analysisResults.summary.lowestTransaction.description || !((analysisResults.summary.lowestAmount ?? 0) > 0)) && (
+                <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6 text-zinc-400 text-center">No valid lowest transaction found.</div>
               )}
 
               {/* Charts */}
@@ -1582,30 +1594,42 @@ export const KotakAnalysisView: React.FC<{
               <TransactionSummaryCard summary={analysisResults.summary} pageCount={analysisResults.pageCount} />
 
               {/* Transaction Details */}
-              {analysisResults.summary.highestTransaction && (
-                <div className="bg-zinc-800/50 rounded-2xl p-4 mb-4">
-                  <h4 className="text-sm font-medium text-zinc-400 mb-2">Highest Transaction</h4>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-white font-medium">{analysisResults.summary.highestTransaction.description || 'N/A'}</p>
-                      <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.highestTransaction.date).toLocaleDateString()}</p>
+              {analysisResults.summary.highestTransaction &&
+                analysisResults.summary.highestTransaction.description &&
+                (analysisResults.summary.highestAmount ?? 0) > 0 && (
+                  <div className="bg-zinc-800/50 rounded-2xl p-4 mb-4">
+                    <h4 className="text-sm font-medium text-zinc-400 mb-2">Highest Transaction</h4>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-white font-medium">{analysisResults.summary.highestTransaction.description}</p>
+                        <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.highestTransaction.date).toLocaleDateString()}</p>
+                      </div>
+                      <p className="text-lg font-bold text-green-400">₹{(analysisResults.summary.highestAmount ?? 0).toLocaleString()}</p>
                     </div>
-                    <p className="text-lg font-bold text-green-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
                   </div>
-                </div>
+                )}
+              {/* Optionally, show a message if no valid highest transaction */}
+              {(!analysisResults.summary.highestTransaction || !analysisResults.summary.highestTransaction.description || !((analysisResults.summary.highestAmount ?? 0) > 0)) && (
+                <div className="bg-zinc-800/50 rounded-2xl p-4 mb-4 text-zinc-400 text-center">No valid highest transaction found.</div>
               )}
 
-              {analysisResults.summary.lowestTransaction && (
-                <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
-                  <h4 className="text-sm font-medium text-zinc-400 mb-2">Lowest Transaction</h4>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-white font-medium">{analysisResults.summary.lowestTransaction.description || 'N/A'}</p>
-                      <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.lowestTransaction.date).toLocaleDateString()}</p>
+              {analysisResults.summary.lowestTransaction &&
+                analysisResults.summary.lowestTransaction.description &&
+                (analysisResults.summary.lowestAmount ?? 0) > 0 && (
+                  <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
+                    <h4 className="text-sm font-medium text-zinc-400 mb-2">Lowest Transaction</h4>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-white font-medium">{analysisResults.summary.lowestTransaction.description}</p>
+                        <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.lowestTransaction.date).toLocaleDateString()}</p>
+                      </div>
+                      <p className="text-lg font-bold text-red-400">₹{Math.abs(analysisResults.summary.lowestAmount ?? 0).toLocaleString()}</p>
                     </div>
-                    <p className="text-lg font-bold text-red-400">₹{Math.abs(analysisResults.summary.lowestAmount || 0).toLocaleString()}</p>
                   </div>
-                </div>
+                )}
+              {/* Optionally, show a message if no valid lowest transaction */}
+              {(!analysisResults.summary.lowestTransaction || !analysisResults.summary.lowestTransaction.description || !((analysisResults.summary.lowestAmount ?? 0) > 0)) && (
+                <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6 text-zinc-400 text-center">No valid lowest transaction found.</div>
               )}
 
               {/* Charts */}
