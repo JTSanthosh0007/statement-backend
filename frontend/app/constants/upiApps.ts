@@ -406,11 +406,11 @@ export const UPI_APPS: UPIApp[] = [
 
 export const getAppsByCategory = (category?: UPIApp['category']) => {
   let apps = UPI_APPS;
-  
+
   if (category) {
     return apps.filter(app => app.category === category);
   }
-  
+
   return apps;
 };
 
@@ -419,63 +419,73 @@ export const findAppById = (id: string) => {
 };
 
 export const findAppByName = (name: string): UPIApp | undefined => {
-  return UPI_APPS.find(app => 
-    app.name.toLowerCase() === name.toLowerCase() || 
+  return UPI_APPS.find(app =>
+    app.name.toLowerCase() === name.toLowerCase() ||
     app.shortName?.toLowerCase() === name.toLowerCase()
   );
 };
 
 export const searchApps = (query: string): UPIApp[] => {
+  if (!query.trim()) return UPI_APPS;
   const searchTerms = query.toLowerCase().trim().split(/\s+/);
-  
-  return UPI_APPS.filter(app => {
-    const searchableText = [
-      app.name.toLowerCase(),
-      app.shortName?.toLowerCase() || '',
-      app.description.toLowerCase(),
-      app.bankCode?.toLowerCase() || '',
-      // Add common bank terms for better matching
-      ['public', 'private', 'small-finance', 'regional-rural'].includes(app.category) ? [
-        'bank',
-        'banking',
-        'upi',
-        'mobile banking',
-        'netbanking',
-        'payment'
-      ].join(' ') : '',
-      // Add common wallet terms
-      app.category === 'payment' ? [
-        'wallet',
-        'digital wallet',
-        'money',
-        'transfer'
-      ].join(' ') : '',
-      // Add common payment terms
-      app.category === 'payment' ? [
-        'upi',
-        'payment',
-        'transfer',
-        'money',
-        'digital payment'
-      ].join(' ') : ''
-    ].join(' ');
 
-    // Match if ANY search term is found in the searchable text
-    return searchTerms.some(term => searchableText.includes(term));
+  // Simple Levenshtein distance for typo tolerance
+  function levenshtein(a: string, b: string): number {
+    const matrix = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+    for (let j = 1; j <= b.length; j++) matrix[0][j] = j;
+    for (let i = 1; i <= a.length; i++) {
+      for (let j = 1; j <= b.length; j++) {
+        if (a[i - 1] === b[j - 1]) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1, // substitution
+            matrix[i][j - 1] + 1,     // insertion
+            matrix[i - 1][j] + 1      // deletion
+          );
+        }
+      }
+    }
+    return matrix[a.length][b.length];
+  }
+
+  return UPI_APPS.filter(app => {
+    // Build a rich searchable text for each app
+    const keywords = [
+      app.name,
+      app.shortName,
+      app.description,
+      app.bankCode,
+      app.category,
+      'upi', 'bank', 'payments', 'digital', 'wallet', 'finance', 'mobile', 'transfer', 'app',
+      ...(app.name ? app.name.split(/\s+/) : []),
+      ...(app.shortName ? [app.shortName] : []),
+      ...(app.bankCode ? [app.bankCode] : []),
+    ].filter(Boolean).map(s => s!.toLowerCase());
+
+    // For each search term, match if:
+    // - It is a substring of any keyword
+    // - Levenshtein distance <= 2 (typo tolerance)
+    return searchTerms.some(term =>
+      keywords.some(keyword =>
+        keyword.includes(term) ||
+        levenshtein(keyword, term) <= 2
+      )
+    );
   });
 };
 
 // Helper function to get search suggestions
 export const getSearchSuggestions = (query: string): string[] => {
   if (!query.trim()) return [];
-  
+
   const results = searchApps(query);
   const suggestions: string[] = [];
-  
+
   results.forEach(app => {
     suggestions.push(app.name);
     if (app.shortName) suggestions.push(app.shortName);
-    
+
     // Add bank-specific suggestions
     if (['public', 'private', 'small-finance', 'regional-rural'].includes(app.category)) {
       suggestions.push(`${app.name} UPI`);
@@ -483,7 +493,7 @@ export const getSearchSuggestions = (query: string): string[] => {
       if (app.bankCode) suggestions.push(app.bankCode);
     }
   });
-  
+
   // Remove duplicates and sort
   return [...new Set(suggestions)]
     .sort((a, b) => a.length - b.length)
