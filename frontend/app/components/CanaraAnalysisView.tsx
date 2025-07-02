@@ -104,7 +104,7 @@ export const CanaraAnalysisView: React.FC<{
         {/* Header */}
         <div className="w-full max-w-xl flex items-center gap-3 p-4">
           <button
-            onClick={() => setCurrentView('home')}
+            onClick={() => setCurrentView && setCurrentView('home')}
             className="text-white hover:text-zinc-300 transition-colors"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,16 +117,16 @@ export const CanaraAnalysisView: React.FC<{
         <div className="w-full max-w-xl">
           {analysisState === 'upload' && (
             <div className="flex flex-col items-center justify-center p-8 bg-zinc-900/80 rounded-3xl border border-zinc-800/50">
-              <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-[#0072BC]/20 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-[#0072BC]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-3-3v6m9 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Upload Statement</h3>
-              <p className="text-zinc-400 text-sm mb-6">Upload your Canara bank statement to analyze your spending patterns</p>
+              <p className="text-[#0072BC] text-sm mb-6 font-semibold">Upload your Canara bank statement to analyze your spending patterns</p>
               <label
                 htmlFor="canara-upload"
-                className="block w-full border-2 border-dashed border-zinc-700 rounded-2xl p-8 text-center cursor-pointer hover:border-zinc-600 transition-colors"
+                className="block w-full border-2 border-dashed border-yellow-400 rounded-2xl p-8 text-center cursor-pointer hover:border-yellow-300 transition-colors"
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
               >
@@ -139,14 +139,14 @@ export const CanaraAnalysisView: React.FC<{
                   className="hidden"
                 />
                 {selectedFile ? (
-                  <span className="text-[#0A9396] font-medium">{selectedFile.name}</span>
+                  <span className="text-[#0072BC] font-medium">{selectedFile.name}</span>
                 ) : (
                   <>
-                    <svg className="w-8 h-8 text-zinc-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-8 h-8 text-[#0072BC] mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 16v-8m0 0l-4 4m4-4l4 4" />
                     </svg>
-                    <p className="text-zinc-300 mb-1">Drag and drop your statement here</p>
-                    <p className="text-zinc-500 text-sm">or click to browse</p>
+                    <p className="text-yellow-400 mb-1 font-semibold">Select the PDF file</p>
+                    <p className="text-blue-300 text-sm">or click to browse</p>
                   </>
                 )}
               </label>
@@ -214,12 +214,13 @@ export const CanaraAnalysisView: React.FC<{
                       Doughnut
                     </button>
                   </div>
+                  {/* Chart Display */}
                   {selectedChartType === 'pie' && (
                     <div className="bg-zinc-800/50 rounded-2xl p-4 mb-6">
                       <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                       <div className="h-64">
                         {chartData && chartData.labels && chartData.labels.length > 0 && (
-                          <Chart data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: 'white', font: { size: 16, weight: 'bold' }, padding: 30, boxWidth: 30, boxHeight: 20 } }, tooltip: { callbacks: { label: function (context) { const label = context.label || ''; const value = context.parsed; return `${label}: ₹${Number(value).toLocaleString()}`; } } } } }} />
+                          <Chart data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: 'white', font: { size: 16, weight: 'bold' }, padding: 30, boxWidth: 30, boxHeight: 20 } }, tooltip: { callbacks: { label: function (context: any) { const label = context.label || ''; const value = context.parsed; return `${label}: ₹${Number(value).toLocaleString()}`; } } } } }} />
                         )}
                       </div>
                     </div>
@@ -229,7 +230,7 @@ export const CanaraAnalysisView: React.FC<{
                       <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                       <div className="h-64">
                         {chartData && chartData.labels && chartData.labels.length > 0 && (
-                          <Doughnut data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: 'white', font: { size: 16 }, padding: 30 } }, tooltip: { callbacks: { label: function (context) { return `${context.label}: ${context.parsed.toFixed(1)}%`; } } } } }} />
+                          <Doughnut data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: 'white', font: { size: 16 }, padding: 30 } }, tooltip: { callbacks: { label: function (context: any) { return `${context.label}: ${context.parsed.toFixed(1)}%`; } } } } }} />
                         )}
                       </div>
                     </div>
@@ -239,7 +240,7 @@ export const CanaraAnalysisView: React.FC<{
                       <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                       <div className="h-64">
                         {chartData && chartData.labels && chartData.labels.length > 0 && (
-                          <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (context) { const label = context.label || ''; const value = context.parsed.y; return `${label}: ₹${Number(value).toLocaleString()}`; } } } } }} />
+                          <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (context: any) { const label = context.label || ''; const value = context.parsed.y; return `${label}: ₹${Number(value).toLocaleString()}`; } } } } }} />
                         )}
                       </div>
                     </div>
