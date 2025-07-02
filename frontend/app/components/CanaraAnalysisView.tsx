@@ -101,10 +101,6 @@ export const CanaraAnalysisView: React.FC<{
 
     return (
       <div className="min-h-screen bg-black flex flex-col items-center">
-        {/* Canara Bank Logo */}
-        <div className="flex justify-center mb-2">
-          <img src="/canara-bank-logo.png" alt="Canara Bank Logo" className="h-10" />
-        </div>
         {/* Header */}
         <div className="w-full max-w-xl flex items-center gap-3 p-4">
           <button
@@ -120,40 +116,42 @@ export const CanaraAnalysisView: React.FC<{
         {/* Upload Card */}
         <div className="w-full max-w-xl">
           {analysisState === 'upload' && (
-            <div className="flex flex-col items-center justify-center p-8 bg-zinc-900/80 rounded-3xl border border-zinc-800/50">
-              <div className="w-16 h-16 bg-[#009DDC]/20 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-[#009DDC]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-3-3v6m9 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+            <div className="bg-zinc-900/80 rounded-3xl p-8 border-2 border-[#FFD600]/60 shadow-lg max-w-md mx-auto">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-[#009DDC]/80 rounded-full flex items-center justify-center shadow-md">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-3-3v6m9 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">Upload Statement</h3>
+                <p className="text-[#009DDC] text-base mb-6">Upload your Canara bank statement to analyze your spending patterns</p>
+                <div
+                  className="border-2 border-dashed border-[#FFD600]/60 rounded-2xl p-8 text-center cursor-pointer hover:border-[#FFD600] bg-zinc-800/60 transition-colors"
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  onClick={() => document.getElementById('canara-upload')?.click()}
+                >
+                  <input
+                    id="canara-upload"
+                    type="file"
+                    accept="application/pdf"
+                    onChange={handleFileSelect}
+                    ref={fileInputRef as any}
+                    className="hidden"
+                  />
+                  <svg className="w-8 h-8 text-[#009DDC] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 16v-8m0 0l-4 4m4-4l4 4" />
+                  </svg>
+                  <button
+                    type="button"
+                    className="mt-2 px-6 py-3 bg-[#FFD600] text-black rounded-lg font-semibold hover:bg-yellow-400 transition-colors"
+                    onClick={() => document.getElementById('canara-upload')?.click()}
+                  >
+                    Select the PDF file
+                  </button>
+                  <p className="text-[#009DDC] text-sm mt-2">or click to browse</p>
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Upload Statement</h3>
-              <p className="text-[#0072BC] text-sm mb-6 font-semibold">Upload your Canara bank statement to analyze your spending patterns</p>
-              <label
-                htmlFor="canara-upload"
-                className="block w-full border-2 border-dashed border-[#FFD600] rounded-2xl p-8 text-center cursor-pointer hover:border-yellow-300 transition-colors"
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-              >
-                <input
-                  id="canara-upload"
-                  type="file"
-                  accept="application/pdf"
-                  onChange={handleFileSelect}
-                  ref={fileInputRef as any}
-                  className="hidden"
-                />
-                {selectedFile ? (
-                  <span className="text-[#0072BC] font-medium">{selectedFile.name}</span>
-                ) : (
-                  <>
-                    <svg className="w-8 h-8 text-[#009DDC] mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 16v-8m0 0l-4 4m4-4l4 4" />
-                    </svg>
-                    <p className="text-[#FFD600] mb-1 font-semibold">Select the PDF file</p>
-                    <p className="text-[#009DDC] text-sm">or click to browse</p>
-                  </>
-                )}
-              </label>
             </div>
           )}
           {analysisState === 'analyzing' && (
