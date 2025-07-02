@@ -1331,16 +1331,16 @@ export const PhonePeAnalysisView: React.FC<{
         default:
           return (
             <div className="p-4">
-              <div className="bg-zinc-900/80 rounded-3xl p-8 border border-zinc-800/50">
+              <div className="bg-zinc-900/80 rounded-3xl p-8 border-2 border-purple-600/60 shadow-lg max-w-md mx-auto">
                 <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-zinc-800 rounded-full flex items-center justify-center">
-                    <DocumentTextIcon className="w-8 h-8 text-zinc-400" />
+                  <div className="w-16 h-16 mx-auto mb-4 bg-purple-700/80 rounded-full flex items-center justify-center shadow-md">
+                    {/* Replace with PhonePe logo if available */}
+                    <ArrowUpTrayIcon className="w-10 h-10 text-white" />
                   </div>
-                  <h3 className="text-lg font-medium text-white mb-2">Upload Statement</h3>
-                  <p className="text-zinc-400 text-sm mb-6">Upload your bank statement to analyze your spending patterns</p>
-
+                  <h3 className="text-2xl font-bold text-white mb-2">Upload PhonePe Statement</h3>
+                  <p className="text-zinc-300 text-base mb-6">Drag and drop your <span className="text-purple-400 font-semibold">PhonePe PDF statement</span> here, or click to browse.</p>
                   <div
-                    className="border-2 border-dashed border-zinc-700 rounded-2xl p-8 text-center cursor-pointer hover:border-zinc-600 transition-colors"
+                    className="border-2 border-dashed border-purple-500/60 rounded-2xl p-8 text-center cursor-pointer hover:border-purple-400 bg-zinc-800/60 transition-colors"
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                     onClick={() => document.getElementById('fileInput')?.click()}
@@ -1352,9 +1352,14 @@ export const PhonePeAnalysisView: React.FC<{
                       accept=".pdf"
                       onChange={handleFileSelect}
                     />
-                    <ArrowUpTrayIcon className="w-8 h-8 text-zinc-400 mx-auto mb-4" />
-                    <p className="text-zinc-300 mb-1">Drag and drop your statement here</p>
-                    <p className="text-zinc-500 text-sm">or click to browse</p>
+                    <ArrowUpTrayIcon className="w-8 h-8 text-purple-400 mx-auto mb-3" />
+                    <p className="text-zinc-200 mb-1 font-medium">Drop your PhonePe statement PDF here</p>
+                    <p className="text-zinc-400 text-sm">or <span className="underline text-purple-300">click to browse</span></p>
+                  </div>
+                  <div className="mt-5 text-xs text-zinc-400">
+                    <p>Only <span className="text-purple-300 font-semibold">PDF</span> files are supported.</p>
+                    <p className="mt-1">Your data is processed securely and never stored.</p>
+                    <a href="/sample-phonepe-statement.pdf" target="_blank" rel="noopener noreferrer" className="block mt-2 text-purple-300 underline">View sample statement</a>
                   </div>
                 </div>
               </div>
@@ -1856,15 +1861,16 @@ export const KotakAnalysisView: React.FC<{
         default:
           return (
             <div className="p-4">
-              <div className="bg-zinc-900/80 rounded-3xl p-8 border border-zinc-800/50">
+              <div className="bg-zinc-900/80 rounded-3xl p-8 border-2 border-purple-600/60 shadow-lg max-w-md mx-auto">
                 <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-zinc-800 rounded-full flex items-center justify-center">
-                    <DocumentTextIcon className="w-8 h-8 text-zinc-400" />
+                  <div className="w-16 h-16 mx-auto mb-4 bg-purple-700/80 rounded-full flex items-center justify-center shadow-md">
+                    {/* Replace with PhonePe logo if available */}
+                    <ArrowUpTrayIcon className="w-10 h-10 text-white" />
                   </div>
-                  <h3 className="text-lg font-medium text-white mb-2">Upload Statement</h3>
-                  <p className="text-zinc-400 text-sm mb-6">Upload your Kotak bank statement to analyze your spending patterns</p>
+                  <h3 className="text-2xl font-bold text-white mb-2">Upload PhonePe Statement</h3>
+                  <p className="text-zinc-300 text-base mb-6">Drag and drop your <span className="text-purple-400 font-semibold">PhonePe PDF statement</span> here, or click to browse.</p>
                   <div
-                    className="border-2 border-dashed border-zinc-700 rounded-2xl p-8 text-center cursor-pointer hover:border-zinc-600 transition-colors"
+                    className="border-2 border-dashed border-purple-500/60 rounded-2xl p-8 text-center cursor-pointer hover:border-purple-400 bg-zinc-800/60 transition-colors"
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                     onClick={() => document.getElementById('fileInput')?.click()}
@@ -1876,9 +1882,14 @@ export const KotakAnalysisView: React.FC<{
                       accept=".pdf"
                       onChange={handleFileSelect}
                     />
-                    <ArrowUpTrayIcon className="w-8 h-8 text-zinc-400 mx-auto mb-4" />
-                    <p className="text-zinc-300 mb-1">Drag and drop your statement here</p>
-                    <p className="text-zinc-500 text-sm">or click to browse</p>
+                    <ArrowUpTrayIcon className="w-8 h-8 text-purple-400 mx-auto mb-3" />
+                    <p className="text-zinc-200 mb-1 font-medium">Drop your PhonePe statement PDF here</p>
+                    <p className="text-zinc-400 text-sm">or <span className="underline text-purple-300">click to browse</span></p>
+                  </div>
+                  <div className="mt-5 text-xs text-zinc-400">
+                    <p>Only <span className="text-purple-300 font-semibold">PDF</span> files are supported.</p>
+                    <p className="mt-1">Your data is processed securely and never stored.</p>
+                    <a href="/sample-phonepe-statement.pdf" target="_blank" rel="noopener noreferrer" className="block mt-2 text-purple-300 underline">View sample statement</a>
                   </div>
                 </div>
               </div>

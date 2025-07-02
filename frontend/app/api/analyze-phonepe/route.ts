@@ -5,7 +5,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // Parse the incoming form data
     const incomingFormData = await request.formData();
-
+    
     // Rebuild a new FormData to forward
     const formData = new FormData();
     for (const [key, value] of incomingFormData.entries()) {
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const backendUrl = `${config.backendUrl}/analyze-phonepe`;
-
+    
     const response = await fetch(backendUrl, {
       method: 'POST',
       body: formData,
@@ -30,14 +30,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { status: 500 }
       );
     }
-
+    
     // Return the backend response with the same status
     return NextResponse.json(data, { status: response.status });
-
+    
   } catch (error: any) {
     console.error('Error proxying PhonePe request to backend:', error);
     return NextResponse.json(
-      {
+      { 
         error: 'Failed to connect to PhonePe analysis service',
         details: error.message || String(error)
       },

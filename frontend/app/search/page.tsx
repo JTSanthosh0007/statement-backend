@@ -69,7 +69,53 @@ export default function SearchPage() {
           />
         </div>
       </div>
-      {/* Hide all app/bank lists below, only show search bar */}
+
+      {/* Search Results */}
+      {searchQuery && (
+        <div className="space-y-6 mt-4">
+          {filteredApps.length === 0 ? (
+            <div className="text-center text-zinc-400 py-8">
+              <div className="w-16 h-16 bg-zinc-800 rounded-full mx-auto flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <p>No apps found matching "{searchQuery}"</p>
+            </div>
+          ) : (
+            filteredApps.map((app) => (
+              <div
+                key={app.id}
+                onClick={() => handleAppClick(app)}
+                className="bg-zinc-900/80 p-4 rounded-xl border border-zinc-800/50 hover:bg-zinc-800/80 transition-all duration-300 cursor-pointer"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-zinc-700">
+                    <span className="text-white text-sm font-bold">
+                      {app.shortName ? app.shortName.charAt(0) : app.name.charAt(0)}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-white font-medium">{app.name}</h3>
+                    <p className="text-sm text-zinc-400 mt-0.5">{app.description}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className={`text-sm px-2 py-1 rounded-full ${app.available
+                      ? 'bg-green-500/20 text-green-400'
+                      : 'bg-yellow-500/20 text-yellow-400'
+                      }`}>
+                      {app.available ? 'Available' : 'Coming Soon'}
+                    </div>
+                    <div className="text-xs text-zinc-400 mt-1 capitalize">
+                      {app.category.replace('-', ' ')}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   )
 } 

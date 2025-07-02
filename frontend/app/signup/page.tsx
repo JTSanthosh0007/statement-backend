@@ -15,13 +15,14 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false)
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false)
   const [resetEmailSent, setResetEmailSent] = useState(false)
+  const [signupSuccess, setSignupSuccess] = useState(false)
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.auth.signUp({
+    const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -33,11 +34,11 @@ export default function SignUpPage() {
 
     if (error) {
       setError(error.message)
-    } else {
-      // For now, redirect to login after signup. 
-      // A verification email will be sent by Supabase.
-      router.push('/login')
+      setLoading(false)
+      return
     }
+    // Show success message and wait for user to continue
+    setSignupSuccess(true)
     setLoading(false)
   }
 
@@ -121,6 +122,26 @@ export default function SignUpPage() {
               </button>
             </div>
           )}
+        </div>
+      </div>
+    )
+  }
+
+  if (signupSuccess) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
+        <div className="w-full max-w-md text-center">
+          <div className="w-16 h-16 bg-green-500/20 rounded-full mx-auto flex items-center justify-center mb-6">
+            <Mail className="w-8 h-8 text-green-400" />
+          </div>
+          <h1 className="text-2xl font-bold mb-2">Signup Successful!</h1>
+          <p className="text-zinc-400 mb-4">We've sent a confirmation link to <span className="font-semibold text-white">{email}</span>. Please check your email to verify your account before logging in.</p>
+          <button
+            onClick={() => router.push('/login')}
+            className="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-zinc-200 transition-colors duration-300 mt-4"
+          >
+            Go to Login
+          </button>
         </div>
       </div>
     )
