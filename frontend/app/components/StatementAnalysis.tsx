@@ -883,7 +883,7 @@ export const PhonePeAnalysisView: React.FC<{
   handleFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleDragOver: (event: React.DragEvent) => void;
   handleDrop: (event: React.DragEvent) => Promise<void>;
-  fileInputRef: React.RefObject<HTMLInputElement | null>;
+  fileInputRef: React.RefObject<HTMLInputElement>;
 }> = ({
   setCurrentView,
   selectedFile,
@@ -919,7 +919,7 @@ export const PhonePeAnalysisView: React.FC<{
                 <input
                   type="file"
                   accept="application/pdf"
-                  ref={fileInputRef as any}
+                  ref={fileInputRef}
                   onChange={handleFileSelect}
                   className="hidden"
                 />
@@ -1546,7 +1546,7 @@ export const KotakAnalysisView: React.FC<{
   handleFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleDragOver: (event: React.DragEvent) => void;
   handleDrop: (event: React.DragEvent) => Promise<void>;
-  fileInputRef: React.RefObject<HTMLInputElement | null>;
+  fileInputRef: React.RefObject<HTMLInputElement>;
 }> = ({
   setCurrentView,
   selectedFile,
@@ -2367,7 +2367,7 @@ export default function StatementAnalysis({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [analysisState, setAnalysisState] = useState<'upload' | 'analyzing' | 'results'>('upload');
   const [analysisResults, setAnalysisResults] = useState<AnalysisResult | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Memoize handlers to prevent recreation on each render
   const toggleSearchModal = useCallback(() => {
