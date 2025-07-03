@@ -1325,6 +1325,45 @@ export const PhonePeAnalysisView: React.FC<{
                 </div>
               </div>
 
+              {/* Detailed Category Breakdown */}
+              <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
+                <h3 className="text-lg font-medium text-white mb-4">Detailed Category Breakdown</h3>
+                <div className="space-y-3">
+                  {sortedCategories.map(([category, data]) => {
+                    const amount = Math.abs(data.amount);
+                    const percentage = data.percentage;
+                    const formattedAmount = new Intl.NumberFormat('en-IN', {
+                      style: 'currency',
+                      currency: 'INR',
+                      maximumFractionDigits: 0,
+                    }).format(amount);
+
+                    // Get category color
+                    const categoryColor = CATEGORY_COLORS[category] || CATEGORY_COLORS.Default;
+
+                    return (
+                      <div key={category} className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div
+                            className="w-4 h-4 rounded-full mr-2"
+                            style={{ backgroundColor: categoryColor }}
+                          />
+                          <span className="text-white">{category}</span>
+                        </div>
+                        <div className="text-white text-right">
+                          {formattedAmount}
+                          {percentage > 0 && (
+                            <span className="text-gray-400 text-xs ml-1">
+                              ({percentage.toFixed(1)}%)
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Important Notes Section */}
               <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
                 <div className="flex items-start gap-3">
