@@ -129,27 +129,20 @@ export const CanaraAnalysisView: React.FC<{
                   className="border-2 border-dashed border-[#FFD600]/60 rounded-2xl p-8 text-center cursor-pointer hover:border-[#FFD600] bg-zinc-800/60 transition-colors"
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
-                  onClick={() => document.getElementById('canara-upload')?.click()}
+                  onClick={() => fileInputRef.current?.click()}
                 >
                   <input
-                    id="canara-upload"
                     type="file"
                     accept="application/pdf"
                     onChange={handleFileSelect}
-                    ref={fileInputRef as any}
+                    ref={fileInputRef as React.RefObject<HTMLInputElement>}
                     className="hidden"
                   />
                   <svg className="w-8 h-8 text-[#009DDC] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 16v-8m0 0l-4 4m4-4l4 4" />
                   </svg>
-                  <button
-                    type="button"
-                    className="mt-2 px-6 py-3 bg-[#FFD600] text-black rounded-lg font-semibold hover:bg-yellow-400 transition-colors"
-                    onClick={() => document.getElementById('canara-upload')?.click()}
-                  >
-                    Select the PDF file
-                  </button>
-                  <p className="text-[#009DDC] text-sm mt-2">or click to browse</p>
+                  <p className="text-[#009DDC] text-base mb-2">Drag and drop your Canara Bank statement</p>
+                  <p className="text-[#FFD600] text-sm mb-4">or click anywhere to browse</p>
                 </div>
               </div>
             </div>
