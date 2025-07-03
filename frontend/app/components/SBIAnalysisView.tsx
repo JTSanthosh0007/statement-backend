@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, AnalysisResult } from '../components/StatementAnalysis';
 import AccountAnalysis from './AccountAnalysis';
 import dynamic from 'next/dynamic';
+import './ChartConfig'; // Import chart configuration to register elements
 
 const Chart = dynamic(() => import('react-chartjs-2').then(mod => mod.Pie), { ssr: false });
 const Bar = dynamic(() => import('react-chartjs-2').then(mod => mod.Bar), { ssr: false });

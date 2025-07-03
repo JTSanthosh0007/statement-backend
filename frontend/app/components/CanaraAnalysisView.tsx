@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, AnalysisResult } from '../components/StatementAnalysis';
 import AccountAnalysis from './AccountAnalysis';
 import dynamic from 'next/dynamic';
+import './ChartConfig'; // Import chart configuration to register elements
 
+// Import chart components with proper configuration
 const Chart = dynamic(() => import('react-chartjs-2').then(mod => mod.Pie), { ssr: false });
 const Bar = dynamic(() => import('react-chartjs-2').then(mod => mod.Bar), { ssr: false });
 const Doughnut = dynamic(() => import('react-chartjs-2').then(mod => mod.Doughnut), { ssr: false });
@@ -17,42 +19,49 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Personal Care': '#E879F9', 'Pets': '#A3E635', 'Investments': '#F87171', 'Insurance': '#6366F1', 'Rent': '#A855F7',
   'EMI & Loans': '#FB7185', 'Gifts & Donations': '#F472B6', 'Taxes & Fees': '#64748B', 'Transfer': '#8B5CF6', 'Others': '#94A3B8',
   'Bills': '#3B82F6', 'Entertainment': '#EF4444', 'Food': '#22C55E', 'Salary': '#A855F7', 'Health': '#10B981', 'Utilities': '#64748B', 'Default': '#64748B',
+  'Income': '#8B5CF6', // Add Income category
 };
 
-// Add a shared TransactionSummaryCard component (copied from StatementAnalysis.tsx)
-const TransactionSummaryCard: React.FC<{ summary: any; pageCount: number }> = ({ summary, pageCount }) => (
-  <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
-    <h3 className="text-lg font-medium text-white mb-4">Transaction Summary</h3>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-      <div className="bg-zinc-800/50 p-4 rounded-xl">
-        <p className="text-sm text-zinc-400">Total Received (CR)</p>
-        <p className="text-xl font-medium text-green-400">₹{(summary?.totalReceived ?? 0).toLocaleString()}</p>
+// Define TransactionSummaryCard component
+const TransactionSummaryCard = ({ summary, pageCount }: { summary: any, pageCount: number }) => {
+  if (!summary) return null;
+
+  return (
+    <div className="bg-zinc-900/80 rounded-3xl p-6 border border-zinc-800/50">
+      <h3 className="text-lg font-medium text-white mb-4">Transaction Summary</h3>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-zinc-800/50 rounded-2xl p-4">
+          <p className="text-sm text-zinc-400 mb-1">Total Received</p>
+          <p className="text-xl font-bold text-green-400">₹{summary.totalReceived?.toLocaleString() || '0'}</p>
+        </div>
+        <div className="bg-zinc-800/50 rounded-2xl p-4">
+          <p className="text-sm text-zinc-400 mb-1">Total Spent</p>
+          <p className="text-xl font-bold text-red-400">₹{Math.abs(summary.totalSpent || 0).toLocaleString()}</p>
+        </div>
+        <div className="bg-zinc-800/50 rounded-2xl p-4">
+          <p className="text-sm text-zinc-400 mb-1">Net Balance</p>
+          <p className={`text-xl font-bold ${summary.balance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            ₹{Math.abs(summary.balance || 0).toLocaleString()}
+            {summary.balance >= 0 ? '' : ' (Deficit)'}
+          </p>
+        </div>
+        <div className="bg-zinc-800/50 rounded-2xl p-4">
+          <p className="text-sm text-zinc-400 mb-1">Transactions</p>
+          <p className="text-xl font-bold text-blue-400">{summary.totalTransactions || '0'}</p>
+          <div className="flex text-xs mt-1">
+            <span className="text-green-400 mr-2">{summary.creditCount || '0'} Credits</span>
+            <span className="text-red-400">{summary.debitCount || '0'} Debits</span>
+          </div>
+        </div>
       </div>
-      <div className="bg-zinc-800/50 p-4 rounded-xl">
-        <p className="text-sm text-zinc-400">Total Spent (DR)</p>
-        <p className="text-xl font-medium text-red-400">₹{Math.abs(summary?.totalSpent ?? 0).toLocaleString()}</p>
-      </div>
-      <div className="bg-zinc-800/50 p-4 rounded-xl">
-        <p className="text-sm text-zinc-400">Total Amount</p>
-        <p className="text-xl font-medium text-white">₹{((summary?.totalReceived ?? 0) + Math.abs(summary?.totalSpent ?? 0)).toLocaleString()}</p>
-      </div>
+      {pageCount > 0 && (
+        <div className="mt-4 text-center">
+          <p className="text-sm text-zinc-400">Analyzed {pageCount} page{pageCount !== 1 ? 's' : ''}</p>
+        </div>
+      )}
     </div>
-    <div className="flex justify-between items-center mt-1">
-      <p className="text-xs text-zinc-500">Total {summary?.totalTransactions} transactions</p>
-      <p className="text-xs text-zinc-500">{pageCount} pages</p>
-    </div>
-    <div className="grid grid-cols-2 gap-2 mt-4">
-      <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
-        <span className="text-xs text-zinc-400">Total Credit Transactions</span>
-        <span className="text-lg font-bold text-green-400">{summary?.creditCount ?? 0}</span>
-      </div>
-      <div className="bg-zinc-800/50 p-3 rounded-xl flex flex-col items-center">
-        <span className="text-xs text-zinc-400">Total Debit Transactions</span>
-        <span className="text-lg font-bold text-red-400">{summary?.debitCount ?? 0}</span>
-      </div>
-    </div>
-  </div>
-);
+  );
+};
 
 export const CanaraAnalysisView: React.FC<{
   setCurrentView: (view: View) => void;
@@ -95,6 +104,76 @@ export const CanaraAnalysisView: React.FC<{
       ],
     };
 
+    // Define chart options
+    const pieOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right' as const,
+          labels: {
+            color: 'white',
+            font: { size: 16, weight: 'bold' as const },
+            padding: 30,
+            boxWidth: 30,
+            boxHeight: 20
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context: any) {
+              const label = context.label || '';
+              const value = context.raw;
+              return `${label}: ₹${Number(value).toLocaleString()}`;
+            }
+          }
+        }
+      }
+    };
+
+    const doughnutOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right' as const,
+          labels: {
+            color: 'white',
+            font: { size: 16 },
+            padding: 30
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context: any) {
+              const label = context.label || '';
+              const value = context.parsed;
+              return `${label}: ₹${Number(value).toLocaleString()}`;
+            }
+          }
+        }
+      }
+    };
+
+    const barOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context: any) {
+              const label = context.label || '';
+              const value = context.parsed.y;
+              return `${label}: ₹${Number(value).toLocaleString()}`;
+            }
+          }
+        }
+      }
+    };
+
     console.log("analysisResults", analysisResults);
     console.log("categoryBreakdown", analysisResults?.categoryBreakdown);
     console.log("transactions", analysisResults?.transactions);
@@ -115,7 +194,7 @@ export const CanaraAnalysisView: React.FC<{
         </div>
         {/* Upload Card */}
         <div className="w-full max-w-xl">
-          {analysisState === 'upload' && (
+          {analysisState === 'upload' &&
             <div className="bg-zinc-900/80 rounded-3xl p-8 border-2 border-[#FFD600]/60 shadow-lg max-w-md mx-auto">
               <div className="text-center">
                 <div className="w-16 h-16 mx-auto mb-4 bg-[#009DDC]/80 rounded-full flex items-center justify-center shadow-md">
@@ -146,7 +225,7 @@ export const CanaraAnalysisView: React.FC<{
                 </div>
               </div>
             </div>
-          )}
+          }
           {analysisState === 'analyzing' && (
             <div className="flex flex-col items-center justify-center p-8">
               <div className="w-16 h-16 border-4 border-[#0A9396] border-t-white rounded-full animate-spin mb-4"></div>
@@ -165,7 +244,7 @@ export const CanaraAnalysisView: React.FC<{
                   <h4 className="text-sm font-medium text-zinc-400 mb-2">Highest Transaction</h4>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-white font-medium">{analysisResults.summary.highestTransaction.description || 'N/A'}</p>
+                      <p className="text-white font-medium">{analysisResults.summary.highestTransaction.particulars || analysisResults.summary.highestTransaction.description || 'N/A'}</p>
                       <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.highestTransaction.date).toLocaleDateString()}</p>
                     </div>
                     <p className="text-lg font-bold text-green-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
@@ -177,7 +256,7 @@ export const CanaraAnalysisView: React.FC<{
                   <h4 className="text-sm font-medium text-zinc-400 mb-2">Lowest Transaction</h4>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-white font-medium">{analysisResults.summary.lowestTransaction.description || 'N/A'}</p>
+                      <p className="text-white font-medium">{analysisResults.summary.lowestTransaction.particulars || analysisResults.summary.lowestTransaction.description || 'N/A'}</p>
                       <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.lowestTransaction.date).toLocaleDateString()}</p>
                     </div>
                     <p className="text-lg font-bold text-red-400">₹{Math.abs(analysisResults.summary.lowestAmount || 0).toLocaleString()}</p>
@@ -215,7 +294,7 @@ export const CanaraAnalysisView: React.FC<{
                       <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                       <div className="h-64">
                         {chartData && chartData.labels && chartData.labels.length > 0 && (
-                          <Chart data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: 'white', font: { size: 16, weight: 'bold' }, padding: 30, boxWidth: 30, boxHeight: 20 } }, tooltip: { callbacks: { label: function (context: any) { const label = context.label || ''; const value = context.parsed; return `${label}: ₹${Number(value).toLocaleString()}`; } } } } }} />
+                          <Chart data={chartData} options={pieOptions} />
                         )}
                       </div>
                     </div>
@@ -225,7 +304,7 @@ export const CanaraAnalysisView: React.FC<{
                       <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                       <div className="h-64">
                         {chartData && chartData.labels && chartData.labels.length > 0 && (
-                          <Doughnut data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: 'white', font: { size: 16 }, padding: 30 } }, tooltip: { callbacks: { label: function (context: any) { return `${context.label}: ${context.parsed.toFixed(1)}%`; } } } } }} />
+                          <Doughnut data={chartData} options={doughnutOptions} />
                         )}
                       </div>
                     </div>
@@ -235,7 +314,7 @@ export const CanaraAnalysisView: React.FC<{
                       <h4 className="text-sm font-medium text-zinc-400 mb-4">Spending by Category</h4>
                       <div className="h-64">
                         {chartData && chartData.labels && chartData.labels.length > 0 && (
-                          <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (context: any) { const label = context.label || ''; const value = context.parsed.y; return `${label}: ₹${Number(value).toLocaleString()}`; } } } } }} />
+                          <Bar data={chartData} options={barOptions} />
                         )}
                       </div>
                     </div>
