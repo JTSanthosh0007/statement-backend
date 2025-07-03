@@ -1,8 +1,7 @@
 "use client";
 import React, { useState, useRef, useCallback } from "react";
 import { CanaraAnalysisView } from "../components/CanaraAnalysisView";
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://demo-bl6p.onrender.com"; // Use deployed backend URL
+import config from "../config";
 
 export default function CanaraBankPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -14,19 +13,34 @@ export default function CanaraBankPage() {
     async (file: File) => {
       try {
         setAnalysisState("analyzing");
+        console.log("Starting Canara statement analysis");
+
         const formData = new FormData();
         formData.append("file", file);
+
+        // Use the API path from config
         const response = await fetch(`/api/analyze-canara`, {
           method: "POST",
           body: formData,
         });
-        const data = await response.json();
+
         if (!response.ok) {
-          throw new Error(data.details || data.error || "Analysis failed");
+          const errorData = await response.json();
+          console.error("Error response:", errorData);
+          throw new Error(errorData.details || errorData.error || "Analysis failed");
         }
+
+        const data = await response.json();
+        console.log("Analysis results:", data);
+
+        if (!data || !data.transactions || data.transactions.length === 0) {
+          throw new Error("No transactions found in the statement");
+        }
+
         setAnalysisResults(data);
         setAnalysisState("results");
       } catch (error: any) {
+        console.error("Analysis error:", error);
         alert(
           error.message?.includes("No transactions found")
             ? "No transactions could be found in this PDF. Please make sure this is a valid Canara Bank statement and try again."
@@ -84,7 +98,7 @@ export default function CanaraBankPage() {
   return (
     <div className="min-h-screen bg-black flex flex-col justify-center items-center">
       <CanaraAnalysisView
-        setCurrentView={() => {}}
+        setCurrentView={() => { }}
         selectedFile={selectedFile}
         analysisState={analysisState}
         analysisResults={analysisResults}

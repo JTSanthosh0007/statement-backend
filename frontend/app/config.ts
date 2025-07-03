@@ -7,7 +7,8 @@ const config = {
     analyzeStatement: '/api/analyze-statement',
     analyzeKotak: '/api/analyze-kotak-statement',
     analyzePhonepe: '/api/analyze-phonepe',
-    unlockPdf: '/api/unlock-pdf'
+    unlockPdf: '/api/unlock-pdf',
+    analyzeCanara: '/api/analyze-canara'
   }
 };
 
