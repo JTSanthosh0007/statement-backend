@@ -11,10 +11,24 @@ logger = logging.getLogger(__name__)
 
 canara_routes = Blueprint('canara_routes', __name__)
 
+@canara_routes.route('/analyze-canara-test', methods=['GET'])
+def canara_test():
+    """Test endpoint to verify the Canara routes are accessible"""
+    logger.info("Test endpoint for Canara routes accessed")
+    return jsonify({
+        'status': 'success',
+        'message': 'Canara routes are accessible',
+        'timestamp': time.time()
+    })
+
 @canara_routes.route('/analyze-canara', methods=['POST'])
 def analyze_canara():
     start_time = time.time()
     logger.info("Starting Canara statement analysis")
+    
+    # Log request details
+    logger.info(f"Request headers: {dict(request.headers)}")
+    logger.info(f"Request files: {list(request.files.keys())}")
     
     if 'file' not in request.files:
         logger.error("No file provided in request")

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { CanaraAnalysisView } from "../components/CanaraAnalysisView";
 import config from "../config";
 
@@ -7,7 +7,30 @@ export default function CanaraBankPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [analysisState, setAnalysisState] = useState<string>("upload");
   const [analysisResults, setAnalysisResults] = useState<any>(null);
+  const [backendStatus, setBackendStatus] = useState<'unknown' | 'online' | 'offline'>('unknown');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Test backend connectivity on page load
+  useEffect(() => {
+    const testBackendConnection = async () => {
+      try {
+        console.log("Testing backend connectivity...");
+        const response = await fetch('/api/analyze-canara-test');
+        if (response.ok) {
+          console.log("Backend is online");
+          setBackendStatus('online');
+        } else {
+          console.error("Backend test failed:", await response.json());
+          setBackendStatus('offline');
+        }
+      } catch (error) {
+        console.error("Backend connectivity test error:", error);
+        setBackendStatus('offline');
+      }
+    };
+
+    testBackendConnection();
+  }, []);
 
   const analyzeStatement = useCallback(
     async (file: File) => {
@@ -19,6 +42,7 @@ export default function CanaraBankPage() {
         formData.append("file", file);
 
         // Use the API path from config
+        console.log(`Sending file to analyze-canara API: ${file.name}, size: ${file.size}`);
         const response = await fetch(`/api/analyze-canara`, {
           method: "POST",
           body: formData,
@@ -97,6 +121,12 @@ export default function CanaraBankPage() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col justify-center items-center">
+      {backendStatus === 'offline' && (
+        <div className="mb-4 p-3 rounded-lg bg-red-900/40 text-red-300 text-center font-medium w-fit mx-auto">
+          ⚠️ The analysis service is currently unavailable. Please try again later.
+        </div>
+      )}
+
       <CanaraAnalysisView
         setCurrentView={() => { }}
         selectedFile={selectedFile}
@@ -107,6 +137,7 @@ export default function CanaraBankPage() {
         handleDrop={handleDrop}
         fileInputRef={fileInputRef}
       />
+
       <div className="mt-6 p-3 rounded-lg bg-yellow-900/40 text-yellow-300 text-center font-medium w-fit mx-auto">
         PDF page limit is{" "}
         <span className="font-bold">50</span>. If your statement has more than 50

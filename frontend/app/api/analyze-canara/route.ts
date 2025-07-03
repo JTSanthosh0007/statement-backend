@@ -13,6 +13,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let retries = 0;
   let lastError: Error | null = null;
 
+  console.log("API route handler triggered for analyze-canara");
+
   while (retries <= MAX_RETRIES) {
     try {
       // Extract form data from the request
@@ -28,26 +30,48 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         );
       }
 
-      // Set the backend URL
+      console.log(`File received: ${(file as any).name}, size: ${(file as any).size} bytes`);
+
+      // Make sure we're using the complete backend URL with explicit http/https protocol
       const backendUrl = `${config.backendUrl}/analyze-canara`;
       console.log(`[Attempt ${retries + 1}] Sending request to backend URL:`, backendUrl);
 
       // Set a reasonable timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 second timeout (statements can be large)
 
-      // Send the request to the backend
+      // Create a new FormData to ensure proper file transfer
+      const backendFormData = new FormData();
+      backendFormData.append('file', file);
+
+      // Send the request to the backend with explicit headers
       const response = await fetch(backendUrl, {
         method: 'POST',
-        body: formData,
-        signal: controller.signal
+        body: backendFormData,
+        signal: controller.signal,
+        // Don't set Content-Type header, let the browser set it with the boundary parameter for multipart/form-data
       });
 
       // Clear the timeout
       clearTimeout(timeoutId);
 
+      console.log(`Backend response status: ${response.status}`);
+
+      // Check for empty response
+      if (!response.body) {
+        console.error('Empty response received from backend');
+        throw new Error('Empty response from backend server');
+      }
+
       // Parse the response
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+        console.log('Response data structure:', Object.keys(data));
+      } catch (parseError) {
+        console.error('Error parsing JSON response:', parseError);
+        throw new Error('Invalid response format from backend');
+      }
 
       // If response is not OK, handle specific error cases
       if (!response.ok) {
@@ -78,8 +102,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         );
       }
 
+      // Validate the data has the expected structure
+      if (!data || !data.transactions || data.transactions.length === 0) {
+        console.error('Invalid or empty transaction data received', data);
+        return NextResponse.json(
+          { error: 'No transactions found in the statement', details: 'The parser could not identify any transactions in this document' },
+          { status: 400 }
+        );
+      }
+
       // Success! Return the data
-      console.log('Analysis successful');
+      console.log('Analysis successful, found', data.transactions.length, 'transactions');
       return NextResponse.json(data, { status: 200 });
 
     } catch (error: any) {
@@ -87,7 +120,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       console.error(`Error analyzing Canara statement (attempt ${retries + 1}):`, error);
 
       // If it's a timeout or network error, retry
-      if (error.name === 'AbortError' || error.message?.includes('network')) {
+      if (error.name === 'AbortError' || error.message?.includes('network') || error.message?.includes('fetch')) {
         retries++;
         if (retries <= MAX_RETRIES) {
           console.log(`Retrying... (${retries}/${MAX_RETRIES})`);
