@@ -10,65 +10,82 @@ export default function CanaraBankPage() {
   const [backendStatus, setBackendStatus] = useState<'unknown' | 'online' | 'offline'>('unknown');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Test backend connectivity on page load
+  // Test frontend API route on page load
   useEffect(() => {
-    const testBackendConnection = async () => {
+    const testApiRoute = async () => {
       try {
-        console.log("Testing backend connectivity...");
+        console.log("Testing API route...");
         const response = await fetch('/api/analyze-canara-test');
         if (response.ok) {
-          console.log("Backend is online");
+          console.log("API route is working");
           setBackendStatus('online');
         } else {
-          console.error("Backend test failed:", await response.json());
+          console.error("API route test failed:", await response.json());
           setBackendStatus('offline');
         }
       } catch (error) {
-        console.error("Backend connectivity test error:", error);
+        console.error("API route test error:", error);
         setBackendStatus('offline');
       }
     };
 
-    testBackendConnection();
+    testApiRoute();
   }, []);
 
   const analyzeStatement = useCallback(
     async (file: File) => {
       try {
+        // Always proceed with analysis regardless of the backend status test
         setAnalysisState("analyzing");
         console.log("Starting Canara statement analysis");
 
         const formData = new FormData();
         formData.append("file", file);
 
-        // Use the API path from config
         console.log(`Sending file to analyze-canara API: ${file.name}, size: ${file.size}`);
-        const response = await fetch(`/api/analyze-canara`, {
-          method: "POST",
-          body: formData,
-        });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Error response:", errorData);
-          throw new Error(errorData.details || errorData.error || "Analysis failed");
+        // Set a timeout for the fetch request
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+
+        try {
+          const response = await fetch(`/api/analyze-canara`, {
+            method: "POST",
+            body: formData,
+            signal: controller.signal
+          });
+
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error response:", errorData);
+            throw new Error(errorData.details || errorData.error || "Analysis failed");
+          }
+
+          const data = await response.json();
+          console.log("Analysis results:", data);
+
+          if (!data || !data.transactions || data.transactions.length === 0) {
+            throw new Error("No transactions found in the statement");
+          }
+
+          setAnalysisResults(data);
+          setAnalysisState("results");
+        } catch (fetchError: any) {
+          if (fetchError.name === 'AbortError') {
+            throw new Error("Request timed out. Please try again later.");
+          }
+          throw fetchError;
         }
-
-        const data = await response.json();
-        console.log("Analysis results:", data);
-
-        if (!data || !data.transactions || data.transactions.length === 0) {
-          throw new Error("No transactions found in the statement");
-        }
-
-        setAnalysisResults(data);
-        setAnalysisState("results");
       } catch (error: any) {
         console.error("Analysis error:", error);
         alert(
           error.message?.includes("No transactions found")
             ? "No transactions could be found in this PDF. Please make sure this is a valid Canara Bank statement and try again."
-            : "Failed to analyze statement. Please make sure this is a valid PDF statement and try again."
+            : error.message?.includes("timed out")
+              ? "The request timed out. The server might be busy or temporarily unavailable. Please try again later."
+              : "Failed to analyze statement. Please make sure this is a valid PDF statement and try again."
         );
         setAnalysisState("upload");
         setAnalysisResults(null);
@@ -122,8 +139,8 @@ export default function CanaraBankPage() {
   return (
     <div className="min-h-screen bg-black flex flex-col justify-center items-center">
       {backendStatus === 'offline' && (
-        <div className="mb-4 p-3 rounded-lg bg-red-900/40 text-red-300 text-center font-medium w-fit mx-auto">
-          ⚠️ The analysis service is currently unavailable. Please try again later.
+        <div className="mb-4 p-3 rounded-lg bg-yellow-900/40 text-yellow-300 text-center font-medium w-fit mx-auto">
+          ⚠️ The backend service may be unavailable, but you can still try to upload your statement.
         </div>
       )}
 

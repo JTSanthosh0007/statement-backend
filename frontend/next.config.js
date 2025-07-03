@@ -4,6 +4,9 @@ const nextConfig = {
   experimental: {
     forceSwcTransforms: true // Force SWC transforms
   },
+  env: {
+    NODE_ENV: process.env.NODE_ENV || 'production' // Default to production for deployments
+  },
   async rewrites() {
     return [
       {
