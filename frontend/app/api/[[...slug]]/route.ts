@@ -6,12 +6,12 @@ import config from '../../config';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string[] } }
+  context: { params: { slug: string[] } }
 ) {
-  console.log('Catch-all GET handler activated for path:', params.slug);
-  
+  console.log('Catch-all GET handler activated for path:', context.params.slug);
+
   // Handle the test endpoint
-  if (params.slug?.join('/') === 'analyze-canara-test') {
+  if (context.params.slug?.join('/') === 'analyze-canara-test') {
     console.log('Handling analyze-canara-test request');
     return NextResponse.json({
       success: true,
@@ -19,10 +19,10 @@ export async function GET(
       timestamp: new Date().toISOString()
     });
   }
-  
+
   return NextResponse.json({
     error: 'Unknown API endpoint',
-    path: params.slug?.join('/') || 'root',
+    path: context.params.slug?.join('/') || 'root',
     availableEndpoints: Object.values(config.apiPaths)
   }, { status: 404 });
 }
@@ -32,17 +32,17 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { slug: string[] } }
+  context: { params: { slug: string[] } }
 ) {
-  console.log('Catch-all POST handler activated for path:', params.slug);
-  
+  console.log('Catch-all POST handler activated for path:', context.params.slug);
+
   // Check if this is a Canara Bank analysis request
-  if (params.slug?.join('/') === 'analyze-canara') {
+  if (context.params.slug?.join('/') === 'analyze-canara') {
     console.log('Handling analyze-canara request');
     try {
       // Extract form data from the request
       const formData = await request.formData();
-      
+
       // Validate file exists in form data
       const file = formData.get('file');
       if (!file) {
@@ -52,12 +52,12 @@ export async function POST(
           { status: 400 }
         );
       }
-      
+
       console.log(`File received: ${(file as any).name}, size: ${(file as any).size} bytes`);
-      
+
       // Return simulated data for demo purposes
       console.log('Generating simulated data for Canara Bank analysis');
-      
+
       const simulatedData = {
         transactions: [
           { date: new Date().toISOString().split('T')[0], particulars: 'Salary Credit', deposits: 45000, withdrawals: 0, balance: 45000, category: 'Income' },
@@ -91,7 +91,7 @@ export async function POST(
         accounts: [],
         note: 'This is simulated demo data'
       };
-      
+
       return NextResponse.json(simulatedData, { status: 200 });
     } catch (error: any) {
       console.error('Error processing Canara Bank analysis:', error);
@@ -101,11 +101,11 @@ export async function POST(
       }, { status: 500 });
     }
   }
-  
+
   // For any other endpoint, return a 404 error
   return NextResponse.json({
     error: 'Unknown API endpoint',
-    path: params.slug?.join('/') || 'root',
+    path: context.params.slug?.join('/') || 'root',
     availableEndpoints: Object.values(config.apiPaths)
   }, { status: 404 });
 } 
