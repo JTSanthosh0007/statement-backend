@@ -21,8 +21,8 @@ export default function PhonepePage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      console.log('Making POST request to /api/analyze-phonepe-statement.');
-      const response = await fetch('/api/analyze-phonepe-statement', {
+      console.log('Making POST request to /api/analyze-phonepe.');
+      const response = await fetch('/api/analyze-phonepe', {
         method: 'POST',
         body: formData,
       });
