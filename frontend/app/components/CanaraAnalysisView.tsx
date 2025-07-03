@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, AnalysisResult } from '../components/StatementAnalysis';
+import { View, AnalysisResult, Transaction } from '../components/StatementAnalysis';
 import AccountAnalysis from './AccountAnalysis';
 import dynamic from 'next/dynamic';
 import './ChartConfig'; // Import chart configuration to register elements
@@ -244,7 +244,11 @@ export const CanaraAnalysisView: React.FC<{
                   <h4 className="text-sm font-medium text-zinc-400 mb-2">Highest Transaction</h4>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-white font-medium">{analysisResults.summary.highestTransaction.particulars || analysisResults.summary.highestTransaction.description || 'N/A'}</p>
+                      <p className="text-white font-medium">
+                        {(analysisResults.summary.highestTransaction as Transaction).particulars ||
+                          analysisResults.summary.highestTransaction.description ||
+                          'N/A'}
+                      </p>
                       <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.highestTransaction.date).toLocaleDateString()}</p>
                     </div>
                     <p className="text-lg font-bold text-green-400">₹{analysisResults.summary.highestAmount?.toLocaleString() || '0'}</p>
@@ -256,7 +260,11 @@ export const CanaraAnalysisView: React.FC<{
                   <h4 className="text-sm font-medium text-zinc-400 mb-2">Lowest Transaction</h4>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-white font-medium">{analysisResults.summary.lowestTransaction.particulars || analysisResults.summary.lowestTransaction.description || 'N/A'}</p>
+                      <p className="text-white font-medium">
+                        {(analysisResults.summary.lowestTransaction as Transaction).particulars ||
+                          analysisResults.summary.lowestTransaction.description ||
+                          'N/A'}
+                      </p>
                       <p className="text-sm text-zinc-400">{new Date(analysisResults.summary.lowestTransaction.date).toLocaleDateString()}</p>
                     </div>
                     <p className="text-lg font-bold text-red-400">₹{Math.abs(analysisResults.summary.lowestAmount || 0).toLocaleString()}</p>

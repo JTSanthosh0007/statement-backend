@@ -73,13 +73,18 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Default': '#64748B',             // Gray (add a Default for fallback)
 };
 
-type Transaction = {
-  date: string
-  amount: number
-  description: string
-  category: string
-  icon?: string
-}
+// Look for the transaction type definition and update it to include particulars field
+export type Transaction = {
+  date: string;
+  description?: string;
+  particulars?: string; // Add this field
+  amount: number;
+  type?: string;
+  balance?: number;
+  category?: string;
+  deposits?: number;
+  withdrawals?: number;
+};
 
 type AnalysisData = {
   transactions: Transaction[]
