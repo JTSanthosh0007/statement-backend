@@ -141,7 +141,9 @@ async def analyze_phonepe_statement(
             tmp.write(content)
             tmp_path = tmp.name
         try:
+            logger.info(f"Starting PhonePe analysis on file: {file.filename}")
             results = parse_phonepe_statement(tmp_path)
+            
             if not results or 'transactions' not in results:
                 logger.warning("No transactions extracted from PhonePe statement.")
                 return {
@@ -150,14 +152,35 @@ async def analyze_phonepe_statement(
                     "categoryBreakdown": {},
                     "pageCount": 0
                 }
+                
             transactions = results.get('transactions', [])
+            logger.info(f"Extracted {len(transactions)} transactions from PhonePe statement")
+            
+            # Ensure transactions have all required fields before categorization
+            for tx in transactions:
+                if 'transaction_details' not in tx or not tx['transaction_details']:
+                    tx['transaction_details'] = 'Unknown transaction'
+                    
+            # Apply categorization
+            logger.info("Categorizing PhonePe transactions...")
             transactions = categorize_transactions(transactions)
+            
+            # Verify categorization worked
+            categories_found = set()
+            for tx in transactions:
+                if 'category' not in tx or not tx['category']:
+                    tx['category'] = 'Others'
+                categories_found.add(tx['category'])
+                
+            logger.info(f"Categories found in transactions: {categories_found}")
+            
             # Calculate summary
             total_spent = sum(t['amount'] for t in transactions if t['amount'] < 0)
             total_received = sum(t['amount'] for t in transactions if t['amount'] > 0)
             credit_count = sum(1 for t in transactions if t['amount'] > 0)
             debit_count = sum(1 for t in transactions if t['amount'] < 0)
             total_transactions = len(transactions)
+            
             # Calculate highest and lowest amounts
             if transactions:
                 amounts = [abs(t['amount']) for t in transactions if abs(t['amount']) > 0]
@@ -176,18 +199,29 @@ async def analyze_phonepe_statement(
                 lowest_amount = 0
                 highest_transaction = None
                 lowest_transaction = None
+                
             # Build category breakdown (include all categories, both positive and negative amounts)
             category_map = {}
             total_amount = sum(abs(t['amount']) for t in transactions)
+            
             for t in transactions:
-                cat = t.get('category', t.get('type', 'Others'))
+                # Ensure category exists
+                cat = t.get('category', 'Others')
+                if not cat:
+                    cat = 'Others'
+                    
                 if cat not in category_map:
                     category_map[cat] = {'amount': 0, 'count': 0}
+                    
                 category_map[cat]['amount'] += abs(t['amount'])
                 category_map[cat]['count'] += 1
+                
             for cat in category_map:
                 amt = category_map[cat]['amount']
                 category_map[cat]['percentage'] = (amt / total_amount * 100) if total_amount else 0
+                
+            logger.info(f"Category breakdown: {list(category_map.keys())}")
+            
             page_count = results.get('pageCount', 0)
             return {
                 "transactions": transactions,
