@@ -5,7 +5,7 @@ const nextConfig = {
     forceSwcTransforms: true // Force SWC transforms
   },
   env: {
-    NODE_ENV: process.env.NODE_ENV || 'production' // Default to production for deployments
+    DEMO_MODE: 'true' // Enable demo mode for deployments
   },
   async rewrites() {
     return [

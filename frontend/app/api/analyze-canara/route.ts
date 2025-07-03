@@ -119,7 +119,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         console.error('Backend request failed:', backendError);
 
         // For deployment/demo purposes, return simulated data if backend is unreachable
-        if (process.env.NODE_ENV === 'production') {
+        if (process.env.DEMO_MODE === 'true') {
           console.log('Generating simulated data for demo purposes');
 
           // Generate simple transaction data for demo purposes
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   // If we get here, all retries failed or a non-retryable error occurred
   // For demo purposes, return simulated data
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.DEMO_MODE === 'true') {
     console.log('Generating simulated data after failure');
 
     // Generate simple transaction data for demo
