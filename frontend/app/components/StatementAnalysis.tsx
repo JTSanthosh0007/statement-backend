@@ -903,6 +903,33 @@ export const PhonePeAnalysisView: React.FC<{
 
     const renderContent = () => {
       switch (analysisState) {
+        case 'upload':
+          return (
+            <div className="flex flex-col items-center justify-center p-8">
+              <h2 className="text-white text-xl font-semibold mb-4">Upload your PhonePe Statement</h2>
+              <div
+                className="w-full max-w-md bg-zinc-900/80 rounded-2xl p-6 border-2 border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-all"
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                style={{ minHeight: 180 }}
+              >
+                <ArrowUpTrayIcon className="w-10 h-10 text-blue-400 mb-2" />
+                <p className="text-zinc-300 mb-2">Drag & drop your PDF here, or <span className="text-blue-400 underline cursor-pointer">browse</span></p>
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  ref={fileInputRef as any}
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                {selectedFile && (
+                  <div className="mt-4 text-green-400 text-sm">Selected: {selectedFile.name}</div>
+                )}
+              </div>
+              <p className="text-zinc-400 text-xs mt-4">Only PDF statements are supported. Your data is processed securely in your browser.</p>
+            </div>
+          );
         case 'analyzing':
           return (
             <div className="flex flex-col items-center justify-center p-8">
