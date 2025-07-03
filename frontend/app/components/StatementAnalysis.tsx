@@ -908,14 +908,23 @@ export const PhonePeAnalysisView: React.FC<{
             <div className="flex flex-col items-center justify-center p-8">
               <h2 className="text-white text-xl font-semibold mb-4">Upload your PhonePe Statement</h2>
               <div
-                className="w-full max-w-md bg-zinc-900/80 rounded-2xl p-6 border-2 border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-all"
+                className="w-full max-w-md bg-zinc-900/80 rounded-2xl p-6 border-2 border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-yellow-500 transition-all"
                 onClick={() => fileInputRef.current?.click()}
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 style={{ minHeight: 180 }}
               >
-                <ArrowUpTrayIcon className="w-10 h-10 text-blue-400 mb-2" />
-                <p className="text-zinc-300 mb-2">Drag & drop your PDF here, or <span className="text-blue-400 underline cursor-pointer">browse</span></p>
+                <ArrowUpTrayIcon className="w-10 h-10 text-yellow-400 mb-2" />
+                <p className="text-zinc-300 mb-4">Drag & drop your PDF here, or</p>
+                <button
+                  className="bg-yellow-400 text-black font-semibold px-6 py-3 rounded-lg hover:bg-yellow-500 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                >
+                  Select the PDF file
+                </button>
                 <input
                   type="file"
                   accept="application/pdf"
@@ -927,7 +936,7 @@ export const PhonePeAnalysisView: React.FC<{
                   <div className="mt-4 text-green-400 text-sm">Selected: {selectedFile.name}</div>
                 )}
               </div>
-              <p className="text-zinc-400 text-xs mt-4">Only PDF statements are supported. Your data is processed securely in your browser.</p>
+              <p className="text-zinc-400 text-xs mt-4 text-center">Only PDF statements are supported.<br />Your data is processed securely in your browser.</p>
             </div>
           );
         case 'analyzing':
@@ -1900,31 +1909,37 @@ export const KotakAnalysisView: React.FC<{
         default:
           return (
             <div className="p-4">
-              <div className="bg-zinc-900/80 rounded-3xl p-8 border-2 border-[#EF3E23]/60 shadow-lg max-w-md mx-auto">
+              <div className="bg-zinc-900/80 rounded-3xl p-8 border-2 border-zinc-800/50 shadow-lg max-w-md mx-auto">
                 <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-[#EF3E23]/80 rounded-full flex items-center justify-center shadow-md">
-                    <ArrowUpTrayIcon className="w-10 h-10 text-white" />
+                  <div className="w-16 h-16 mx-auto mb-4 bg-zinc-800 rounded-full flex items-center justify-center shadow-md">
+                    <ArrowUpTrayIcon className="w-10 h-10 text-yellow-400" />
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-2">Upload Kotak Bank Statement</h3>
-                  <p className="text-zinc-300 text-base mb-6">Drag and drop your <span className="text-[#EF3E23] font-semibold">Kotak Bank PDF statement</span> here, or click to browse.</p>
+                  <p className="text-zinc-300 text-base mb-6">Drag and drop your <span className="text-yellow-400 font-semibold">Kotak Bank PDF statement</span> here, or click below.</p>
                   <div
-                    className="border-2 border-dashed border-[#EF3E23]/60 rounded-2xl p-8 text-center cursor-pointer hover:border-[#EF3E23] bg-zinc-800/60 transition-colors"
+                    className="border-2 border-dashed border-zinc-700 rounded-2xl p-8 text-center cursor-pointer hover:border-yellow-400 bg-zinc-800/60 transition-colors mb-6"
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ArrowUpTrayIcon className="w-8 h-8 text-yellow-400 mx-auto mb-3" />
+                    <p className="text-white mb-4">Drag PDF here</p>
+                  </div>
+                  <button
+                    className="bg-yellow-400 text-black font-semibold px-6 py-3 rounded-lg hover:bg-yellow-500 transition-colors w-full"
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      className="hidden"
-                      accept=".pdf"
-                      onChange={handleFileSelect}
-                    />
-                    <ArrowUpTrayIcon className="w-8 h-8 text-[#EF3E23] mx-auto mb-3" />
-                    <p className="text-white mb-4">Click to browse or drag PDF here</p>
-                  </div>
+                    Select the PDF file
+                  </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept=".pdf"
+                    onChange={handleFileSelect}
+                  />
                   <div className="mt-5 text-xs text-zinc-400">
-                    <p>Only <span className="text-[#EF3E23] font-semibold">PDF</span> files are supported.</p>
+                    <p>Only <span className="text-yellow-400 font-semibold">PDF</span> files are supported.</p>
                     <p className="mt-1">Your data is processed securely and never stored.</p>
                   </div>
                 </div>
