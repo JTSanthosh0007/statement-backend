@@ -1,41 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { spawn } from 'child_process';
-import { writeFile } from 'fs/promises';
-import path from 'path';
-import os from 'os';
-import fs from 'fs';
+import config from '../../config';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // Get the form data from the request
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
+    // Parse the incoming form data
+    const incomingFormData = await request.formData();
 
-    if (!file) {
+    // Rebuild a new FormData to forward
+    const formData = new FormData();
+    for (const [key, value] of incomingFormData.entries()) {
+      formData.append(key, value);
+    }
+
+    const backendUrl = `${config.backendUrl}/analyze-kotak`;
+
+    console.log('Sending request to backend URL:', backendUrl);
+
+    const response = await fetch(backendUrl, {
+      method: 'POST',
+      body: formData,
+      // Do NOT forward headers, let fetch set the correct Content-Type for FormData
+    });
+
+    let data;
+    try {
+      data = await response.json();
+    } catch (jsonError) {
+      // If response is not JSON, return a generic error
       return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
+        { error: 'Backend did not return valid JSON', details: await response.text() },
+        { status: 500 }
       );
     }
 
-    // Prepare form data for backend
-    const backendForm = new FormData();
-    backendForm.append('file', file);
-
-    // Call the FastAPI backend /analyze-kotak endpoint
-    const backendUrl = process.env.BACKEND_URL || 'https://demo-bl6p.onrender.com/analyze-kotak';
-    const response = await fetch(backendUrl, {
-      method: 'POST',
-      body: backendForm,
-    });
-    const data = await response.json();
+    // Return the backend response with the same status
     return NextResponse.json(data, { status: response.status });
+
   } catch (error: any) {
-    console.error('Error processing statement:', error);
+    console.error('Error proxying Kotak request to backend:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to process statement',
-        details: error.message
+      {
+        error: 'Failed to connect to Kotak analysis service',
+        details: error.message || String(error)
       },
       { status: 500 }
     );

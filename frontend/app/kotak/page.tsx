@@ -6,7 +6,7 @@ import { AnalysisState, AnalysisResult, View, KotakAnalysisView } from '../compo
 
 export default function KotakPage() {
   const router = useRouter()
-  
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [analysisState, setAnalysisState] = useState<AnalysisState>('upload');
   const [analysisResults, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -18,11 +18,14 @@ export default function KotakPage() {
       setAnalysisState('analyzing');
       console.log('Starting analysis for Kotak file:', file?.name);
 
-    const formData = new FormData();
-    formData.append('file', file);
+      const formData = new FormData();
+      formData.append('file', file);
 
-      console.log('Making POST request to /api/analyze-kotak-statement.');
-      const response = await fetch('/api/analyze-kotak-statement', {
+      // Update to use the correct endpoint
+      const apiEndpoint = '/api/analyze-kotak-statement';
+      console.log('Making POST request to:', apiEndpoint);
+
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         body: formData,
       });
@@ -34,7 +37,7 @@ export default function KotakPage() {
       if (!response.ok) {
         let errorMessage = data.details || data.error || 'Analysis failed';
         if (errorMessage.includes('This does not appear to be a Kotak Bank statement')) {
-          errorMessage = '';
+          errorMessage = 'This does not appear to be a valid Kotak Bank statement. Please check the file and try again.';
         }
         setError(errorMessage);
         setAnalysisState('upload');
@@ -85,7 +88,7 @@ export default function KotakPage() {
   const handleDrop = useCallback(async (event: React.DragEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    
+
     const file = event.dataTransfer.files?.[0];
     console.log('Kotak File dropped:', file?.name);
     if (file && file.type === 'application/pdf') {
@@ -102,7 +105,7 @@ export default function KotakPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      <KotakAnalysisView 
+      <KotakAnalysisView
         setCurrentView={() => router.push('/')}
         selectedFile={selectedFile}
         analysisState={analysisState}
