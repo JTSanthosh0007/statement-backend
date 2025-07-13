@@ -21,6 +21,7 @@ import random
 import string
 from datetime import datetime
 import sqlite3
+from routes.canara_routes import canara_routes
 
 # Must be the first Streamlit command
 st.set_page_config(
@@ -542,4 +543,7 @@ def main():
     show_subscription_plans()
 
 if __name__ == "__main__":
-    main() 
+    main()
+
+# Register blueprints
+app.register_blueprint(canara_routes, url_prefix='/api')

@@ -1,19 +1,66 @@
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 import uvicorn
 from statement_parser import StatementParser
 import io
-import fitz
+import fitz  # PyMuPDF
 import pdfplumber
 import pandas as pd
 import re
 import logging
 import time
+import os
+import tempfile
 from parsers.kotak_parser import parse_kotak_statement
-from celery_worker import process_pdf_task
+from parsers.phonepe_parser import parse_phonepe_statement, categorize_transactions
+from parsers.canara_parser import parse_canara_statement
+from starlette.middleware import Middleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from user_agent_config import should_block_request, CONFIG
 
-app = FastAPI()
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+app = FastAPI(title="Statement Analyzer API", version="1.0.0")
+
+# User-Agent blocking middleware
+class UserAgentMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        user_agent = request.headers.get("user-agent", "")
+        
+        # Check if request should be blocked
+        should_block, message, status_code = should_block_request(user_agent)
+        
+        if should_block:
+            if CONFIG["log_blocked_requests"]:
+                logger.warning(f"Request blocked. User-Agent: {user_agent}")
+            
+            return JSONResponse(
+                status_code=status_code,
+                content={
+                    "error": "Access Denied" if status_code == 403 else "Not Found",
+                    "message": message
+                }
+            )
+        
+        # Continue with the request if it's allowed
+        return await call_next(request)
+
+# Increase max upload size (example: 100 MB)
+class LimitUploadSizeMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        max_body_size = 100 * 1024 * 1024  # 100 MB
+        if int(request.headers.get("content-length", 0)) > max_body_size:
+            from starlette.responses import Response
+            return Response("File too large", status_code=413)
+        return await call_next(request)
+
+# Add middlewares in order
+app.add_middleware(UserAgentMiddleware)
+app.add_middleware(LimitUploadSizeMiddleware)
 
 # Enable CORS with simpler configuration
 app.add_middleware(
@@ -36,7 +83,8 @@ async def root():
             "/analyze": "Analyze financial statements",
             "/analyze-phonepe": "Analyze PhonePe statements",
             "/unlock-pdf": "Unlock password-protected PDF files",
-            "/analyze-kotak": "Analyze Kotak statements"
+            "/analyze-kotak": "Analyze Kotak statements",
+            "/api/analyze-canara": "Analyze Canara Bank statements"
         },
         "status": "online"
     }
@@ -111,237 +159,131 @@ async def analyze_phonepe_statement(
     file: UploadFile = File(...),
 ):
     logger = logging.getLogger(__name__)
-    debug_info = {
-        "pages": 0,
-        "lines_per_page": [],
-        "transactions_found": 0,
-        "sample_matches": [],
-        "tables_found": 0,
-        "methods_used": [],
-        "errors": [],
-        "first_20_lines": []
-    }
     try:
-        start_time = time.time()
         if not file:
             raise HTTPException(status_code=400, detail="No file provided")
         content = await file.read()
-        transactions = []
-        methods_used = []
-        tables_found = 0
-        # 1. Try pdfplumber for tables (PhonePe format) in batches
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp:
+            tmp.write(content)
+            tmp_path = tmp.name
         try:
-            with pdfplumber.open(io.BytesIO(content)) as pdf:
-                debug_info["pages"] = len(pdf.pages)
-                methods_used.append("pdfplumber")
-                if len(pdf.pages) > 800:
-                    logger.warning(f"PDF has {len(pdf.pages)} pages, which exceeds the supported limit.")
-                    raise HTTPException(status_code=400, detail="PDF too large to analyze (over 800 pages). Please upload a smaller file.")
-                if len(pdf.pages) > 100:
-                    logger.warning(f"Large PDF detected: {len(pdf.pages)} pages.")
-                batch_size = 20  # Set batch size to 20
-                batch_times = []
-                for batch_start in range(0, len(pdf.pages), batch_size):
-                    batch_end = min(batch_start + batch_size, len(pdf.pages))
-                    logger.info(f"Processing pages {batch_start+1} to {batch_end} of {len(pdf.pages)} (batch size: {batch_size})")
-                    batch_time_start = time.time()
-                    for page_num in range(batch_start, batch_end):
-                        page = pdf.pages[page_num]
-                        page_lines = []
-                        tables = page.extract_tables()
-                        if tables:
-                            tables_found += len(tables)
-                            for table in tables:
-                                for row in table:
-                                    if (len(row) >= 4 and
-                                        ("Date" in row[0] and "Transaction" in row[1] and "Type" in row[2] and "Amount" in row[3])):
-                                        continue  # skip header
-                                    if len(row) >= 4:
-                                        date_str = row[0].strip() if row[0] else ''
-                                        time_str = ''
-                                        if re.match(r'\d{1,2}:\d{2} (am|pm|AM|PM)', row[1] or ''):
-                                            time_str = row[1].strip()
-                                            details = row[2].strip() if len(row) > 2 else ''
-                                            txn_type = row[3].strip() if len(row) > 3 else ''
-                                            amount_str = row[4].strip() if len(row) > 4 else ''
-                                        else:
-                                            details = row[1].strip() if row[1] else ''
-                                            txn_type = row[2].strip() if row[2] else ''
-                                            amount_str = row[3].strip() if row[3] else ''
-                                        dt_str = f"{date_str} {time_str}".strip()
-                                        try:
-                                            date = pd.to_datetime(dt_str, errors='coerce')
-                                        except Exception:
-                                            date = pd.NaT
-                                        amount = float(re.sub(r'[^\d.]', '', amount_str.replace(',', ''))) if amount_str else 0.0
-                                        if 'debit' in txn_type.lower():
-                                            amount = -abs(amount)
-                                        elif 'credit' in txn_type.lower():
-                                            amount = abs(amount)
-                                        else:
-                                            if 'dr' in amount_str.lower():
-                                                amount = -abs(amount)
-                                            elif 'cr' in amount_str.lower():
-                                                amount = abs(amount)
-                                        transactions.append({
-                                            'date': date,
-                                            'description': details,
-                                            'amount': amount,
-                                            'category': 'PhonePe',
-                                            'type': txn_type
-                                        })
-                    batch_time_end = time.time()
-                    batch_times.append(batch_time_end - batch_time_start)
-                # Estimate total time after first batch
-                if batch_times:
-                    avg_batch_time = sum(batch_times) / len(batch_times)
-                    total_batches = (len(pdf.pages) + batch_size - 1) // batch_size
-                    estimated_seconds = int(avg_batch_time * total_batches)
-                else:
-                    estimated_seconds = 0
-                # Print first 20 lines of first page for debugging
-                if len(pdf.pages) > 0:
-                    first_page_text = pdf.pages[0].extract_text() or ''
-                    logger.warning('First 20 lines of first page:')
-                    for i, line in enumerate(first_page_text.split('\n')[:20]):
-                        logger.warning(f'{i+1}: {line}')
-        except Exception as e:
-            logger.error(f"pdfplumber extraction error: {e}")
-            debug_info["errors"].append(f"pdfplumber: {e}")
-        debug_info["tables_found"] = tables_found
-        # 2. If no transactions, fallback to fitz text/regex
-        if not transactions:
-            try:
-                doc = fitz.open(stream=content, filetype="pdf")
-                debug_info["pages"] = doc.page_count
-                methods_used.append("fitz")
-                for page_num in range(doc.page_count):
-                    page = doc.load_page(page_num)
-                    text = page.get_text("text")
-                    page_lines = [line.strip() for line in text.split('\n')]
-                    if page_num == 0:
-                        debug_info["first_20_lines"] = page_lines[:20]
-                    debug_info["lines_per_page"].append(len(page_lines))
-                doc.close()
-            except Exception as e:
-                logger.error(f"fitz extraction error: {e}")
-                debug_info["errors"].append(f"fitz: {e}")
-            # Collect all text lines from all pages
-            all_text_lines = []
-            for page_num in range(debug_info["pages"]):
-                try:
-                    text = pdf.pages[page_num].extract_text() or ''
-                    all_text_lines.extend(text.split('\n'))
-                except Exception as e:
-                    logger.warning(f"Error extracting text from page {page_num+1}: {e}")
-            # Regex match for transaction lines (improved for PhonePe text format)
-            txn_pattern = re.compile(r'([A-Za-z]{3} \d{2}, \d{4}) (.+?) (CREDIT|DEBIT) ?[₹INR ]+([\d,.]+)', re.IGNORECASE)
-            for line in all_text_lines:
-                logger.warning(f"Checking line: {line}")
-                if not line:
-                    continue
-                match = txn_pattern.search(line)
-                if match:
-                    logger.warning(f"Matched transaction line: {line}")
-                    date_str = match.group(1)
-                    description = match.group(2).strip()
-                    txn_type = match.group(3)
-                    amount_str = match.group(4)
-                    try:
-                        date = pd.to_datetime(date_str, errors='coerce')
-                    except Exception:
-                        date = pd.NaT
-                    amount = float(amount_str.replace(',', ''))
-                    if 'debit' in txn_type.lower():
-                        amount = -abs(amount)
-                    elif 'credit' in txn_type.lower():
-                        amount = abs(amount)
-                    # Use StatementParser's categorization for detailed categories
-                    parser = StatementParser(type('FileObj', (object,), {'name': file.filename, 'read': lambda: content})())
-                    category = parser._categorize_transaction(description)
-                    transactions.append({
-                        'date': date,
-                        'description': description,
-                        'amount': amount,
-                        'category': category,
-                        'type': txn_type
-                    })
-        debug_info["transactions_found"] = len(transactions)
-        debug_info["methods_used"] = methods_used
-        # 3. Always return a valid response
-        if not transactions:
-            logger.warning("No transactions extracted from PhonePe statement.")
-            return {
-                "transactions": [],
-                "summary": {"totalSpent": 0, "totalReceived": 0},
-                "categoryBreakdown": {},
-                "pageCount": debug_info["pages"],
-                "debug": debug_info
-            }
-        df = pd.DataFrame(transactions)
+            logger.info(f"Starting PhonePe analysis on file: {file.filename}")
+            results = parse_phonepe_statement(tmp_path)
+            
+            if not results or 'transactions' not in results:
+                logger.warning("No transactions extracted from PhonePe statement.")
+                return {
+                    "transactions": [],
+                    "summary": {"totalSpent": 0, "totalReceived": 0},
+                    "categoryBreakdown": {},
+                    "pageCount": 0
+                }
+                
+            transactions = results.get('transactions', [])
+            logger.info(f"Extracted {len(transactions)} transactions from PhonePe statement")
+            
+            # Ensure transactions have all required fields before categorization
+            for tx in transactions:
+                if 'transaction_details' not in tx or not tx['transaction_details']:
+                    tx['transaction_details'] = 'Unknown transaction'
+                    
+            # Apply categorization
+            logger.info("Categorizing PhonePe transactions...")
+            transactions = categorize_transactions(transactions)
+            
+            # Verify categorization worked
+            categories_found = set()
+            for tx in transactions:
+                if 'category' not in tx or not tx['category']:
+                    tx['category'] = 'Others'
+                categories_found.add(tx['category'])
+                
+            logger.info(f"Categories found in transactions: {categories_found}")
+            
+            # Calculate summary
             total_spent = sum(t['amount'] for t in transactions if t['amount'] < 0)
             total_received = sum(t['amount'] for t in transactions if t['amount'] > 0)
-        credit_count = sum(1 for t in transactions if t['amount'] > 0)
-        debit_count = sum(1 for t in transactions if t['amount'] < 0)
-        total_transactions = len(transactions)
-        # Calculate highest and lowest amounts
-        if transactions:
-            amounts = [abs(t['amount']) for t in transactions if abs(t['amount']) > 0]
-            if amounts:
-                highest_amount = max(amounts)
-                lowest_amount = min(amounts)
-                highest_transaction = next((t for t in transactions if abs(t['amount']) == highest_amount), None)
-                lowest_transaction = next((t for t in transactions if abs(t['amount']) == lowest_amount), None)
+            credit_count = sum(1 for t in transactions if t['amount'] > 0)
+            debit_count = sum(1 for t in transactions if t['amount'] < 0)
+            total_transactions = len(transactions)
+            
+            # Calculate highest and lowest amounts
+            if transactions:
+                amounts = [abs(t['amount']) for t in transactions if abs(t['amount']) > 0]
+                if amounts:
+                    highest_amount = max(amounts)
+                    lowest_amount = min(amounts)
+                    highest_transaction = next((t for t in transactions if abs(t['amount']) == highest_amount), None)
+                    lowest_transaction = next((t for t in transactions if abs(t['amount']) == lowest_amount), None)
+                else:
+                    highest_amount = 0
+                    lowest_amount = 0
+                    highest_transaction = None
+                    lowest_transaction = None
             else:
                 highest_amount = 0
                 lowest_amount = 0
                 highest_transaction = None
                 lowest_transaction = None
-        else:
-            highest_amount = 0
-            lowest_amount = 0
-            highest_transaction = None
-            lowest_transaction = None
-        # Build category breakdown
-        category_map = {}
+                
+            # Build category breakdown (include all categories, both positive and negative amounts)
+            category_map = {}
+            total_amount = sum(abs(t['amount']) for t in transactions)
+            
             for t in transactions:
-            cat = t.get('category', 'Others')
-            if cat not in category_map:
-                category_map[cat] = {'amount': 0, 'count': 0}
-            category_map[cat]['amount'] += abs(t['amount']) if t['amount'] < 0 else 0
-            if t['amount'] < 0:
+                # Ensure category exists
+                cat = t.get('category', 'Others')
+                if not cat:
+                    cat = 'Others'
+                    
+                if cat not in category_map:
+                    category_map[cat] = {'amount': 0, 'count': 0}
+                    
+                category_map[cat]['amount'] += abs(t['amount'])
                 category_map[cat]['count'] += 1
-        # Calculate percentages
-        for cat in category_map:
-            amt = category_map[cat]['amount']
-            category_map[cat]['percentage'] = (amt / abs(total_spent) * 100) if total_spent else 0
-        debug_info["analysis_time_seconds"] = round(time.time() - start_time, 2)
+                
+            for cat in category_map:
+                amt = category_map[cat]['amount']
+                category_map[cat]['percentage'] = (amt / total_amount * 100) if total_amount else 0
+                
+            logger.info(f"Category breakdown: {list(category_map.keys())}")
+            
+            page_count = results.get('pageCount', 0)
             return {
-            "transactions": df.to_dict('records'),
+                "transactions": transactions,
                 "summary": {
                     "totalSpent": total_spent,
-                "totalReceived": total_received,
-                "creditCount": credit_count,
-                "debitCount": debit_count,
-                "totalTransactions": total_transactions,
-                "highestAmount": highest_amount,
-                "lowestAmount": lowest_amount,
-                "highestTransaction": highest_transaction,
-                "lowestTransaction": lowest_transaction
-            },
-            "categoryBreakdown": category_map,
-            "pageCount": debug_info["pages"],
-            "debug": debug_info,
-            "estimated_seconds": estimated_seconds if 'estimated_seconds' in locals() else debug_info.get("analysis_time_seconds", 0)
-        }
+                    "totalReceived": total_received,
+                    "creditCount": credit_count,
+                    "debitCount": debit_count,
+                    "totalTransactions": total_transactions,
+                    "highestAmount": highest_amount,
+                    "lowestAmount": lowest_amount,
+                    "highestTransaction": highest_transaction,
+                    "lowestTransaction": lowest_transaction
+                },
+                "categoryBreakdown": category_map,
+                "pageCount": page_count
+            }
+        except Exception as e:
+            logger.error(f"Error parsing PhonePe statement: {e}")
+            if os.path.exists(tmp_path):
+                os.unlink(tmp_path)
+            return {
+                "transactions": [],
+                "summary": {"totalSpent": 0, "totalReceived": 0},
+                "categoryBreakdown": {},
+                "pageCount": 0,
+                "error": str(e)
+            }
     except Exception as e:
-        logger.error(f"Error processing PhonePe statement: {str(e)}")
+        logger.error(f"Error in /analyze-phonepe endpoint: {e}")
         return {
             "transactions": [],
             "summary": {"totalSpent": 0, "totalReceived": 0},
             "categoryBreakdown": {},
             "pageCount": 0,
-            "debug": {"errors": [str(e)]}
+            "error": str(e)
         }
 
 @app.post("/unlock-pdf")
@@ -382,14 +324,11 @@ async def analyze_kotak_statement(file: UploadFile = File(...)):
         if not file:
             raise HTTPException(status_code=400, detail="No file provided")
         content = await file.read()
-        import tempfile
-        import os
         with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp:
             tmp.write(content)
             tmp_path = tmp.name
         try:
             results = parse_kotak_statement(tmp_path)
-            os.unlink(tmp_path)
             if not results or 'transactions' not in results:
                 logger.warning("No transactions extracted from Kotak statement.")
                 return {
@@ -474,6 +413,40 @@ async def analyze_kotak_statement(file: UploadFile = File(...)):
             "error": str(e)
         }
 
+@app.post("/api/analyze-canara")
+async def analyze_canara(file: UploadFile = File(...)):
+    if not file:
+        raise HTTPException(status_code=400, detail="No file provided")
+    try:
+        pdf_contents = await file.read()
+        doc = fitz.open(stream=pdf_contents, filetype="pdf")
+        text = "\n".join([page.get_text() for page in doc])  # type: ignore
+        transactions = parse_canara_statement(text)
+        total_credit = sum(t['deposits'] for t in transactions)
+        total_debit = sum(t['withdrawals'] for t in transactions)
+        balance = transactions[-1]['balance'] if transactions else 0
+        response = {
+            'transactions': transactions,
+            'summary': {
+                'totalReceived': total_credit,
+                'totalSpent': total_debit,
+                'balance': balance,
+                'creditCount': len([t for t in transactions if t['deposits'] > 0]),
+                'debitCount': len([t for t in transactions if t['withdrawals'] > 0]),
+                'totalTransactions': len(transactions),
+                'highestAmount': max([t['deposits'] for t in transactions] + [0]),
+                'lowestAmount': min([t['withdrawals'] for t in transactions] + [0]),
+                'highestTransaction': max(transactions, key=lambda t: t['deposits'], default=None),
+                'lowestTransaction': min(transactions, key=lambda t: t['withdrawals'], default=None)
+            },
+            'categoryBreakdown': {},
+            'pageCount': doc.page_count,
+            'accounts': []
+        }
+        return JSONResponse(content=response)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to analyze Canara statement: {str(e)}")
+
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
     return JSONResponse(
@@ -481,21 +454,5 @@ async def http_exception_handler(request, exc):
         content={"error": exc.detail}
     )
 
-@app.route('/api/submit-job', methods=['POST'])
-def submit_job():
-    file = request.files['file']
-    file_path = f"/tmp/{file.filename}"
-    file.save(file_path)
-    task = process_pdf_task.apply_async(args=[file_path])
-    return jsonify({"job_id": task.id})
-
-@app.route('/api/job-status')
-def job_status():
-    job_id = request.args.get('job_id')
-    task = process_pdf_task.AsyncResult(job_id)
-    if task.state == 'SUCCESS':
-        return jsonify({"status": "done", "result": task.result})
-    return jsonify({"status": task.state.lower()})
-
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    uvicorn.run(app, host="0.0.0.0", port=8000)

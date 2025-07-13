@@ -11,12 +11,13 @@ pytz==2024.1
 requests>=2.30.0
 urllib3>=2.0.2
 cryptography==42.0.2
-pymupdf>=1.18.19
+PyMuPDF>=1.18.19
 filetype>=1.2.0
 pdfminer.six>=20221105
 tabula-py>=2.7.0
 uvicorn>=0.27.0
 fastapi>=0.115.0
 python-multipart>=0.0.9
+gunicorn>=21.0.0
 celery
 redis

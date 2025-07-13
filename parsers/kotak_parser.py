@@ -355,65 +355,100 @@ class KotakParser:
                 doc.close()
     
     def _preprocess_text(self, text):
-        """Pre-process text to handle Kotak's formatting quirks"""
+        """Pre-process text to handle Kotak's formatting quirks for both old and new formats"""
         # Remove header and footer noise
         text = re.sub(r'Page \d+ of \d+', '', text)
         text = re.sub(r'Statement Period:.*', '', text)
+        text = re.sub(r'Statement of Banking Account', '', text)
         
         # Fix common OCR issues in Kotak statements
         text = text.replace('Dr.', 'Dr')
         text = text.replace('Cr.', 'Cr')
+        text = text.replace('(Dr)', '(Dr) ')  # Add space after Dr/Cr indicators for consistency
+        text = text.replace('(Cr)', '(Cr) ')
+        
+        # Normalize date formats
+        # Convert dates like "01-Apr-23" to ensure they're recognized
+        def date_replacer(match):
+            day = match.group(1)
+            month = match.group(2)
+            year = match.group(3)
+            return f"{day}-{month}-{year}"
+            
+        text = re.sub(r'(\d{2})-([A-Za-z]{3})-(\d{2})', date_replacer, text)
         
         # Normalize whitespace
         text = re.sub(r'\s+', ' ', text)
         
         # Ensure transaction lines are properly separated
-        text = re.sub(r'(\d{2}-\d{2}-\d{4})', r'\n\1', text)
+        text = re.sub(r'(\d{2}-\d{2}-\d{4}|\d{2}-\d{2}-\d{2})', r'\n\1', text)
+        
+        # Handle combined Withdrawal/Deposit columns in new format
+        # Replace patterns like "1,500.00(Cr)" with "1,500.00 (Cr)" for better parsing
+        text = re.sub(r'(\d[,\d]*\.\d{2})\(([A-Za-z]{2})\)', r'\1 (\2)', text)
         
         return text
                 
     def _extract_transactions(self, text):
-        """Extract transactions with Kotak-specific patterns"""
+        """Extract transactions with Kotak-specific patterns for both old and new statement formats"""
         transactions = []
         
         # Multiple patterns to catch different Kotak statement formats
         patterns = [
-            # Standard format with explicit columns
+            # OLD FORMAT: Standard format with separate withdrawal and deposit columns
             re.compile(
-                r'(\d{2}-\d{2}-\d{4})\s+'  # Date
+                r'(\d{2}-\d{2}-\d{4}|\d{2}-[A-Za-z]{3}-\d{2})\s+'  # Date (DD-MM-YYYY or DD-MMM-YY)
                 r'([^0-9]+?)\s+'  # Description (non-greedy, no numbers)
-                r'(?:[A-Z0-9]+\s+)?'  # Optional reference number
+                r'(?:[A-Z0-9-]+\s+)?'  # Optional reference number
                 r'([\d,]+\.\d{2})?\s+'  # Optional withdrawal amount
                 r'([\d,]+\.\d{2})?\s+'  # Optional deposit amount
                 r'([\d,]+\.\d{2})',  # Balance
                 re.MULTILINE
             ),
             
-            # Format with Dr/Cr indicators
+            # NEW FORMAT: Format with combined withdrawal/deposit column with (Dr)/(Cr) indicators
             re.compile(
-                r'(\d{2}-\d{2}-\d{4})\s+'  # Date
-                r'([^(]+?)\s+'  # Description
+                r'(\d{2}-\d{2}-\d{4}|\d{2}-\d{2}-\d{2})\s+'  # Date (DD-MM-YYYY or DD-MM-YY)
+                r'([^0-9]+?)\s+'  # Description
+                r'(?:[A-Z0-9-]+\s+)?'  # Optional reference/Chq number
+                r'([\d,]+\.\d{2})\s*\((\w{2})\)\s+'  # Amount with Dr/Cr indicator
+                r'([\d,]+\.\d{2})\s*\((\w{2})\)',  # Balance with Cr/Dr indicator
+                re.MULTILINE
+            ),
+            
+            # NEW FORMAT VARIATION: Alternative new format for UPI transactions
+            re.compile(
+                r'(\d{2}-\d{2}-\d{4}|\d{2}-\d{2}-\d{2})\s+'  # Date
+                r'(UPI[/\-][^/]+?/[^/]+?)\s+'  # UPI transaction description
+                r'(?:[A-Z0-9-]+\s+)?'  # Optional reference number
                 r'([\d,]+\.\d{2})\s*\((\w{2})\)',  # Amount with Dr/Cr
                 re.MULTILINE
             ),
             
-            # UPI/IMPS specific format
+            # SPECIAL FORMAT: For lines that have "/Payment from Ph" or similar in description
             re.compile(
-                r'(\d{2}-\d{2}-\d{4})\s+'  # Date
-                r'((?:UPI|IMPS|NEFT|ATM|POS)[^0-9]*?)'  # UPI/IMPS description
-                r'(?:.*?)'  # Any text in between
-                r'([\d,]+\.\d{2})\s*\((\w{2})\)',  # Amount with Dr/Cr
+                r'(\d{2}-\d{2}-\d{4}|\d{2}-[A-Za-z]{3}-\d{2})\s+'  # Date
+                r'([^\n]+?/Payment from Ph)\s+'  # Description with Payment from Ph
+                r'([A-Z0-9-]+)\s+'  # Reference number
+                r'(?:([\d,]+\.\d{2})\s+)?'  # Optional withdrawal
+                r'(?:([\d,]+\.\d{2})\s+)?'  # Optional deposit
+                r'([\d,]+\.\d{2})',  # Balance
                 re.MULTILINE
             )
         ]
+        
+        # Track processed transactions to avoid duplicates
+        processed_transactions = set()
         
         for pattern in patterns:
             matches = pattern.finditer(text)
             for match in matches:
                 try:
-                    if len(match.groups()) >= 5:  # First pattern
-                        date_str = match.group(1)
-                        description = match.group(2).strip()
+                    date_str = match.group(1)
+                    description = match.group(2).strip() if len(match.groups()) >= 2 else ""
+                    
+                    # Different parsing logic based on pattern matched
+                    if len(match.groups()) >= 5 and ('.' in match.group(3) or '.' in match.group(4)):  # Old format
                         withdrawal = match.group(3)
                         deposit = match.group(4)
                         
@@ -422,34 +457,39 @@ class KotakParser:
                         elif deposit and deposit.strip():
                             amount = float(deposit.replace(',', ''))
                         else:
-                            continue
+                            continue  # Skip if no amount
                             
-                    elif len(match.groups()) >= 4:  # Second or third pattern
-                        date_str = match.group(1)
-                        description = match.group(2).strip()
+                    elif len(match.groups()) >= 4 and '.' in match.group(3):  # New format
                         amount_str = match.group(3).replace(',', '')
-                        txn_type = match.group(4).upper()
+                        txn_type = match.group(4).upper() if len(match.groups()) >= 4 else "DR"
                         
                         amount = float(amount_str)
                         if txn_type == 'DR':
                             amount = -amount
                     else:
-                        continue
+                        continue  # Skip if pattern doesn't match expected format
                     
                     # Clean up description
                     description = self._clean_description(description)
                     date = self._parse_date(date_str)
                     
-                    # Add transaction with enhanced categorization
-                    transactions.append({
-                        'date': date,
-                        'amount': amount,
-                        'description': description,
-                        'category': self._categorize_transaction(description, amount)
-                    })
+                    # Create a unique key to avoid duplicates
+                    txn_key = f"{date.isoformat()}_{amount}_{description[:20]}"
+                    
+                    if txn_key not in processed_transactions:
+                        # Add transaction with enhanced categorization
+                        processed_transactions.add(txn_key)
+                        transactions.append({
+                            'date': date,
+                            'amount': amount,
+                            'description': description,
+                            'category': self._categorize_transaction(description, amount)
+                        })
                 except Exception as e:
                     logger.warning(f"Could not process Kotak transaction: {e}")
         
+        # Sort transactions by date
+        transactions.sort(key=lambda x: x['date'])
         return transactions
     
     def _clean_description(self, description):
@@ -478,19 +518,41 @@ class KotakParser:
         return description.strip()
     
     def _parse_date(self, date_str):
-        """Parse Kotak date formats"""
+        """Parse Kotak date formats (both old and new formats)"""
         try:
-            # Try common Kotak date formats
-            for fmt in ['%d-%m-%Y', '%d/%m/%Y', '%d.%m.%Y']:
+            # Try common Kotak date formats including DD-MM-YY
+            for fmt in ['%d-%m-%Y', '%d/%m/%Y', '%d.%m.%Y', '%d-%m-%y', '%d/%m/%y', '%d-%b-%y', '%d-%B-%y']:
                 try:
                     return datetime.strptime(date_str, fmt)
-                except:
+                except ValueError:
                     continue
+                    
+            # Special handling for dates like "01-Apr-23" format
+            try:
+                # Convert month abbreviation to standard format
+                parts = date_str.split('-')
+                if len(parts) == 3:
+                    day, month_abbr, year = parts
+                    month_map = {
+                        'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04',
+                        'may': '05', 'jun': '06', 'jul': '07', 'aug': '08',
+                        'sep': '09', 'oct': '10', 'nov': '11', 'dec': '12'
+                    }
+                    month = month_map.get(month_abbr.lower(), '01')
+                    
+                    # Handle 2-digit year
+                    if len(year) == 2:
+                        year = f"20{year}"
+                        
+                    return datetime.strptime(f"{day}-{month}-{year}", '%d-%m-%Y')
+            except Exception:
+                pass
                     
             # If all formats fail, log and return today
             logger.warning(f"Could not parse date: {date_str}")
             return datetime.now()
-        except:
+        except Exception as e:
+            logger.warning(f"Error parsing date '{date_str}': {str(e)}")
             return datetime.now()
     
     def _categorize_transaction(self, description, amount):

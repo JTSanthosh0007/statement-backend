@@ -4,13 +4,37 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const pdfParse = require('pdf-parse');
+const { shouldBlockRequest, CONFIG } = require('./user_agent_config');
 
 const app = express();
 const port = process.env.PORT || 5000;
 
+// User-Agent blocking middleware
+const userAgentMiddleware = (req, res, next) => {
+    const userAgent = req.headers['user-agent'] || '';
+    
+    // Check if request should be blocked
+    const { shouldBlock, message, statusCode } = shouldBlockRequest(userAgent);
+    
+    if (shouldBlock) {
+        if (CONFIG.logBlockedRequests) {
+            console.warn(`Request blocked. User-Agent: ${userAgent}`);
+        }
+        
+        return res.status(statusCode).json({
+            error: statusCode === 403 ? 'Forbidden' : 'Not Found',
+            message: message
+        });
+    }
+    
+    // Continue with the request if it's allowed
+    next();
+};
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(userAgentMiddleware);
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
