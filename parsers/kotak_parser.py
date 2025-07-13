@@ -319,7 +319,7 @@ class KotakParser:
             for page_num in range(len(doc)):
                 page = doc[page_num]
                 # Use "text" mode with preserved layout
-                text = page.get_text("text")
+                text = page.get_text("text")  # type: ignore
                 all_text.append(text)
             
             full_text = "\n".join(all_text)
@@ -334,7 +334,7 @@ class KotakParser:
                 df = pd.DataFrame(transactions)
                 df['amount'] = pd.to_numeric(df['amount'], errors='coerce')
                 df = df[df['amount'].abs() > 0]
-                df = df.drop_duplicates(subset=['date', 'amount', 'description'])
+                df = df.drop_duplicates(subset=['date', 'amount', 'description'])  # type: ignore
                 df = df.sort_values('date')
                 df['date'] = pd.to_datetime(df['date'])
                 

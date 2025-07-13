@@ -73,14 +73,14 @@ def extract_transactions_with_regex(text: str) -> List[Dict[str, Any]]:
 def process_table_row(row) -> Dict[str, Any]:
     """Process a single table row into a transaction dictionary"""
     if len(row) < 4:
-        return None
+        return {}
     
     date_str = row[0].strip() if row[0] else ''
     time_str = ''
     
     # Skip header rows
     if date_str and "Date" in date_str:
-        return None
+        return {}
     
     # Sometimes time is in the second column
     if row[1] and isinstance(row[1], str) and TIME_REGEX.match(row[1]):
@@ -98,7 +98,7 @@ def process_table_row(row) -> Dict[str, Any]:
     
     # Parse amount
     if not amount_str:
-        return None
+        return {}
     
     amount = float(AMOUNT_REGEX.sub('', amount_str.replace(',', '')))
     if 'debit' in txn_type.lower():
